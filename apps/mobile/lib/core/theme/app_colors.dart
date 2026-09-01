@@ -41,8 +41,22 @@ class AppColors {
 
   // ── Semantic Colors ──────────────────────────────────────────────
   static const Color successGreen = Color(0xFF10B981);
+  static const Color successBg = Color(0xFFDCFCE7);
+  static const Color successText = Color(0xFF15803D);
+
+  static const Color warningOrange = Color(0xFFF59E0B);
+  static const Color warningBg = Color(0xFFFEF3C7);
+  static const Color warningText = Color(0xFFB45309);
+
   static const Color destructive = Color(0xFFEF4444);
+  static const Color dangerBg = Color(0xFFFEE2E2);
+  static const Color dangerText = Color(0xFFB91C1C);
+
+  static const Color infoBlue = Color(0xFF3B82F6);
+  static const Color infoBg = Color(0xFFDBEAFE);
+  static const Color infoText = Color(0xFF1D4ED8);
 
   // ── Border / Divider ─────────────────────────────────────────────
   static const Color border = Color(0xFFE2E8F0);
+  static const Color cardShadow = Color(0x0A0F172A);
 }
