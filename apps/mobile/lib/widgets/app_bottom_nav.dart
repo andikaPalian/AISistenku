@@ -100,7 +100,7 @@ class AppBottomNav extends StatelessWidget {
           Transform.translate(
             offset: const Offset(0, -12),
             child: Container(
-              padding: const EdgeInsets.all(14),
+              padding: const EdgeInsets.all(10),
               decoration: BoxDecoration(
                 gradient: const LinearGradient(
                   colors: [AppColors.primary, AppColors.accent],
@@ -116,10 +116,10 @@ class AppBottomNav extends StatelessWidget {
                   ),
                 ],
               ),
-              child: const Icon(
-                Icons.smart_toy_rounded,
-                color: Colors.white,
-                size: 26,
+              child: Image.asset(
+                'assets/icons/iconAisistenku.png',
+                width: 34,
+                height: 34,
               ),
             ),
           ),
