@@ -2,6 +2,18 @@
 
 This document describes the database schema for the Tiga Angkatan POS system using PostgreSQL with Supabase.
 
+## Setup
+
+Schema belum ter-deploy ke Supabase. Ikuti langkah ini untuk apply:
+
+1. Login ke [Supabase Dashboard](https://supabase.com/dashboard) → pilih project
+2. Buka **SQL Editor** (icon terminal di sidebar kiri)
+4. Klik **New query**, paste seluruh isi `apps/backend/schema.sql`
+5. Klik **Run** (atau `Ctrl+Enter`)
+6. Pastikan tidak ada error — akan ada 10 tabel terbuat (`users`, `products`, `stock_items`, `product_recipes`, `orders`, `order_items`, `stock_logs`, `finance_transactions`, `ai_messages`, `ai_actions`) + 4 indexes
+7. Verifikasi dengan query `SELECT table_name FROM information_schema.tables WHERE table_schema='public';`
+8. Restart backend (`npm run dev`) — log harus menampilkan `✅ Supabase connection verified`
+
 ## Extensions
 
 ```sql
