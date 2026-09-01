@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../core/theme/app_colors.dart';
 import '../../models/product.dart';
+import 'order_review_screen.dart';
 import 'widgets/pos_header.dart';
 import 'widgets/pos_search_bar.dart';
 import 'widgets/category_chips.dart';
@@ -20,7 +21,19 @@ class PosScreen extends StatefulWidget {
 class _PosScreenState extends State<PosScreen> {
   ProductCategory _selectedCategory = ProductCategory.all;
   String _searchQuery = '';
-  final Map<String, CartItem> _cart = {};
+  final Map<String, CartItem> _cart = {
+    // Pre-populate with reference demo items for instant visual match
+    '3': CartItem(
+      product: ProductCatalog.items.firstWhere((p) => p.id == '3'), // Cappuccino 20k
+      quantity: 1,
+      variant: 'Regular',
+    ),
+    '6': CartItem(
+      product: ProductCatalog.items.firstWhere((p) => p.id == '6'), // Croissant 15k
+      quantity: 1,
+      variant: 'Butter',
+    ),
+  };
 
   /// Products filtered by category and search query.
   List<Product> get _filteredProducts {
@@ -41,15 +54,7 @@ class _PosScreenState extends State<PosScreen> {
   int get _totalPrice =>
       _cart.values.fold(0, (sum, item) => sum + item.subtotal);
 
-  String get _formattedTotal {
-    final str = _totalPrice.toString();
-    final buffer = StringBuffer();
-    for (int i = 0; i < str.length; i++) {
-      if (i > 0 && (str.length - i) % 3 == 0) buffer.write('.');
-      buffer.write(str[i]);
-    }
-    return 'Rp$buffer';
-  }
+  String get _formattedTotal => Product.formatRupiah(_totalPrice);
 
   void _onCategoryChanged(ProductCategory category) {
     setState(() => _selectedCategory = category);
@@ -83,6 +88,23 @@ class _PosScreenState extends State<PosScreen> {
 
   int _getQuantity(String productId) {
     return _cart[productId]?.quantity ?? 0;
+  }
+
+  void _navigateToOrderReview() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => OrderReviewScreen(
+          initialCart: _cart,
+          onCartUpdated: (updatedCart) {
+            setState(() {
+              _cart.clear();
+              _cart.addAll(updatedCart);
+            });
+          },
+        ),
+      ),
+    );
   }
 
   @override
@@ -130,9 +152,7 @@ class _PosScreenState extends State<PosScreen> {
               CartBottomBar(
                 itemCount: _totalItems,
                 totalFormatted: _formattedTotal,
-                onViewOrder: () {
-                  // TODO: Navigate to order detail
-                },
+                onViewOrder: _navigateToOrderReview,
               ),
           ],
         ),
