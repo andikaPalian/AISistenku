@@ -1,0 +1,355 @@
+.home-welcome {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+}
+
+.welcome-title {
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--text-dark);
+}
+
+.welcome-sub {
+  font-size: 13px;
+  color: var(--text-muted);
+}
+
+.home-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 20px;
+}
+
+@media (min-width: 1024px) {
+  .home-grid {
+    grid-template-columns: 2fr 1fr;
+    gap: 24px;
+  }
+}
+
+.home-left-col,
+.home-right-col {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+/* Revenue Card */
+.revenue-card {
+  background: linear-gradient(135deg, #ffffff 0%, #f0fdfa 100%);
+  border: 1px solid var(--border-card);
+}
+
+.revenue-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 20px;
+}
+
+.card-subtitle {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--text-muted);
+  letter-spacing: 0.5px;
+}
+
+.revenue-amount {
+  font-size: 28px;
+  font-weight: 700;
+  color: var(--primary);
+  margin-top: 4px;
+}
+
+.trend-badge {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 10px;
+  border-radius: 99px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.trend-badge.positive {
+  background-color: var(--status-success-bg);
+  color: var(--status-success-text);
+}
+
+.revenue-stats {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background-color: #ffffff;
+  padding: 14px 18px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-card);
+}
+
+.stat-box {
+  display: flex;
+  flex-direction: column;
+}
+
+.stat-label {
+  font-size: 11px;
+  color: var(--text-muted);
+}
+
+.stat-value {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text-dark);
+}
+
+.stat-divider {
+  width: 1px;
+  height: 24px;
+  background-color: var(--border-subtle);
+}
+
+/* AI Insight Card */
+.ai-insight-card {
+  background: linear-gradient(135deg, #0d9488 0%, #0f766e 100%);
+  color: white;
+  border: none;
+}
+
+.ai-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.ai-title-badge {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #ccfbf1;
+}
+
+.ai-sparkle-icon {
+  color: #5eead4;
+}
+
+.ai-insight-heading {
+  font-size: 16px;
+  font-weight: 600;
+  line-height: 1.4;
+  margin-bottom: 8px;
+}
+
+.ai-insight-body {
+  font-size: 13px;
+  color: #e6fffa;
+  line-height: 1.5;
+  margin-bottom: 16px;
+}
+
+.ai-action-bar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.btn-text-teal {
+  background: transparent;
+  border: none;
+  color: #ccfbf1;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+/* Activity & Best Sellers */
+.card-header-flex {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.section-title {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--text-dark);
+}
+
+.btn-link {
+  background: transparent;
+  border: none;
+  color: var(--primary);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.best-sellers-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.seller-item {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 10px 12px;
+  border-radius: var(--radius-md);
+  background-color: var(--bg-surface);
+}
+
+.seller-rank {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: var(--primary-light);
+  color: var(--primary);
+  font-weight: 700;
+  font-size: 13px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.seller-info {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+
+.seller-name {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-dark);
+}
+
+.seller-sub {
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+.seller-price {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--primary);
+}
+
+/* Stock Alerts */
+.alert-title-wrap {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.warning-icon {
+  color: var(--status-warning);
+}
+
+.alert-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 16px;
+}
+
+.alert-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 12px;
+  background-color: var(--status-warning-bg);
+  border-radius: var(--radius-md);
+  border-left: 4px solid var(--status-warning);
+}
+
+.alert-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.alert-product {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--status-warning-text);
+}
+
+.alert-meta {
+  font-size: 11px;
+  color: var(--text-muted);
+}
+
+.btn-alert-action {
+  background-color: #ffffff;
+  border: 1px solid var(--status-warning);
+  color: var(--status-warning-text);
+  font-size: 12px;
+  font-weight: 600;
+  padding: 4px 10px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.btn-full-secondary {
+  width: 100%;
+  padding: 10px;
+  background: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  color: var(--text-dark);
+  font-weight: 600;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+/* Shortcuts */
+.shortcuts-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+}
+
+.shortcut-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 14px;
+  background: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.shortcut-btn:hover {
+  background: var(--primary-ultra-light);
+  border-color: var(--border-card);
+}
+
+.shortcut-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.shortcut-icon.teal { background: #ccfbf1; color: #0d9488; }
+.shortcut-icon.orange { background: #fef3c7; color: #f59e0b; }
+.shortcut-icon.blue { background: #dbeafe; color: #3b82f6; }
+.shortcut-icon.purple { background: #f3e8ff; color: #9333ea; }
+
+.shortcut-btn span {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-dark);
+}
