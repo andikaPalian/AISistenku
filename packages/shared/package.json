@@ -1,0 +1,9 @@
+{
+  "name": "@tiga-angkatan/shared",
+  "version": "0.0.0",
+  "private": true,
+  "main": "src/index.js",
+  "scripts": {
+    "lint": "echo 'No lint configured'"
+  }
+}
