@@ -19,11 +19,11 @@ function validateEnv() {
     return false;
   }
 
-  // Basic format check — Supabase service keys are JWT tokens starting with 'eyJ'
-  if (!supabaseServiceKey.startsWith('eyJ')) {
+  // Accept both legacy JWT format (eyJ...) and new Supabase format (sb_secret_...)
+  if (!supabaseServiceKey.startsWith('eyJ') && !supabaseServiceKey.startsWith('sb_secret_')) {
     console.warn(
-      '⚠️  SUPABASE_SERVICE_ROLE_KEY does not look like a valid JWT. ' +
-      'Expected format: "eyJhbGciOi...". ' +
+      '⚠️  SUPABASE_SERVICE_ROLE_KEY format unrecognized. ' +
+      'Expected "eyJ..." (legacy) or "sb_secret_..." (new). ' +
       'Get the correct key from Supabase Dashboard → Settings → API.'
     );
     connectionStatus = 'invalid_key_format';

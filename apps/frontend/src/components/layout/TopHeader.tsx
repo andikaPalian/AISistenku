@@ -1,5 +1,5 @@
 import React from 'react';
-import { Bell, Store, Smartphone, Tablet, Monitor, RefreshCw } from 'lucide-react';
+import { Bell, Store, Smartphone, Tablet, Monitor, RefreshCw, LogOut } from 'lucide-react';
 import './TopHeader.css';
 
 export type ViewportMode = 'responsive' | 'mobile' | 'tablet' | 'desktop';
@@ -8,12 +8,14 @@ interface TopHeaderProps {
   viewportMode: ViewportMode;
   onViewportChange: (mode: ViewportMode) => void;
   unreadCount?: number;
+  onLogout?: () => void;
 }
 
 export const TopHeader: React.FC<TopHeaderProps> = ({
   viewportMode,
   onViewportChange,
-  unreadCount = 2
+  unreadCount = 2,
+  onLogout
 }) => {
   return (
     <header className="top-header">
@@ -69,8 +71,13 @@ export const TopHeader: React.FC<TopHeaderProps> = ({
           <Bell size={18} />
           {unreadCount > 0 && <span className="notification-badge">{unreadCount}</span>}
         </button>
-        <div className="header-avatar" title="Budi Santoso">
-          B
+        {onLogout && (
+          <button className="header-icon-btn" onClick={onLogout} title="Keluar">
+            <LogOut size={18} />
+          </button>
+        )}
+        <div className="header-avatar" title="Owner">
+          O
         </div>
       </div>
     </header>

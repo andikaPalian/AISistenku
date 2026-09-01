@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
-import { TabType, Product, Transaction, StockAlert, AiChatMessage, CartItem } from '../../types';
-import { INITIAL_PRODUCTS, INITIAL_TRANSACTIONS, STOCK_ALERTS, INITIAL_CHAT_MESSAGES } from '../../mockData';
+import { TabType, CartItem, Product, Transaction, StockAlert, AiChatMessage } from '../../types';
 import { TopHeader, ViewportMode } from './TopHeader';
 import { SidebarNav } from './SidebarNav';
 import { BottomNav } from './BottomNav';
@@ -9,69 +8,91 @@ import { PosScreen } from '../../screens/PosScreen';
 import { StockScreen } from '../../screens/StockScreen';
 import { FinanceScreen } from '../../screens/FinanceScreen';
 import { AiAssistantScreen } from '../../screens/AiAssistantScreen';
+import { useProducts, useStocks, useTransactions, useDashboard, useAiMessages, useStockAlerts } from '../../hooks/useData';
+import { logout } from '../../lib/auth';
 
 export const ShellLayout: React.FC = () => {
   const [activeTab, setActiveTab] = useState<TabType>('home');
   const [viewportMode, setViewportMode] = useState<ViewportMode>('responsive');
-
-  // Shared App State
-  const [products, setProducts] = useState<Product[]>(INITIAL_PRODUCTS);
-  const [transactions, setTransactions] = useState<Transaction[]>(INITIAL_TRANSACTIONS);
-  const [stockAlerts, setStockAlerts] = useState<StockAlert[]>(STOCK_ALERTS);
-  const [messages, setMessages] = useState<AiChatMessage[]>(INITIAL_CHAT_MESSAGES);
   const [cart, setCart] = useState<CartItem[]>([]);
 
-  const handleAddTransaction = (newTx: Transaction) => {
-    setTransactions((prev) => [newTx, ...prev]);
+  const productsHook = useProducts();
+  const stocksHook = useStocks();
+  const transactionsHook = useTransactions();
+  const dashboardHook = useDashboard();
+  const aiHook = useAiMessages();
+  const alertsHook = useStockAlerts();
 
-    // Update stock levels if sale
-    if (newTx.type === 'sale') {
-      setProducts((prev) =>
-        prev.map((p) => {
-          const cartMatch = cart.find((c) => c.product.id === p.id);
-          if (cartMatch) {
-            const updatedStock = Math.max(0, p.stock - cartMatch.quantity);
-            return { ...p, stock: updatedStock };
-          }
-          return p;
-        })
-      );
-    }
+  const handleLogout = () => {
+    logout();
+    window.dispatchEvent(new Event('ta-auth-changed'));
   };
 
-  // Determine active view component
   const renderScreen = () => {
     switch (activeTab) {
       case 'home':
-        return <HomeScreen onNavigateTab={setActiveTab} stockAlerts={stockAlerts} />;
+        return (
+          <HomeScreen
+            onNavigateTab={setActiveTab}
+            stockAlerts={alertsHook.data}
+            dashboard={dashboardHook.data}
+            dashboardLoading={dashboardHook.loading}
+          />
+        );
       case 'pos':
         return (
           <PosScreen
-            products={products}
-            onAddTransaction={handleAddTransaction}
+            products={productsHook.data}
+            productsLoading={productsHook.loading}
+            onCheckout={async (payload) => {
+              const order = await productsHook.createOrder(payload);
+              await Promise.all([stocksHook.refresh(), transactionsHook.refresh(), alertsHook.refresh()]);
+              return order;
+            }}
             cart={cart}
             setCart={setCart}
           />
         );
       case 'stock':
-        return <StockScreen products={products} setProducts={setProducts} />;
+        return (
+          <StockScreen
+            products={stocksHook.data}
+            loading={stocksHook.loading}
+            onRestock={stocksHook.restock}
+            onAdjust={stocksHook.adjust}
+            refresh={stocksHook.refresh}
+          />
+        );
       case 'finance':
         return (
           <FinanceScreen
-            transactions={transactions}
-            onAddTransaction={(tx) => setTransactions((prev) => [tx, ...prev])}
+            transactions={transactionsHook.data}
+            loading={transactionsHook.loading}
+            onCreate={transactionsHook.create}
+            onRefresh={transactionsHook.refresh}
           />
         );
       case 'ai':
         return (
           <AiAssistantScreen
             onNavigateTab={setActiveTab}
-            messages={messages}
-            setMessages={setMessages}
+            messages={aiHook.data}
+            loading={aiHook.loading}
+            onSend={aiHook.send}
+            onConfirmAction={aiHook.confirmAction}
+            onClear={aiHook.clear}
+            refresh={aiHook.refresh}
           />
         );
       default:
-        return <HomeScreen onNavigateTab={setActiveTab} stockAlerts={stockAlerts} />;
+        return (
+          <HomeScreen
+            onNavigateTab={setActiveTab}
+            stockAlerts={alertsHook.data}
+            dashboard={dashboardHook.data}
+            dashboardLoading={dashboardHook.loading}
+          />
+        );
     }
   };
 
@@ -79,30 +100,27 @@ export const ShellLayout: React.FC = () => {
 
   return (
     <div className={`app-container viewport-${viewportMode}`}>
-      {/* Sidebar for Tablet/Desktop */}
       <SidebarNav
         activeTab={activeTab}
         onTabChange={setActiveTab}
         cartCount={totalCartCount}
-        stockAlertCount={stockAlerts.length}
+        stockAlertCount={alertsHook.data.length}
       />
 
-      {/* Main Content Area */}
       <main className="main-content">
         <TopHeader
           viewportMode={viewportMode}
           onViewportChange={setViewportMode}
-          unreadCount={stockAlerts.length}
+          unreadCount={alertsHook.data.length}
+          onLogout={handleLogout}
         />
 
-        {/* Viewport Frame Simulator Wrapper */}
         <div className={`viewport-frame-wrapper ${viewportMode}`}>
           <div className="viewport-inner">
             {renderScreen()}
           </div>
         </div>
 
-        {/* Bottom Nav for Mobile */}
         <BottomNav
           activeTab={activeTab}
           onTabChange={setActiveTab}
@@ -112,3 +130,5 @@ export const ShellLayout: React.FC = () => {
     </div>
   );
 };
+
+export default ShellLayout;

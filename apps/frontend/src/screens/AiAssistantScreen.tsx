@@ -1,142 +1,94 @@
 import React, { useState } from 'react';
 import { TabType, AiChatMessage } from '../types';
-import { Bot, Send, Sparkles, User, ArrowRight, RefreshCw, BarChart2, PackageCheck, Zap } from 'lucide-react';
+import { Bot, Send, User, ArrowRight, PackageCheck, BarChart2, Zap, Loader2, Trash2, Check } from 'lucide-react';
 import './AiAssistantScreen.css';
 
 interface AiAssistantScreenProps {
   onNavigateTab: (tab: TabType) => void;
   messages: AiChatMessage[];
-  setMessages: React.Dispatch<React.SetStateAction<AiChatMessage[]>>;
+  loading: boolean;
+  onSend: (text: string) => Promise<{ user: AiChatMessage; ai: AiChatMessage }>;
+  onConfirmAction: (actionId: string) => Promise<void>;
+  onClear: () => Promise<void>;
+  refresh: () => Promise<void>;
 }
 
 export const AiAssistantScreen: React.FC<AiAssistantScreenProps> = ({
-  onNavigateTab,
-  messages,
-  setMessages
+  onNavigateTab, messages, loading, onSend, onConfirmAction, onClear, refresh,
 }) => {
   const [inputText, setInputText] = useState<string>('');
-  const [isTyping, setIsTyping] = useState<boolean>(false);
+  const [sending, setSending] = useState(false);
 
   const quickPrompts = [
-    { title: 'Restock Produk', prompt: 'Produk mana yang perlu saya restock hari ini?', icon: PackageCheck },
-    { title: 'Analisis Omzet', prompt: 'Bagaimana tren penjualan toko minggu ini?', icon: BarChart2 },
-    { title: 'Prediksi Pelanggan', prompt: 'Kapan waktu teramai transaksi biasanya terjadi?', icon: Zap },
+    { title: 'Cek Stok', prompt: 'stok apa yang menipis?', icon: PackageCheck },
+    { title: 'Analisis Omzet', prompt: 'Bagaimana tren penjualan minggu ini?', icon: BarChart2 },
+    { title: 'Prediksi', prompt: 'Kapan waktu teramai transaksi?', icon: Zap },
   ];
 
-  const handleSendMessage = (textToSend?: string) => {
+  const handleSend = async (textToSend?: string) => {
     const text = textToSend || inputText;
     if (!text.trim()) return;
-
-    const userMsg: AiChatMessage = {
-      id: `msg-${Date.now()}`,
-      sender: 'user',
-      text,
-      timestamp: new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' })
-    };
-
-    setMessages((prev) => [...prev, userMsg]);
     if (!textToSend) setInputText('');
-    setIsTyping(true);
-
-    // Simulate smart AI response
-    setTimeout(() => {
-      let responseText = 'Berdasarkan analisis data transaksi toko Anda: Omzet hari ini stabil di Rp 1.450.000 dengan 18 transaksi. Produk terlaris adalah Beras Pandan Wangi 5kg.';
-      let recs: { title: string; actionText: string; actionTab: TabType }[] = [];
-
-      if (text.toLowerCase().includes('restock') || text.toLowerCase().includes('stok')) {
-        responseText = '⚠️ **Perhatian Restock**: Stok Susu Indomilk Kental Manis sisa 2 kaleng (di bawah min 10) dan Gula Pasir Gulaku sisa 3kg. Disarankan melakukan pemesanan kulakan hari ini agar tidak kehabisan stok esok hari.';
-        recs = [{ title: 'Buka Manajemen Stok', actionText: 'Lihat Stok', actionTab: 'stock' }];
-      } else if (text.toLowerCase().includes('omzet') || text.toLowerCase().includes('penjualan')) {
-        responseText = '📊 **Analisis Omzet**: Penjualan Anda naik +12.5% dibanding hari kemarin. Kategori Sembako menyumbang 68% dari total pendapatan toko.';
-        recs = [{ title: 'Buka Laporan Keuangan', actionText: 'Lihat Keuangan', actionTab: 'finance' }];
-      } else {
-        recs = [
-          { title: 'Periksa Produk Menipis', actionText: 'Ke Stok', actionTab: 'stock' },
-          { title: 'Catat Pengeluaran Baru', actionText: 'Ke Keuangan', actionTab: 'finance' }
-        ];
-      }
-
-      const aiMsg: AiChatMessage = {
-        id: `msg-${Date.now() + 1}`,
-        sender: 'ai',
-        text: responseText,
-        timestamp: new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }),
-        recommendations: recs
-      };
-
-      setMessages((prev) => [...prev, aiMsg]);
-      setIsTyping(false);
-    }, 1200);
+    setSending(true);
+    try {
+      await onSend(text);
+    } finally { setSending(false); }
   };
 
   return (
     <div className="page-screen ai-screen-container animate-fade-in">
-      {/* Header */}
       <div className="screen-header">
         <div className="ai-title-group">
-          <div className="ai-bot-avatar">
-            <Bot size={24} color="#ffffff" />
-          </div>
+          <div className="ai-bot-avatar"><Bot size={24} color="#ffffff" /></div>
           <div>
             <h1 className="screen-title">AI Assistant 'Tiga Angkatan'</h1>
-            <p className="screen-sub">Asisten pintar bisnis untuk analisis penjualan & otomatisasi stok.</p>
+            <p className="screen-sub">Ditenagai NLP backend. Mampu mencatat stok & pengeluaran otomatis.</p>
           </div>
         </div>
+        <button onClick={onClear} className="btn-secondary btn-sm" title="Hapus semua pesan">
+          <Trash2 size={14} /> Clear
+        </button>
       </div>
 
-      {/* Main Chat Workspace */}
       <div className="card-base ai-chat-card">
-        {/* Quick Suggestion Chips */}
         <div className="quick-prompts-bar">
           <span className="prompts-label">Tanyakan pada AI:</span>
           <div className="prompts-scroll">
             {quickPrompts.map((item, idx) => {
               const IconComponent = item.icon;
               return (
-                <button
-                  key={idx}
-                  onClick={() => handleSendMessage(item.prompt)}
-                  className="prompt-chip"
-                >
-                  <IconComponent size={14} className="chip-icon" />
-                  <span>{item.title}</span>
+                <button key={idx} onClick={() => handleSend(item.prompt)} className="prompt-chip">
+                  <IconComponent size={14} className="chip-icon" /><span>{item.title}</span>
                 </button>
               );
             })}
           </div>
         </div>
 
-        {/* Message Conversation Stream */}
         <div className="messages-stream">
-          {messages.map((msg) => {
+          {loading && messages.length === 0 ? (
+            <div className="empty-state-small">Memuat percakapan dari server...</div>
+          ) : messages.map((msg) => {
             const isAi = msg.sender === 'ai';
-
             return (
               <div key={msg.id} className={`message-bubble-wrap ${isAi ? 'ai' : 'user'}`}>
                 <div className={`message-avatar ${isAi ? 'ai-avatar' : 'user-avatar'}`}>
                   {isAi ? <Bot size={16} /> : <User size={16} />}
                 </div>
-
                 <div className="message-content-box">
                   <div className="message-header-info">
                     <span className="sender-name">{isAi ? 'AI Assistant' : 'Anda'}</span>
                     <span className="timestamp">{msg.timestamp}</span>
                   </div>
-
                   <p className="message-text">{msg.text}</p>
 
-                  {/* Recommendation Card Actions if attached */}
                   {msg.recommendations && msg.recommendations.length > 0 && (
                     <div className="recommendations-container">
                       {msg.recommendations.map((rec, rIdx) => (
                         <div key={rIdx} className="rec-card">
                           <span className="rec-title">{rec.title}</span>
-                          <button
-                            onClick={() => onNavigateTab(rec.actionTab)}
-                            className="btn-primary btn-rec-action"
-                          >
-                            {rec.actionText}
-                            <ArrowRight size={14} />
+                          <button onClick={() => onNavigateTab(rec.actionTab)} className="btn-primary btn-rec-action">
+                            {rec.actionText} <ArrowRight size={14} />
                           </button>
                         </div>
                       ))}
@@ -147,40 +99,35 @@ export const AiAssistantScreen: React.FC<AiAssistantScreenProps> = ({
             );
           })}
 
-          {isTyping && (
+          {sending && (
             <div className="message-bubble-wrap ai">
-              <div className="message-avatar ai-avatar">
-                <Bot size={16} />
-              </div>
+              <div className="message-avatar ai-avatar"><Bot size={16} /></div>
               <div className="typing-indicator-box">
                 <span className="typing-dot"></span>
                 <span className="typing-dot"></span>
                 <span className="typing-dot"></span>
-                <span className="typing-text">AI sedang menganalisis data...</span>
+                <span className="typing-text">AI sedang menganalisis...</span>
               </div>
             </div>
           )}
         </div>
 
-        {/* Chat Input Bar */}
         <div className="chat-input-bar">
           <input
             type="text"
-            placeholder="Ketik pertanyaan bisnis Anda (misal: 'Bagaimana tren omzet minggu ini?')..."
+            placeholder="Coba: 'beli gula 5kg 170rb' atau 'stok menipis?'"
             value={inputText}
             onChange={(e) => setInputText(e.target.value)}
-            onKeyDown={(e) => e.key === 'Enter' && handleSendMessage()}
+            onKeyDown={(e) => e.key === 'Enter' && handleSend()}
             className="ai-chat-input"
           />
-          <button
-            onClick={() => handleSendMessage()}
-            disabled={!inputText.trim()}
-            className="btn-primary btn-send-chat"
-          >
-            <Send size={16} />
+          <button onClick={() => handleSend()} disabled={!inputText.trim() || sending} className="btn-primary btn-send-chat">
+            {sending ? <Loader2 size={16} className="spin" /> : <Send size={16} />}
           </button>
         </div>
       </div>
     </div>
   );
 };
+
+export default AiAssistantScreen;

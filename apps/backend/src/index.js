@@ -12,7 +12,13 @@ const PORT = process.env.PORT || 3000;
 
 // Middleware
 app.use(helmet());
-app.use(cors());
+const FRONTEND_ORIGIN = process.env.FRONTEND_ORIGIN || 'http://localhost:5173';
+app.use(cors({
+  origin: FRONTEND_ORIGIN.split(',').map((s) => s.trim()),
+  credentials: true,
+  allowedHeaders: ['Content-Type', 'Authorization'],
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+}));
 app.use(morgan('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -40,6 +46,7 @@ app.use(errorHandler);
 
 app.listen(PORT, async () => {
   console.log(`🚀 Tiga Angkatan Backend Server running on http://localhost:${PORT}`);
+  console.log(`📋 Registered routes: /api/auth/login, /api/auth/register, /api/auth/me, /api/products, /api/orders, /api/stocks, /api/finance/*, /api/ai/*, /api/dashboard/overview`);
   // Fail-fast: verify Supabase is reachable before serving requests
   const ping = await pingSupabase();
   if (ping.ok) {
