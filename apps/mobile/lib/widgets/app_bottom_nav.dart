@@ -120,6 +120,7 @@ class AppBottomNav extends StatelessWidget {
                 'assets/icons/iconAisistenku.png',
                 width: 34,
                 height: 34,
+                color: Colors.white,
               ),
             ),
           ),

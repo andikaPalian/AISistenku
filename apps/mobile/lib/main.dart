@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'core/theme/app_theme.dart';
-import 'screens/shell_screen.dart';
+import 'screens/splash_screen.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -20,7 +20,7 @@ class TigaAngkatanApp extends StatelessWidget {
     return MaterialApp(
       title: 'Tiga Angkatan',
       theme: AppTheme.lightTheme,
-      home: const ShellScreen(),
+      home: const SplashScreen(),
       debugShowCheckedModeBanner: false,
     );
   }
