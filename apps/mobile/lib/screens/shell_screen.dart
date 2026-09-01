@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../core/theme/app_colors.dart';
 import 'home/home_screen.dart';
+import 'pos/pos_screen.dart';
 import '../widgets/app_bottom_nav.dart';
 
 /// Shell screen wrapping all tab destinations with an IndexedStack
@@ -17,7 +18,7 @@ class _ShellScreenState extends State<ShellScreen> {
 
   final List<Widget> _screens = [
     const HomeScreen(),
-    const _PlaceholderScreen(title: 'POS', icon: Icons.point_of_sale_rounded),
+    const PosScreen(),
     const _PlaceholderScreen(
         title: 'AIsisten', icon: Icons.smart_toy_rounded),
     const _PlaceholderScreen(
