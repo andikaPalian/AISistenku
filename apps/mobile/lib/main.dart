@@ -1,25 +1,27 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'core/theme/app_theme.dart';
+import 'screens/shell_screen.dart';
 
 void main() {
-  runApp(const MyApp());
+  WidgetsFlutterBinding.ensureInitialized();
+  SystemChrome.setPreferredOrientations([
+    DeviceOrientation.portraitUp,
+    DeviceOrientation.portraitDown,
+  ]);
+  runApp(const TigaAngkatanApp());
 }
 
-class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+class TigaAngkatanApp extends StatelessWidget {
+  const TigaAngkatanApp({super.key});
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Tiga Angkatan',
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
-        useMaterial3: true,
-      ),
-      home: const Scaffold(
-        body: Center(
-          child: Text('Tiga Angkatan'),
-        ),
-      ),
+      theme: AppTheme.lightTheme,
+      home: const ShellScreen(),
+      debugShowCheckedModeBanner: false,
     );
   }
 }
