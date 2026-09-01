@@ -4,6 +4,7 @@ import cors from 'cors';
 import helmet from 'helmet';
 import morgan from 'morgan';
 import router from './routes/index.js';
+import { errorHandler } from './middleware/errorHandler.js';
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -23,13 +24,16 @@ app.get('/health', (_req, res) => {
   res.json({ status: 'ok', timestamp: new Date().toISOString() });
 });
 
-// 404
+// 404 Handler
 app.use((_req, res) => {
-  res.status(404).json({ error: 'Not found' });
+  res.status(404).json({ error: 'Endpoint not found' });
 });
 
+// Centralized Error Handler
+app.use(errorHandler);
+
 app.listen(PORT, () => {
-  console.log(`🚀 Server running on http://localhost:${PORT}`);
+  console.log(`🚀 Tiga Angkatan Backend Server running on http://localhost:${PORT}`);
 });
 
 export default app;
