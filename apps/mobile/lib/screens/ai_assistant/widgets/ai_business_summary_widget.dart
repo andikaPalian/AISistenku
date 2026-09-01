@@ -1,0 +1,81 @@
+import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
+import '../../../core/theme/app_colors.dart';
+import '../../../models/finance_model.dart';
+
+/// Mini KPI card rendered inside AI chat messages for quick financial overview.
+class AiBusinessSummaryWidget extends StatelessWidget {
+  final double revenue;
+  final double profit;
+  final String bestSeller;
+
+  const AiBusinessSummaryWidget({
+    super.key,
+    required this.revenue,
+    required this.profit,
+    required this.bestSeller,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: double.infinity,
+      margin: const EdgeInsets.only(top: 10),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+      decoration: BoxDecoration(
+        color: const Color(0xFFF8FAFC),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(
+          color: const Color(0xFFE2E8F0),
+          width: 1,
+        ),
+      ),
+      child: Column(
+        children: [
+          _buildRow('REVENUE', FinanceRepository.formatRupiah(revenue),
+              isBold: true, color: AppColors.darkText),
+          const Divider(height: 16, color: Color(0xFFE2E8F0)),
+          _buildRow(
+            'PROFIT',
+            '+ ${FinanceRepository.formatRupiah(profit)}',
+            isBold: true,
+            color: const Color(0xFF10B981),
+          ),
+          const Divider(height: 16, color: Color(0xFFE2E8F0)),
+          _buildRow(
+            'BEST SELLER',
+            bestSeller,
+            isBold: true,
+            color: AppColors.darkText,
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildRow(String label, String value,
+      {bool isBold = false, Color? color}) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Text(
+          label,
+          style: GoogleFonts.inter(
+            fontSize: 11,
+            fontWeight: FontWeight.w600,
+            color: const Color(0xFF64748B),
+            letterSpacing: 1.1,
+          ),
+        ),
+        Text(
+          value,
+          style: GoogleFonts.poppins(
+            fontSize: 14,
+            fontWeight: isBold ? FontWeight.w700 : FontWeight.w500,
+            color: color ?? AppColors.darkText,
+          ),
+        ),
+      ],
+    );
+  }
+}
