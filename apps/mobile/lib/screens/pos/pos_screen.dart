@@ -21,19 +21,7 @@ class PosScreen extends StatefulWidget {
 class _PosScreenState extends State<PosScreen> {
   ProductCategory _selectedCategory = ProductCategory.all;
   String _searchQuery = '';
-  final Map<String, CartItem> _cart = {
-    // Pre-populate with reference demo items for instant visual match
-    '3': CartItem(
-      product: ProductCatalog.items.firstWhere((p) => p.id == '3'), // Cappuccino 20k
-      quantity: 1,
-      variant: 'Regular',
-    ),
-    '6': CartItem(
-      product: ProductCatalog.items.firstWhere((p) => p.id == '6'), // Croissant 15k
-      quantity: 1,
-      variant: 'Butter',
-    ),
-  };
+  final Map<String, CartItem> _cart = {};
 
   /// Products filtered by category and search query.
   List<Product> get _filteredProducts {

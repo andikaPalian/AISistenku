@@ -5,13 +5,19 @@ import '../../../models/product.dart';
 
 /// Individual product card in the POS grid.
 ///
-/// Shows a placeholder image area, product name, and price.
-/// When quantity > 0, displays a teal badge and highlighted border.
+/// Features:
+/// - High-resolution network product image with fallback icon
+/// - Category pill badge & item code
+/// - Sisa stock indicator (with low stock warning)
+/// - Product name & formatted price
+/// - Quick Add / Stepper counter button
 class ProductCard extends StatelessWidget {
   final Product product;
   final int quantity;
   final VoidCallback onTap;
   final VoidCallback? onLongPress;
+  final VoidCallback? onIncrement;
+  final VoidCallback? onDecrement;
 
   const ProductCard({
     super.key,
@@ -19,6 +25,8 @@ class ProductCard extends StatelessWidget {
     required this.quantity,
     required this.onTap,
     this.onLongPress,
+    this.onIncrement,
+    this.onDecrement,
   });
 
   bool get _isInCart => quantity > 0;
@@ -32,102 +40,347 @@ class ProductCard extends StatelessWidget {
         duration: const Duration(milliseconds: 200),
         decoration: BoxDecoration(
           color: AppColors.cardBackground,
-          borderRadius: BorderRadius.circular(14),
+          borderRadius: BorderRadius.circular(16),
           border: Border.all(
             color: _isInCart ? AppColors.primaryTeal : AppColors.lightTealBorder,
             width: _isInCart ? 2 : 1,
           ),
+          boxShadow: [
+            BoxShadow(
+              color: _isInCart
+                  ? AppColors.primaryTeal.withOpacity(0.12)
+                  : Colors.black.withOpacity(0.04),
+              blurRadius: _isInCart ? 12 : 8,
+              offset: const Offset(0, 3),
+            ),
+          ],
         ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // ── Product image area ─────────────────────────
-            Expanded(
-              child: Stack(
-                children: [
-                  // Image placeholder
-                  Container(
-                    width: double.infinity,
-                    decoration: BoxDecoration(
-                      color: AppColors.surface,
-                      borderRadius: const BorderRadius.only(
-                        topLeft: Radius.circular(13),
-                        topRight: Radius.circular(13),
-                      ),
-                    ),
-                    child: Icon(
-                      product.placeholderIcon ?? Icons.fastfood_rounded,
-                      size: 36,
-                      color: AppColors.mutedText.withOpacity(0.4),
-                    ),
-                  ),
-                  // Quantity badge
-                  if (_isInCart)
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(15),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // ── 1. Product Image Banner ─────────────────────
+              Expanded(
+                flex: 11,
+                child: Stack(
+                  fit: StackFit.expand,
+                  children: [
+                    // Network Image or Fallback
+                    if (product.imageUrl != null && product.imageUrl!.isNotEmpty)
+                      Image.network(
+                        product.imageUrl!,
+                        fit: BoxFit.cover,
+                        loadingBuilder: (context, child, loadingProgress) {
+                          if (loadingProgress == null) return child;
+                          return Container(
+                            color: AppColors.surface,
+                            child: const Center(
+                              child: SizedBox(
+                                width: 20,
+                                height: 20,
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2,
+                                  valueColor: AlwaysStoppedAnimation<Color>(
+                                    AppColors.primaryTeal,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          );
+                        },
+                        errorBuilder: (context, error, stackTrace) =>
+                            _buildFallbackImage(),
+                      )
+                    else
+                      _buildFallbackImage(),
+
+                    // Category Pill Tag (Top-Left)
                     Positioned(
-                      top: 6,
-                      right: 6,
+                      top: 8,
+                      left: 8,
                       child: Container(
-                        width: 26,
-                        height: 26,
-                        decoration: BoxDecoration(
-                          color: AppColors.primaryTeal,
-                          shape: BoxShape.circle,
-                          boxShadow: [
-                            BoxShadow(
-                              color: AppColors.primaryTeal.withOpacity(0.3),
-                              blurRadius: 6,
-                              offset: const Offset(0, 2),
-                            ),
-                          ],
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 8,
+                          vertical: 3,
                         ),
-                        child: Center(
-                          child: Text(
-                            quantity.toString(),
-                            style: GoogleFonts.inter(
-                              fontSize: 12,
-                              fontWeight: FontWeight.w700,
-                              color: Colors.white,
-                            ),
+                        decoration: BoxDecoration(
+                          color: Colors.black.withOpacity(0.6),
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: Text(
+                          product.category.label,
+                          style: GoogleFonts.inter(
+                            fontSize: 10,
+                            fontWeight: FontWeight.w600,
+                            color: Colors.white,
                           ),
                         ),
                       ),
                     ),
-                ],
-              ),
-            ),
 
-            // ── Product info ───────────────────────────────
-            Padding(
-              padding: const EdgeInsets.fromLTRB(8, 8, 8, 10),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    product.name,
-                    style: GoogleFonts.inter(
-                      fontSize: 12,
-                      fontWeight: FontWeight.w600,
-                      color: AppColors.darkText,
-                      height: 1.3,
-                    ),
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                  const SizedBox(height: 3),
-                  Text(
-                    product.formattedPrice,
-                    style: GoogleFonts.inter(
-                      fontSize: 12,
-                      fontWeight: FontWeight.w500,
-                      color: AppColors.mutedText,
-                    ),
-                  ),
-                ],
+                    // Code Tag (Top-Left secondary or right)
+                    if (product.code != null && !_isInCart)
+                      Positioned(
+                        top: 8,
+                        right: 8,
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 6,
+                            vertical: 3,
+                          ),
+                          decoration: BoxDecoration(
+                            color: Colors.white.withOpacity(0.85),
+                            borderRadius: BorderRadius.circular(6),
+                          ),
+                          child: Text(
+                            product.code!,
+                            style: GoogleFonts.inter(
+                              fontSize: 9,
+                              fontWeight: FontWeight.w700,
+                              color: AppColors.darkText,
+                            ),
+                          ),
+                        ),
+                      ),
+
+                    // Quantity Badge (Top-Right when in cart)
+                    if (_isInCart)
+                      Positioned(
+                        top: 8,
+                        right: 8,
+                        child: Container(
+                          width: 26,
+                          height: 26,
+                          decoration: BoxDecoration(
+                            color: AppColors.primaryTeal,
+                            shape: BoxShape.circle,
+                            boxShadow: [
+                              BoxShadow(
+                                color: AppColors.primaryTeal.withOpacity(0.4),
+                                blurRadius: 6,
+                                offset: const Offset(0, 2),
+                              ),
+                            ],
+                          ),
+                          child: Center(
+                            child: Text(
+                              quantity.toString(),
+                              style: GoogleFonts.inter(
+                                fontSize: 12,
+                                fontWeight: FontWeight.w700,
+                                color: Colors.white,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                  ],
+                ),
               ),
-            ),
-          ],
+
+              // ── 2. Product Details Body ─────────────────────
+              Expanded(
+                flex: 10,
+                child: Padding(
+                  padding: const EdgeInsets.fromLTRB(10, 8, 10, 10),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      // Product Name & Stock
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            product.name,
+                            style: GoogleFonts.poppins(
+                              fontSize: 13,
+                              fontWeight: FontWeight.w600,
+                              color: AppColors.darkText,
+                              height: 1.25,
+                            ),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                          const SizedBox(height: 3),
+                          // Stock count badge
+                          Row(
+                            children: [
+                              Container(
+                                width: 6,
+                                height: 6,
+                                decoration: BoxDecoration(
+                                  color: product.isLowStock
+                                      ? AppColors.destructive
+                                      : AppColors.successGreen,
+                                  shape: BoxShape.circle,
+                                ),
+                              ),
+                              const SizedBox(width: 4),
+                              Text(
+                                'Sisa: ${product.stock} ${product.unit}',
+                                style: GoogleFonts.inter(
+                                  fontSize: 10,
+                                  fontWeight: FontWeight.w500,
+                                  color: product.isLowStock
+                                      ? AppColors.destructive
+                                      : AppColors.mutedText,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+
+                      // Price & Action Button
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          // Price
+                          Expanded(
+                            child: Text(
+                              product.formattedPrice,
+                              style: GoogleFonts.poppins(
+                                fontSize: 13,
+                                fontWeight: FontWeight.w700,
+                                color: AppColors.primaryTeal,
+                              ),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
+
+                          // Add / Quantity Stepper
+                          if (_isInCart)
+                            Container(
+                              height: 28,
+                              decoration: BoxDecoration(
+                                color: AppColors.primaryTeal.withOpacity(0.1),
+                                borderRadius: BorderRadius.circular(8),
+                                border: Border.all(
+                                  color: AppColors.primaryTeal.withOpacity(0.3),
+                                ),
+                              ),
+                              child: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  InkWell(
+                                    onTap: onDecrement ?? onTap,
+                                    borderRadius: const BorderRadius.horizontal(
+                                      left: Radius.circular(7),
+                                    ),
+                                    child: const Padding(
+                                      padding: EdgeInsets.symmetric(
+                                        horizontal: 6,
+                                        vertical: 4,
+                                      ),
+                                      child: Icon(
+                                        Icons.remove_rounded,
+                                        size: 14,
+                                        color: AppColors.primaryTeal,
+                                      ),
+                                    ),
+                                  ),
+                                  Padding(
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 4,
+                                    ),
+                                    child: Text(
+                                      quantity.toString(),
+                                      style: GoogleFonts.inter(
+                                        fontSize: 12,
+                                        fontWeight: FontWeight.w700,
+                                        color: AppColors.primaryTeal,
+                                      ),
+                                    ),
+                                  ),
+                                  InkWell(
+                                    onTap: onIncrement ?? onTap,
+                                    borderRadius: const BorderRadius.horizontal(
+                                      right: Radius.circular(7),
+                                    ),
+                                    child: const Padding(
+                                      padding: EdgeInsets.symmetric(
+                                        horizontal: 6,
+                                        vertical: 4,
+                                      ),
+                                      child: Icon(
+                                        Icons.add_rounded,
+                                        size: 14,
+                                        color: AppColors.primaryTeal,
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            )
+                          else
+                            InkWell(
+                              onTap: onTap,
+                              borderRadius: BorderRadius.circular(8),
+                              child: Container(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 8,
+                                  vertical: 5,
+                                ),
+                                decoration: BoxDecoration(
+                                  color: AppColors.primaryTeal,
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
+                                child: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    const Icon(
+                                      Icons.add_rounded,
+                                      size: 14,
+                                      color: Colors.white,
+                                    ),
+                                    const SizedBox(width: 2),
+                                    Text(
+                                      'Tambah',
+                                      style: GoogleFonts.inter(
+                                        fontSize: 11,
+                                        fontWeight: FontWeight.w600,
+                                        color: Colors.white,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildFallbackImage() {
+    return Container(
+      width: double.infinity,
+      decoration: const BoxDecoration(
+        gradient: LinearGradient(
+          colors: [Color(0xFFE2E8F0), Color(0xFFCBD5E1)],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+      ),
+      child: Center(
+        child: Icon(
+          product.placeholderIcon ?? Icons.coffee_rounded,
+          size: 36,
+          color: AppColors.mutedText.withOpacity(0.5),
         ),
       ),
     );
   }
 }
+

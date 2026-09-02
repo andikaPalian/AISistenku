@@ -166,9 +166,10 @@ class _AppBottomNavState extends State<AppBottomNav>
                   ],
                 ),
                 child: Image.asset(
-                  'assets/icons/iconAisistenku.png',
-                  width: 34,
-                  height: 34,
+                  'assets/icons/logoAisitenku.png',
+                  width: 32,
+                  height: 32,
+                  fit: BoxFit.contain,
                   color: Colors.white,
                 ),
               ),

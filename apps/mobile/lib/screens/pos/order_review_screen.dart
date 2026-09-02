@@ -468,7 +468,7 @@ class _OrderReviewScreenState extends State<OrderReviewScreen> {
   Widget _buildOrderItemCard(CartItem item) {
     return Container(
       margin: const EdgeInsets.only(bottom: 14),
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
         color: AppColors.cardBackground,
         borderRadius: BorderRadius.circular(16),
@@ -484,7 +484,38 @@ class _OrderReviewScreenState extends State<OrderReviewScreen> {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // ── Product Details (Left) ───────────────────
+          // ── Product Thumbnail (Left) ─────────────────
+          ClipRRect(
+            borderRadius: BorderRadius.circular(12),
+            child: SizedBox(
+              width: 58,
+              height: 58,
+              child: item.product.imageUrl != null && item.product.imageUrl!.isNotEmpty
+                  ? Image.network(
+                      item.product.imageUrl!,
+                      fit: BoxFit.cover,
+                      errorBuilder: (ctx, err, stack) => Container(
+                        color: AppColors.surface,
+                        child: Icon(
+                          item.product.placeholderIcon ?? Icons.fastfood_rounded,
+                          size: 24,
+                          color: AppColors.mutedText,
+                        ),
+                      ),
+                    )
+                  : Container(
+                      color: AppColors.surface,
+                      child: Icon(
+                        item.product.placeholderIcon ?? Icons.fastfood_rounded,
+                        size: 24,
+                        color: AppColors.mutedText,
+                      ),
+                    ),
+            ),
+          ),
+          const SizedBox(width: 12),
+
+          // ── Product Details (Center) ─────────────────
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -492,12 +523,12 @@ class _OrderReviewScreenState extends State<OrderReviewScreen> {
                 Text(
                   item.product.name,
                   style: GoogleFonts.poppins(
-                    fontSize: 16,
+                    fontSize: 15,
                     fontWeight: FontWeight.w700,
                     color: AppColors.darkText,
                   ),
                 ),
-                const SizedBox(height: 4),
+                const SizedBox(height: 2),
                 Text(
                   item.variant,
                   style: GoogleFonts.inter(

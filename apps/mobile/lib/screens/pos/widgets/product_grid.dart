@@ -46,12 +46,13 @@ class ProductGrid extends StatelessWidget {
     }
 
     return GridView.builder(
-      padding: const EdgeInsets.fromLTRB(20, 8, 20, 20),
+      padding: const EdgeInsets.fromLTRB(16, 8, 16, 24),
+      physics: const BouncingScrollPhysics(),
       gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: 3,
-        mainAxisSpacing: 12,
-        crossAxisSpacing: 12,
-        childAspectRatio: 0.68,
+        crossAxisCount: 2,
+        mainAxisSpacing: 14,
+        crossAxisSpacing: 14,
+        childAspectRatio: 0.72,
       ),
       itemCount: products.length,
       itemBuilder: (context, index) {
@@ -61,6 +62,8 @@ class ProductGrid extends StatelessWidget {
           product: product,
           quantity: qty,
           onTap: () => onAdd(product),
+          onIncrement: () => onAdd(product),
+          onDecrement: () => onRemove(product),
           onLongPress: qty > 0 ? () => onRemove(product) : null,
         );
       },
