@@ -1,9 +1,20 @@
 // In-Memory Data Store & Supabase Sync Helper for Tiga Angkatan
+export const DEMO_USER_ID = '00000000-0000-0000-0000-000000000001';
 
 export const store = {
+  sessions: {
+    'demo-token': {
+      id: DEMO_USER_ID,
+      user_id: DEMO_USER_ID,
+      name: 'Owner Tiga Angkatan (Demo)',
+      email: 'owner@tigaangkatan.id',
+      role: 'owner',
+    }
+  },
+
   users: [
     {
-      user_id: '00000000-0000-0000-0000-000000000001',
+      user_id: DEMO_USER_ID,
       name: 'Owner Tiga Angkatan',
       email: 'owner@tigaangkatan.id',
       role: 'owner',
@@ -14,65 +25,100 @@ export const store = {
   products: [
     {
       product_id: 'prod-1',
+      user_id: DEMO_USER_ID,
       name: 'Iced Latte',
       price: 15000,
       category: 'Kopi',
       default_variant: 'Less Sugar, Ice',
-      image_url: null,
+      image_url: 'https://images.unsplash.com/photo-1517256064527-09c73fc73e38?w=500&auto=format&fit=crop&q=60',
+      code: 'KOP-001',
+      current_stock: 45,
+      min_stock: 10,
+      unit: 'cup',
       created_at: new Date().toISOString(),
     },
     {
       product_id: 'prod-2',
+      user_id: DEMO_USER_ID,
       name: 'Americano',
       price: 18000,
       category: 'Kopi',
       default_variant: 'Hot / No Sugar',
-      image_url: null,
+      image_url: 'https://images.unsplash.com/photo-1514432324607-a09d9b4aefdd?w=500&auto=format&fit=crop&q=60',
+      code: 'KOP-002',
+      current_stock: 30,
+      min_stock: 5,
+      unit: 'cup',
       created_at: new Date().toISOString(),
     },
     {
       product_id: 'prod-3',
+      user_id: DEMO_USER_ID,
       name: 'Cappuccino',
       price: 20000,
       category: 'Kopi',
       default_variant: 'Regular',
-      image_url: null,
+      image_url: 'https://images.unsplash.com/photo-1534778101976-62847782c213?w=500&auto=format&fit=crop&q=60',
+      code: 'KOP-003',
+      current_stock: 25,
+      min_stock: 5,
+      unit: 'cup',
       created_at: new Date().toISOString(),
     },
     {
       product_id: 'prod-4',
+      user_id: DEMO_USER_ID,
       name: 'Chocolate',
       price: 17000,
       category: 'Non-Kopi',
       default_variant: 'Ice',
-      image_url: null,
+      image_url: 'https://images.unsplash.com/photo-1542990253-0d0f5be5f0ed?w=500&auto=format&fit=crop&q=60',
+      code: 'NON-001',
+      current_stock: 20,
+      min_stock: 5,
+      unit: 'cup',
       created_at: new Date().toISOString(),
     },
     {
       product_id: 'prod-5',
+      user_id: DEMO_USER_ID,
       name: 'Matcha Latte',
       price: 20000,
       category: 'Non-Kopi',
       default_variant: 'Oatmilk',
-      image_url: null,
+      image_url: 'https://images.unsplash.com/photo-1536256263959-770b48d82b0a?w=500&auto=format&fit=crop&q=60',
+      code: 'NON-002',
+      current_stock: 15,
+      min_stock: 5,
+      unit: 'cup',
       created_at: new Date().toISOString(),
     },
     {
       product_id: 'prod-6',
+      user_id: DEMO_USER_ID,
       name: 'Croissant',
       price: 15000,
       category: 'Snack',
       default_variant: 'Butter',
-      image_url: null,
+      image_url: 'https://images.unsplash.com/photo-1555507036-ab1f4038808a?w=500&auto=format&fit=crop&q=60',
+      code: 'SNK-001',
+      current_stock: 12,
+      min_stock: 4,
+      unit: 'pcs',
       created_at: new Date().toISOString(),
     },
     {
       product_id: 'prod-7',
+      user_id: DEMO_USER_ID,
       name: 'Avocado Toast',
       price: 25000,
       category: 'Makanan',
       default_variant: 'Sourdough',
-      image_url: null,
+      image_url: 'https://images.unsplash.com/photo-1525351484163-7529414344d8?w=500&auto=format&fit=crop&q=60',
+      code: 'FOD-001',
+      current_stock: 8,
+      min_stock: 2,
+      unit: 'porsi',
       created_at: new Date().toISOString(),
     },
   ],
@@ -80,6 +126,7 @@ export const store = {
   stockItems: [
     {
       stock_id: 'sugar',
+      user_id: DEMO_USER_ID,
       name: 'Sugar',
       category: 'Gula & Pemanis',
       current_stock: 3.0,
@@ -92,6 +139,7 @@ export const store = {
     },
     {
       stock_id: 'fresh_milk',
+      user_id: DEMO_USER_ID,
       name: 'Fresh Milk',
       category: 'Susu & Dairy',
       current_stock: 5.0,
@@ -104,6 +152,7 @@ export const store = {
     },
     {
       stock_id: 'coffee_beans',
+      user_id: DEMO_USER_ID,
       name: 'Coffee Beans',
       category: 'Biji Kopi',
       current_stock: 8.0,
@@ -116,6 +165,7 @@ export const store = {
     },
     {
       stock_id: 'chocolate_syrup',
+      user_id: DEMO_USER_ID,
       name: 'Chocolate Syrup',
       category: 'Sirup & Perisa',
       current_stock: 6.0,
@@ -128,6 +178,7 @@ export const store = {
     },
     {
       stock_id: 'caramel_syrup',
+      user_id: DEMO_USER_ID,
       name: 'Caramel Syrup',
       category: 'Sirup & Perisa',
       current_stock: 1.5,
@@ -139,6 +190,7 @@ export const store = {
     },
     {
       stock_id: 'cup_16oz',
+      user_id: DEMO_USER_ID,
       name: 'Cup Plastic 16oz + Lid',
       category: 'Cup & Kemasan',
       current_stock: 45.0,
@@ -161,7 +213,7 @@ export const store = {
     {
       order_id: 'ord-1001',
       order_code: '#3A-88895',
-      user_id: '00000000-0000-0000-0000-000000000001',
+      user_id: DEMO_USER_ID,
       order_type: 'Dine In',
       table_number: '04',
       customer_name: 'Budi',
@@ -205,6 +257,7 @@ export const store = {
     {
       log_id: 'log-1',
       stock_id: 'sugar',
+      user_id: DEMO_USER_ID,
       stock_name: 'Sugar',
       type: 'OUT',
       quantity: 2.0,
@@ -218,6 +271,7 @@ export const store = {
     {
       log_id: 'log-2',
       stock_id: 'sugar',
+      user_id: DEMO_USER_ID,
       stock_name: 'Sugar',
       type: 'IN',
       quantity: 10.0,
@@ -233,7 +287,7 @@ export const store = {
   financeTransactions: [
     {
       transaction_id: 'tx-001',
-      user_id: '00000000-0000-0000-0000-000000000001',
+      user_id: DEMO_USER_ID,
       order_id: 'ord-1001',
       title: 'Iced Latte & Croissant Sales',
       type: 'INCOME',
@@ -245,7 +299,7 @@ export const store = {
     },
     {
       transaction_id: 'tx-002',
-      user_id: '00000000-0000-0000-0000-000000000001',
+      user_id: DEMO_USER_ID,
       order_id: null,
       title: 'Coffee Beans Purchase',
       type: 'EXPENSE',
@@ -257,7 +311,7 @@ export const store = {
     },
     {
       transaction_id: 'tx-003',
-      user_id: '00000000-0000-0000-0000-000000000001',
+      user_id: DEMO_USER_ID,
       order_id: null,
       title: 'Sugar Purchase',
       type: 'EXPENSE',
@@ -272,7 +326,7 @@ export const store = {
   aiMessages: [
     {
       message_id: 'msg-001',
-      user_id: '00000000-0000-0000-0000-000000000001',
+      user_id: DEMO_USER_ID,
       sender: 'USER',
       text: 'Bagaimana bisnis saya hari ini?',
       type: 'text',
@@ -281,7 +335,7 @@ export const store = {
     },
     {
       message_id: 'msg-002',
-      user_id: '00000000-0000-0000-0000-000000000001',
+      user_id: DEMO_USER_ID,
       sender: 'AI',
       text: 'Kinerja bisnis hari ini tampak baik. Pendapatan telah mencapai Rp1.250.000, naik 12% dibandingkan kemarin.',
       type: 'businessSummary',

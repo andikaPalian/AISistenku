@@ -1,5 +1,5 @@
 import { supabase } from '../lib/supabase.js';
-import { store } from '../lib/store.js';
+import { store, DEMO_USER_ID } from '../lib/store.js';
 
 const KELONTONG_API_URL = process.env.KELONTONG_API_URL || 'https://api.kelontongai.my.id/v1';
 const KELONTONG_API_KEY = process.env.KELONTONG_API_KEY || '';
@@ -46,14 +46,18 @@ async function callKelontongAI(messages, opts = {}) {
   }
 }
 
-export const getAiMessages = async (_req, res, next) => {
+export const getAiMessages = async (req, res, next) => {
   try {
-    let messages = store.aiMessages;
+    const userId = req.user?.user_id || DEMO_USER_ID;
+    let messages = store.aiMessages.filter((m) => m.user_id === userId);
+
     if (supabase) {
-      const { data, error } = await supabase
+      let q = supabase
         .from('ai_messages')
         .select('*')
         .order('timestamp', { ascending: true });
+      if (userId) q = q.eq('user_id', userId);
+      const { data, error } = await q;
       if (!error && data) messages = data;
     }
     return res.json({ messages });

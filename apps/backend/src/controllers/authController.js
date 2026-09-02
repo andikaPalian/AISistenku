@@ -1,4 +1,5 @@
 import { supabase } from '../lib/supabase.js';
+import { store, DEMO_USER_ID } from '../lib/store.js';
 
 export const login = async (req, res, next) => {
   try {
@@ -6,9 +7,46 @@ export const login = async (req, res, next) => {
     if (!email || !password) {
       return res.status(400).json({ error: 'Email and password are required' });
     }
+
     if (!supabase) {
-      return res.status(503).json({ error: 'Supabase not configured on server' });
+      // Find existing user in store.users
+      let user = store.users.find((u) => u.email.toLowerCase() === email.toLowerCase());
+      if (!user) {
+        if (email.toLowerCase() === 'owner@tigaangkatan.id') {
+          user = store.users.find((u) => u.user_id === DEMO_USER_ID);
+        } else {
+          user = {
+            user_id: `user-${Date.now()}`,
+            email: email,
+            name: email.split('@')[0] || 'Owner',
+            role: 'owner',
+            created_at: new Date().toISOString(),
+          };
+          store.users.push(user);
+        }
+      }
+
+      const token = 'dev-token-' + Date.now();
+      store.sessions[token] = {
+        id: user.user_id,
+        user_id: user.user_id,
+        email: user.email,
+        name: user.name,
+        role: user.role,
+      };
+
+      return res.json({
+        access_token: token,
+        refresh_token: 'dev-refresh-token',
+        user: {
+          id: user.user_id,
+          email: user.email,
+          name: user.name,
+          role: user.role,
+        },
+      });
     }
+
     const { data, error } = await supabase.auth.signInWithPassword({ email, password });
     if (error || !data?.user) {
       return res.status(401).json({ error: error?.message || 'Invalid credentials' });
@@ -35,9 +73,40 @@ export const register = async (req, res, next) => {
     if (!email || !password) {
       return res.status(400).json({ error: 'Email and password are required' });
     }
+
+    const newUserId = `user-${Date.now()}`;
+    const newUser = {
+      user_id: newUserId,
+      email: email,
+      name: name || 'Owner',
+      role: 'owner',
+      created_at: new Date().toISOString(),
+    };
+
+    store.users.push(newUser);
+    const token = 'dev-token-' + Date.now();
+    store.sessions[token] = {
+      id: newUserId,
+      user_id: newUserId,
+      email: email,
+      name: name || 'Owner',
+      role: 'owner',
+    };
+
     if (!supabase) {
-      return res.status(503).json({ error: 'Supabase not configured on server' });
+      return res.status(201).json({
+        access_token: token,
+        refresh_token: 'dev-refresh-token',
+        user: {
+          id: newUserId,
+          email: email,
+          name: name || 'Owner',
+          role: 'owner',
+        },
+        message: 'Registration successful',
+      });
     }
+
     const { data, error } = await supabase.auth.signUp({
       email,
       password,
@@ -47,19 +116,26 @@ export const register = async (req, res, next) => {
       console.error(`[auth/register] supabase error:`, error.message, error.status);
       return res.status(400).json({ error: error.message });
     }
-    console.log(`[auth/register] success user_id=${data.user?.id} has_session=${!!data.session}`);
+
+    const assignedId = data.user?.id || newUserId;
+    store.sessions[token] = {
+      id: assignedId,
+      user_id: assignedId,
+      email: email,
+      name: name || 'Owner',
+      role: 'owner',
+    };
+
     return res.status(201).json({
-      access_token: data.session?.access_token || null,
+      access_token: data.session?.access_token || token,
       refresh_token: data.session?.refresh_token || null,
       user: {
-        id: data.user?.id,
-        email: data.user?.email,
+        id: assignedId,
+        email: data.user?.email || email,
         name: name || 'Owner',
         role: 'owner',
       },
-      message: data.session
-        ? 'Registration successful'
-        : 'Registrasi berhasil. Cek email Anda untuk konfirmasi, lalu login.',
+      message: 'Registration successful',
     });
   } catch (err) {
     console.error(`[auth/register] exception:`, err.message);

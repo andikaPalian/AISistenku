@@ -1,22 +1,26 @@
 import { supabase } from '../lib/supabase.js';
-import { store } from '../lib/store.js';
+import { store, DEMO_USER_ID } from '../lib/store.js';
 
 export const getProducts = async (req, res, next) => {
   try {
     const { category } = req.query;
+    const userId = req.user?.user_id || DEMO_USER_ID;
 
     if (supabase) {
       let query = supabase.from('products').select('*');
+      if (userId) {
+        query = query.eq('user_id', userId);
+      }
       if (category && category !== 'All') {
         query = query.eq('category', category);
       }
       const { data, error } = await query;
-      if (!error && data && data.length > 0) {
+      if (!error && data) {
         return res.json({ products: data });
       }
     }
 
-    let items = store.products;
+    let items = store.products.filter((p) => p.user_id === userId);
     if (category && category !== 'All') {
       items = items.filter((p) => p.category.toLowerCase() === category.toLowerCase());
     }
@@ -29,18 +33,24 @@ export const getProducts = async (req, res, next) => {
 
 export const createProduct = async (req, res, next) => {
   try {
-    const { name, price, category, default_variant, image_url } = req.body;
+    const { name, price, category, default_variant, image_url, code, stock, min_stock, unit } = req.body;
     if (!name || !price || !category) {
       return res.status(400).json({ error: 'Name, price, and category are required' });
     }
 
+    const userId = req.user?.user_id || DEMO_USER_ID;
     const newProd = {
       product_id: `prod-${Date.now()}`,
+      user_id: userId,
       name,
       price: Number(price),
       category,
       default_variant: default_variant || 'Regular',
       image_url: image_url || null,
+      code: code || `PRD-${Date.now().toString().slice(-4)}`,
+      current_stock: stock !== undefined ? Number(stock) : 0,
+      min_stock: min_stock !== undefined ? Number(min_stock) : 0,
+      unit: unit || 'cup',
       created_at: new Date().toISOString(),
     };
 

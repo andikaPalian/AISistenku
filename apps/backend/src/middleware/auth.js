@@ -1,13 +1,14 @@
 import { supabase } from '../lib/supabase.js';
+import { store, DEMO_USER_ID } from '../lib/store.js';
 
 export const authMiddleware = async (req, res, next) => {
   try {
     const authHeader = req.headers.authorization;
     if (!authHeader || !authHeader.startsWith('Bearer ')) {
-      // Default fallback mock user for development
+      // Default demo fallback if unauthenticated
       req.user = {
-        user_id: '00000000-0000-0000-0000-000000000001',
-        name: 'Owner Cafe',
+        user_id: DEMO_USER_ID,
+        name: 'Owner Cafe (Demo)',
         email: 'owner@tigaangkatan.id',
         role: 'owner',
       };
@@ -15,9 +16,22 @@ export const authMiddleware = async (req, res, next) => {
     }
 
     const token = authHeader.split(' ')[1];
+
+    // Check in-memory active sessions
+    if (store.sessions && store.sessions[token]) {
+      const u = store.sessions[token];
+      req.user = {
+        user_id: u.id || u.user_id,
+        name: u.name || 'Owner',
+        email: u.email || 'user@tigaangkatan.id',
+        role: u.role || 'owner',
+      };
+      return next();
+    }
+
     if (!supabase) {
       req.user = {
-        user_id: '00000000-0000-0000-0000-000000000001',
+        user_id: DEMO_USER_ID,
         name: 'Owner Cafe',
         email: 'owner@tigaangkatan.id',
         role: 'owner',

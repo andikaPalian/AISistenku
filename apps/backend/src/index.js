@@ -12,9 +12,8 @@ const PORT = process.env.PORT || 3000;
 
 // Middleware
 app.use(helmet());
-const FRONTEND_ORIGIN = process.env.FRONTEND_ORIGIN || 'http://localhost:5173';
 app.use(cors({
-  origin: FRONTEND_ORIGIN.split(',').map((s) => s.trim()),
+  origin: true, // Allow all origins in development (localhost:3000, localhost:3001, localhost:5173, mobile, etc.)
   credentials: true,
   allowedHeaders: ['Content-Type', 'Authorization'],
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],

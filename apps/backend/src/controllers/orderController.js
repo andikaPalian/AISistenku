@@ -23,10 +23,11 @@ export const createOrder = async (req, res, next) => {
     const orderId = `ord-${Date.now()}`;
     const orderCode = `#3A-${Math.floor(10000 + Math.random() * 90000)}`;
 
+    const userId = req.user?.user_id || DEMO_USER_ID;
     const newOrder = {
       order_id: orderId,
       order_code: orderCode,
-      user_id: req.user?.user_id || '00000000-0000-0000-0000-000000000001',
+      user_id: userId,
       order_type: orderType,
       table_number: tableNumber || null,
       customer_name: customerName || null,
@@ -134,22 +135,28 @@ export const createOrder = async (req, res, next) => {
   }
 };
 
-export const getOrders = async (_req, res, next) => {
+export const getOrders = async (req, res, next) => {
   try {
+    const userId = req.user?.user_id || DEMO_USER_ID;
+
     if (supabase) {
-      const { data, error } = await supabase
+      let q = supabase
         .from('orders')
         .select('*, order_items(*)')
         .order('created_at', { ascending: false });
-      if (!error && data && data.length > 0) {
+      if (userId) q = q.eq('user_id', userId);
+      const { data, error } = await q;
+      if (!error && data) {
         return res.json({ orders: data });
       }
     }
 
-    const ordersWithItems = store.orders.map((ord) => ({
-      ...ord,
-      items: store.orderItems.filter((i) => i.order_id === ord.order_id),
-    }));
+    const ordersWithItems = store.orders
+      .filter((ord) => ord.user_id === userId)
+      .map((ord) => ({
+        ...ord,
+        items: store.orderItems.filter((i) => i.order_id === ord.order_id),
+      }));
 
     return res.json({ orders: ordersWithItems });
   } catch (err) {

@@ -1,5 +1,5 @@
 import { supabase } from '../lib/supabase.js';
-import { store } from '../lib/store.js';
+import { store, DEMO_USER_ID } from '../lib/store.js';
 
 const computeStockStatus = (currentStock, minStock) => {
   if (currentStock <= minStock * 0.6) {
@@ -14,15 +14,39 @@ const computeStockStatus = (currentStock, minStock) => {
 export const getStocks = async (req, res, next) => {
   try {
     const { category } = req.query;
+    const userId = req.user?.user_id || DEMO_USER_ID;
 
-    let items = store.stockItems;
     if (supabase) {
-      const { data, error } = await supabase.from('stock_items').select('*');
-      if (!error && data && data.length > 0) {
-        items = data;
+      let query = supabase.from('stock_items').select('*');
+      if (userId) {
+        query = query.eq('user_id', userId);
+      }
+      if (category && category !== 'Semua') {
+        query = query.eq('category', category);
+      }
+      const { data, error } = await query;
+      if (!error && data) {
+        const formattedItems = data.map((item) => {
+          const curr = Number(item.current_stock);
+          const min = Number(item.min_stock);
+          const cost = Number(item.cost_per_unit || 0);
+          const status = computeStockStatus(curr, min);
+
+          return {
+            ...item,
+            current_stock: curr,
+            min_stock: min,
+            cost_per_unit: cost,
+            status,
+            health_ratio: min <= 0 ? 1.0 : Math.min(1.0, Math.max(0.0, curr / (min * 2))),
+            total_value: Math.round(curr * cost),
+          };
+        });
+        return res.json({ stocks: formattedItems });
       }
     }
 
+    let items = store.stockItems.filter((i) => i.user_id === userId);
     if (category && category !== 'Semua') {
       items = items.filter((i) => i.category === category);
     }
@@ -50,12 +74,16 @@ export const getStocks = async (req, res, next) => {
   }
 };
 
-export const getStockSummary = async (_req, res, next) => {
+export const getStockSummary = async (req, res, next) => {
   try {
-    let items = store.stockItems;
+    const userId = req.user?.user_id || DEMO_USER_ID;
+    let items = store.stockItems.filter((i) => i.user_id === userId);
+
     if (supabase) {
-      const { data, error } = await supabase.from('stock_items').select('*');
-      if (!error && data && data.length > 0) {
+      let query = supabase.from('stock_items').select('*');
+      if (userId) query = query.eq('user_id', userId);
+      const { data, error } = await query;
+      if (!error && data) {
         items = data;
       }
     }
@@ -121,8 +149,10 @@ export const createStock = async (req, res, next) => {
       return res.status(400).json({ error: 'Stock name is required' });
     }
 
+    const userId = req.user?.user_id || DEMO_USER_ID;
     const newItem = {
       stock_id: `stock-${Date.now()}`,
+      user_id: userId,
       name,
       category,
       current_stock: Number(current_stock),
@@ -143,6 +173,7 @@ export const createStock = async (req, res, next) => {
     const initLog = {
       log_id: `log-${Date.now()}`,
       stock_id: newItem.stock_id,
+      user_id: userId,
       stock_name: newItem.name,
       type: 'IN',
       quantity: newItem.current_stock,
