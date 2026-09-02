@@ -34,6 +34,20 @@ export const LoginScreen: React.FC = () => {
     }
   };
 
+  const handleDemoLogin = async () => {
+    setError(null);
+    setLoading(true);
+    try {
+      await login('owner@tigaangkatan.id', 'password123');
+      window.location.reload();
+    } catch (err: any) {
+      const msg = err?.error || err?.message || 'Gagal masuk akun demo.';
+      setError(msg);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <div className="login-screen">
       <div className="login-card">
@@ -109,6 +123,15 @@ export const LoginScreen: React.FC = () => {
             {loading ? 'Memproses...' : mode === 'login' ? 'Masuk Dashboard' : 'Daftar Sekarang'}
           </button>
         </form>
+
+        <button 
+          type="button" 
+          onClick={handleDemoLogin} 
+          disabled={loading}
+          className="btn-outline"
+        >
+          <Coffee size={16} /> Coba Demo Akun Cafe (Data Contoh)
+        </button>
 
         <p className="login-hint">
           {mode === 'login' ? 'Belum punya akun? ' : 'Sudah punya akun? '}

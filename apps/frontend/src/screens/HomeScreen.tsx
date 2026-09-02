@@ -1,7 +1,8 @@
 import React, { useEffect, useRef } from 'react';
 import { TabType, StockAlert } from '../types';
-import { ShoppingBag, ArrowUpRight, Sparkles, AlertTriangle, ArrowRight, ArrowDownRight, Wallet, CheckCircle2 } from 'lucide-react';
+import { ShoppingBag, ArrowUpRight, Sparkles, AlertTriangle, ArrowRight, ArrowDownRight, Wallet, CheckCircle2, LogOut } from 'lucide-react';
 import { animateScreenEntrance } from '../lib/animations';
+import { logout } from '../lib/auth';
 import { SalesAnalyticsChart } from '../components/charts/SalesAnalyticsChart';
 import './HomeScreen.css';
 
@@ -64,7 +65,11 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ onNavigateTab, stockAler
         <div className="quick-action-group">
           <button onClick={() => onNavigateTab('pos')} className="btn-primary">
             <ShoppingBag size={16} />
-            <span>+ Buka Kasir POS</span>
+            <span className="hide-on-mobile">+ Buka Kasir POS</span>
+            <span className="show-on-mobile">Kasir POS</span>
+          </button>
+          <button onClick={logout} className="btn-secondary" style={{ padding: '0.6rem', color: '#DC2626', borderColor: '#FECACA', backgroundColor: '#FEF2F2' }} title="Keluar dari Aplikasi">
+            <LogOut size={16} />
           </button>
         </div>
       </div>

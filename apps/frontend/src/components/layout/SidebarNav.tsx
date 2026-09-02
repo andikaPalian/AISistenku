@@ -12,6 +12,7 @@ import {
   ChevronRight,
   PanelLeftClose,
   PanelLeftOpen,
+  LogOut,
 } from 'lucide-react';
 import './SidebarNav.css';
 
@@ -22,6 +23,7 @@ interface SidebarNavProps {
   stockAlertCount?: number;
   isCollapsed?: boolean;
   onToggleCollapse?: () => void;
+  onLogout?: () => void;
 }
 
 export const SidebarNav: React.FC<SidebarNavProps> = ({
@@ -31,6 +33,7 @@ export const SidebarNav: React.FC<SidebarNavProps> = ({
   stockAlertCount = 0,
   isCollapsed = false,
   onToggleCollapse,
+  onLogout,
 }) => {
   const menuItems = [
     { id: 'home' as TabType, label: 'Beranda', icon: Home },
@@ -153,6 +156,16 @@ export const SidebarNav: React.FC<SidebarNavProps> = ({
               <span className="user-name">Budi Santoso</span>
               <span className="user-role">Pemilik Toko</span>
             </div>
+          )}
+          {onLogout && (
+            <button 
+              type="button" 
+              onClick={onLogout} 
+              className="sidebar-logout-btn" 
+              title="Keluar"
+            >
+              <LogOut size={16} />
+            </button>
           )}
         </div>
       </div>
