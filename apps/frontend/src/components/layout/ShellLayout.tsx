@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
-import { TabType, CartItem, Product, Transaction, StockAlert, AiChatMessage } from '../../types';
-import { TopHeader, ViewportMode } from './TopHeader';
+import { TabType, CartItem } from '../../types';
 import { SidebarNav } from './SidebarNav';
 import { BottomNav } from './BottomNav';
 import { HomeScreen } from '../../screens/HomeScreen';
@@ -9,12 +8,21 @@ import { StockScreen } from '../../screens/StockScreen';
 import { FinanceScreen } from '../../screens/FinanceScreen';
 import { AiAssistantScreen } from '../../screens/AiAssistantScreen';
 import { useProducts, useStocks, useTransactions, useDashboard, useAiMessages, useStockAlerts } from '../../hooks/useData';
-import { logout } from '../../lib/auth';
 
 export const ShellLayout: React.FC = () => {
   const [activeTab, setActiveTab] = useState<TabType>('home');
-  const [viewportMode, setViewportMode] = useState<ViewportMode>('responsive');
   const [cart, setCart] = useState<CartItem[]>([]);
+  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState<boolean>(() => {
+    return localStorage.getItem('sidebar_collapsed') === 'true';
+  });
+
+  const toggleSidebar = () => {
+    setIsSidebarCollapsed((prev) => {
+      const next = !prev;
+      localStorage.setItem('sidebar_collapsed', String(next));
+      return next;
+    });
+  };
 
   const productsHook = useProducts();
   const stocksHook = useStocks();
@@ -22,11 +30,6 @@ export const ShellLayout: React.FC = () => {
   const dashboardHook = useDashboard();
   const aiHook = useAiMessages();
   const alertsHook = useStockAlerts();
-
-  const handleLogout = () => {
-    logout();
-    window.dispatchEvent(new Event('ta-auth-changed'));
-  };
 
   const renderScreen = () => {
     switch (activeTab) {
@@ -60,6 +63,20 @@ export const ShellLayout: React.FC = () => {
             loading={stocksHook.loading}
             onRestock={stocksHook.restock}
             onAdjust={stocksHook.adjust}
+            onCreateItem={async (body) => {
+              const item = await stocksHook.create(body);
+              await Promise.all([stocksHook.refresh(), productsHook.refresh(), alertsHook.refresh()]);
+              return item;
+            }}
+            onUpdateItem={async (id, body) => {
+              const item = await stocksHook.update(id, body);
+              await Promise.all([stocksHook.refresh(), productsHook.refresh(), alertsHook.refresh()]);
+              return item;
+            }}
+            onDeleteItem={async (id) => {
+              await stocksHook.remove(id);
+              await Promise.all([stocksHook.refresh(), productsHook.refresh(), alertsHook.refresh()]);
+            }}
             refresh={stocksHook.refresh}
           />
         );
@@ -99,27 +116,18 @@ export const ShellLayout: React.FC = () => {
   const totalCartCount = cart.reduce((sum, item) => sum + item.quantity, 0);
 
   return (
-    <div className={`app-container viewport-${viewportMode}`}>
+    <div className="app-container">
       <SidebarNav
         activeTab={activeTab}
         onTabChange={setActiveTab}
         cartCount={totalCartCount}
         stockAlertCount={alertsHook.data.length}
+        isCollapsed={isSidebarCollapsed}
+        onToggleCollapse={toggleSidebar}
       />
 
-      <main className="main-content">
-        <TopHeader
-          viewportMode={viewportMode}
-          onViewportChange={setViewportMode}
-          unreadCount={alertsHook.data.length}
-          onLogout={handleLogout}
-        />
-
-        <div className={`viewport-frame-wrapper ${viewportMode}`}>
-          <div className="viewport-inner">
-            {renderScreen()}
-          </div>
-        </div>
+      <main className={`main-content ${isSidebarCollapsed ? 'collapsed-sidebar' : ''}`}>
+        {renderScreen()}
 
         <BottomNav
           activeTab={activeTab}

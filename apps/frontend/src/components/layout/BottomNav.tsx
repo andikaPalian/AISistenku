@@ -32,7 +32,13 @@ export const BottomNav: React.FC<BottomNavProps> = ({ activeTab, onTabChange, ca
               className={`bottom-nav-item ${isActive ? 'active' : ''} ${tab.isAi ? 'ai-item' : ''}`}
             >
               <div className="icon-wrapper">
-                <IconComponent className={`icon ${tab.isAi ? 'ai-icon' : ''}`} size={20} />
+                {tab.isAi ? (
+                  <div className="bottom-nav-ai-container">
+                    <img src="/iconAisistenku.png" alt="AI Assistant" className="bottom-nav-ai-img" />
+                  </div>
+                ) : (
+                  <IconComponent className="icon" size={20} />
+                )}
                 {tab.badge && <span className="nav-badge">{tab.badge}</span>}
               </div>
               <span className="label">{tab.label}</span>

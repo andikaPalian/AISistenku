@@ -4,14 +4,21 @@
   gap: 20px;
 }
 
+.finance-overview-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 16px;
+}
+
 .overview-card {
   display: flex;
   flex-direction: column;
+  padding: 20px;
 }
 
 .overview-card.highlight {
-  background: linear-gradient(135deg, #ffffff 0%, #f0fdfa 100%);
-  border-color: var(--primary-light);
+  background: linear-gradient(135deg, #FFFFFF 0%, #F0FDFA 100%);
+  border-color: #CCFBF1;
 }
 
 .overview-header {
@@ -22,130 +29,97 @@
 }
 
 .overview-label {
-  font-size: 11px;
+  font-size: 11.5px;
   font-weight: 700;
-  color: var(--text-muted);
+  color: #64748B;
   letter-spacing: 0.5px;
+  text-transform: uppercase;
 }
 
 .overview-icon {
-  width: 36px;
-  height: 36px;
+  width: 40px;
+  height: 40px;
   border-radius: var(--radius-md);
   display: flex;
   align-items: center;
   justify-content: center;
+  flex-shrink: 0;
 }
 
-.overview-icon.teal { background-color: #dcfce7; color: #10b981; }
-.overview-icon.red { background-color: #fee2e2; color: #ef4444; }
-.overview-icon.gold { background-color: #ccfbf1; color: #0d9488; }
+.overview-icon.teal {
+  background-color: #DCFCE7;
+  color: #10B981;
+}
+
+.overview-icon.red {
+  background-color: #FEE2E2;
+  color: #EF4444;
+}
+
+.overview-icon.gold {
+  background-color: #CCFBF1;
+  color: #0D9488;
+}
 
 .overview-value {
+  font-family: var(--font-heading);
   font-size: 24px;
-  font-weight: 700;
+  font-weight: 800;
   margin-bottom: 4px;
+  letter-spacing: -0.02em;
 }
 
-.teal-text { color: #10b981; }
-.red-text { color: #ef4444; }
-.dark-text { color: var(--primary); }
+.teal-text {
+  color: #059669;
+}
+
+.red-text {
+  color: #DC2626;
+}
+
+.dark-text {
+  color: #0F172A;
+}
 
 .overview-sub {
-  font-size: 11px;
-  color: var(--text-muted);
-}
-
-/* Chart Card */
-.chart-card {
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-}
-
-.chart-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.chart-legend {
-  display: flex;
-  gap: 16px;
   font-size: 12px;
-  color: var(--text-muted);
+  color: #64748B;
 }
 
-.legend-item {
-  display: flex;
-  align-items: center;
-  gap: 6px;
+/* ── History Table & Controls ── */
+.tx-history-card {
+  padding: 0;
+  overflow: hidden;
 }
 
-.dot {
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-}
-
-.dot.teal { background-color: #10b981; }
-.dot.red { background-color: #ef4444; }
-
-.chart-bar-container {
-  display: flex;
-  justify-content: space-around;
-  align-items: flex-end;
-  height: 140px;
-  background-color: var(--bg-surface);
-  border-radius: var(--radius-md);
-  padding: 16px;
-}
-
-.chart-bar-group {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 8px;
-  height: 100%;
-}
-
-.bar-wrapper {
-  display: flex;
-  align-items: flex-end;
-  gap: 6px;
-  height: 100px;
-  width: 40px;
-}
-
-.bar-fill {
-  width: 16px;
-  border-radius: 4px 4px 0 0;
-  transition: height 0.3s ease;
-}
-
-.bar-fill.teal { background-color: #10b981; }
-.bar-fill.red { background-color: #ef4444; }
-
-.bar-label {
-  font-size: 11px;
-  color: var(--text-muted);
-  font-weight: 500;
-}
-
-/* History */
 .tx-history-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 16px;
+  padding: 18px 20px;
+  border-bottom: 1px solid #E2E8F0;
   flex-wrap: wrap;
   gap: 12px;
 }
 
+.tx-history-header h3 {
+  font-family: var(--font-heading);
+  font-size: 16px;
+  font-weight: 700;
+  color: #0F172A;
+  margin: 0;
+}
+
+.tx-history-sub {
+  font-size: 12px;
+  color: #64748B;
+  margin-top: 2px;
+}
+
 .filter-tab-group {
   display: flex;
-  gap: 6px;
-  background: var(--bg-surface);
+  gap: 4px;
+  background: #F1F5F9;
   padding: 4px;
   border-radius: var(--radius-md);
 }
@@ -153,37 +127,249 @@
 .filter-btn {
   background: transparent;
   border: none;
-  padding: 6px 12px;
-  border-radius: var(--radius-sm);
+  padding: 6px 14px;
+  border-radius: 6px;
   font-size: 12px;
-  font-weight: 500;
-  color: var(--text-muted);
+  font-weight: 600;
+  color: #64748B;
   cursor: pointer;
+  transition: all 0.15s ease;
 }
 
 .filter-btn.active {
-  background: #ffffff;
-  color: var(--primary);
-  font-weight: 600;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+  background: #FFFFFF;
+  color: #0D9488;
+  font-weight: 700;
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.08);
+}
+
+.cat-chip-tag.expense-tag {
+  background-color: #FEE2E2;
+  color: #991B1B;
+}
+
+.cat-chip-tag.income-tag {
+  background-color: #DCFCE7;
+  color: #065F46;
 }
 
 .method-tag {
-  font-size: 11px;
+  font-size: 10.5px;
   font-weight: 700;
-  color: var(--text-muted);
-  background: var(--bg-surface);
-  padding: 2px 8px;
+  color: #475569;
+  background: #F1F5F9;
+  padding: 3px 8px;
   border-radius: 4px;
+  letter-spacing: 0.3px;
+}
+
+.time-sub {
+  color: #64748B;
+  font-size: 11.5px;
 }
 
 .notes-cell {
-  color: var(--text-muted);
+  color: #475569;
+  font-size: 12.5px;
 }
 
 .amount-cell {
+  font-family: var(--font-heading);
+  font-weight: 700;
+  font-size: 13.5px;
+}
+
+.amount-cell.income-text {
+  color: #059669;
+}
+
+.amount-cell.expense-text {
+  color: #DC2626;
+}
+
+/* ── Modal Catat Transaksi ── */
+.finance-modal-card {
+  max-width: 480px;
+}
+
+.tx-type-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-top: 6px;
+}
+
+.tx-type-card {
+  border: 1.5px solid #E2E8F0;
+  background: #FFFFFF;
+  border-radius: var(--radius-md);
+  padding: 12px 14px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+  text-align: left;
+  transition: all 0.2s ease;
+}
+
+.tx-type-card:hover {
+  background: #F8FAFC;
+  border-color: #CBD5E1;
+}
+
+.tx-type-card.expense.active {
+  border-color: #EF4444;
+  background-color: #FEF2F2;
+}
+
+.tx-type-card.income.active {
+  border-color: #10B981;
+  background-color: #F0FDF4;
+}
+
+.tx-type-icon {
+  flex-shrink: 0;
+}
+
+.tx-type-icon.red {
+  color: #EF4444;
+}
+
+.tx-type-icon.green {
+  color: #10B981;
+}
+
+.tx-type-title {
+  display: block;
+  font-size: 13px;
+  font-weight: 700;
+  color: #0F172A;
+}
+
+.tx-type-desc {
+  display: block;
+  font-size: 10.5px;
+  color: #64748B;
+  margin-top: 2px;
+}
+
+.margin-top-md {
+  margin-top: 14px;
+}
+
+.amount-big-input {
+  font-size: 16px;
+  font-weight: 700;
+  color: #0F172A;
+}
+
+.quick-amount-pills {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  margin-top: 8px;
+}
+
+.quick-amount-btn {
+  background: #F8FAFC;
+  border: 1px solid #E2E8F0;
+  border-radius: 6px;
+  padding: 4px 10px;
+  font-size: 11px;
+  font-weight: 600;
+  color: #475569;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.quick-amount-btn:hover {
+  background: #F1F5F9;
+  border-color: #CBD5E1;
+}
+
+.quick-amount-btn.active {
+  background: #0D9488;
+  color: #FFFFFF;
+  border-color: #0D9488;
   font-weight: 700;
 }
 
-.amount-cell.income-text { color: #10b981; }
-.amount-cell.expense-text { color: #ef4444; }
+.payment-method-chips {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+  margin-top: 6px;
+}
+
+.pay-chip {
+  background: #FFFFFF;
+  border: 1px solid #CBD5E1;
+  border-radius: 8px;
+  padding: 10px 8px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  cursor: pointer;
+  font-size: 11px;
+  font-weight: 600;
+  color: #334155;
+  transition: all 0.15s ease;
+}
+
+.pay-chip:hover {
+  background: #F8FAFC;
+  border-color: #94A3B8;
+}
+
+.pay-chip.active {
+  border-color: #0D9488;
+  background-color: #F0FDFA;
+  color: #0D9488;
+  font-weight: 700;
+}
+
+/* ── Mobile & Tablet Responsive Adaptations ── */
+@media (max-width: 768px) {
+  .finance-overview-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .tx-history-header {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 12px;
+  }
+
+  .filter-tab-group {
+    width: 100%;
+    justify-content: stretch;
+  }
+
+  .filter-tab-group .filter-btn {
+    flex: 1;
+    text-align: center;
+  }
+
+  .tx-type-grid {
+    grid-template-columns: 1fr;
+    gap: 8px;
+  }
+
+  .payment-method-chips {
+    grid-template-columns: 1fr;
+    gap: 6px;
+  }
+
+  .pay-chip {
+    flex-direction: row;
+    justify-content: flex-start;
+    padding: 10px 14px;
+    gap: 10px;
+  }
+
+  .finance-modal-card {
+    max-width: 95vw;
+  }
+}
