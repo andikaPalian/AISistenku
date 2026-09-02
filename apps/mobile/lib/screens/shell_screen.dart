@@ -23,38 +23,25 @@ class ShellScreen extends StatefulWidget {
 class _ShellScreenState extends State<ShellScreen> {
   int _currentIndex = 0;
 
-  // Only 4 real tabs in the stack; AI is opened as a modal overlay.
-  // Indices map: 0=Home, 1=POS, 2=Stock(was 3), 3=Finance(was 4)
+  // 5 screens matching the 5-button nav bar 1:1.
+  // Index 2 is a lightweight placeholder — the real AI screen
+  // opens as a full-screen modal overlay when tapped.
   final List<Widget> _screens = [
-    const HomeScreen(),
-    const PosScreen(),
-    const StockScreen(),
-    const FinanceScreen(),
+    const HomeScreen(),          // 0 = Home
+    const PosScreen(),           // 1 = POS
+    const SizedBox.shrink(),     // 2 = AI placeholder (opens as modal)
+    const StockScreen(),         // 3 = Stock
+    const FinanceScreen(),       // 4 = Finance
   ];
 
-  /// Maps the 5-button nav bar index to the 4-screen IndexedStack index.
-  /// Returns -1 for the center AI button (index 2).
-  int _navToStackIndex(int navIndex) {
-    if (navIndex < 2) return navIndex;       // 0→0, 1→1
-    if (navIndex == 2) return -1;            // AI modal, not in stack
-    return navIndex - 1;                     // 3→2, 4→3
-  }
-
-  /// Maps a stack index back to nav bar index for highlighting.
-  int _stackToNavIndex(int stackIndex) {
-    if (stackIndex < 2) return stackIndex;   // 0→0, 1→1
-    return stackIndex + 1;                   // 2→3, 3→4
-  }
-
-  void _onTabTapped(int navIndex) {
-    if (navIndex == 2) {
+  void _onTabTapped(int index) {
+    if (index == 2) {
       // ── Open AI Assistant as full-screen slide-up modal ──
       _openAiAssistantModal();
       return;
     }
-    final stackIndex = _navToStackIndex(navIndex);
     setState(() {
-      _currentIndex = stackIndex;
+      _currentIndex = index;
     });
   }
 
@@ -75,7 +62,7 @@ class _ShellScreenState extends State<ShellScreen> {
         children: _screens,
       ),
       bottomNavigationBar: AppBottomNav(
-        currentIndex: _stackToNavIndex(_currentIndex),
+        currentIndex: _currentIndex,
         onTap: _onTabTapped,
       ),
     );
