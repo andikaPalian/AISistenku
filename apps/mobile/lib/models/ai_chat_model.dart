@@ -192,11 +192,22 @@ class AiChatRepository extends ChangeNotifier {
             } else if (typeStr == 'businessSummary') {
               msgType = AiMessageType.businessSummary;
               if (m['extra_data'] is Map) extraData = Map<String, dynamic>.from(m['extra_data']);
-            } else if (typeStr == 'caption') {
+            } else if (typeStr == 'contentCaption') {
               msgType = AiMessageType.contentCaption;
-              if (m['extra_data'] is Map) extraData = Map<String, dynamic>.from(m['extra_data']);
+              if (m['actionPayload'] != null) {
+                final ap = m['actionPayload'];
+                actionPayload = AiActionPayload(
+                  actionId: ap['actionId'] ?? 'cap-001',
+                  intent: ap['intent'] ?? 'PROMO_CAPTION',
+                  captionTitle: ap['captionTitle'],
+                  captionText: ap['captionText'],
+                  hashtags: ap['hashtags'] != null ? List<String>.from(ap['hashtags']) : null,
+                  platform: ap['platform'],
+                  tone: ap['tone'],
+                  status: AiActionStatus.pending,
+                );
+              }
             }
-
             loaded.add(AiChatMessage(
               id: m['message_id'] ?? m['id'] ?? 'msg-${DateTime.now().millisecondsSinceEpoch}',
               sender: sender,
@@ -268,10 +279,20 @@ class AiChatRepository extends ChangeNotifier {
           if (r['extra_data'] != null && r['extra_data'] is Map) {
             extraData = Map<String, dynamic>.from(r['extra_data']);
           }
-        } else if (resTypeStr == 'caption') {
+        } else if (resTypeStr == 'contentCaption') {
           msgType = AiMessageType.contentCaption;
-          if (r['extra_data'] != null && r['extra_data'] is Map) {
-            extraData = Map<String, dynamic>.from(r['extra_data']);
+          if (r['actionPayload'] != null) {
+            final ap = r['actionPayload'];
+            actionPayload = AiActionPayload(
+              actionId: ap['actionId'] ?? 'cap-${DateTime.now().millisecondsSinceEpoch}',
+              intent: ap['intent'] ?? 'PROMO_CAPTION',
+              captionTitle: ap['captionTitle'],
+              captionText: ap['captionText'],
+              hashtags: ap['hashtags'] != null ? List<String>.from(ap['hashtags']) : null,
+              platform: ap['platform'],
+              tone: ap['tone'],
+              status: AiActionStatus.pending,
+            );
           }
         }
 

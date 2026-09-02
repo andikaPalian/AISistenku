@@ -86,7 +86,7 @@ class AiMessageBubble extends StatelessWidget {
           const SizedBox(width: 10),
 
           // AI Response Card
-          Expanded(
+          Flexible(
             child: Container(
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
@@ -111,6 +111,7 @@ class AiMessageBubble extends StatelessWidget {
               ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
                 children: [
                   // Text description
                   Text(

@@ -55,10 +55,42 @@ export const createProduct = async (req, res, next) => {
     };
 
     if (supabase) {
-      const { data, error } = await supabase.from('products').insert([newProd]).select().single();
+      const dbProd = {
+        product_id: newProd.product_id,
+        user_id: newProd.user_id,
+        name: newProd.name,
+        price: newProd.price,
+        category: newProd.category,
+        default_variant: newProd.default_variant,
+        image_url: newProd.image_url,
+        code: newProd.code,
+        created_at: newProd.created_at
+      };
+      
+      const { data, error } = await supabase.from('products').insert([dbProd]).select().single();
+      
+      // Auto-create stock item to link with this product
+      const dbStock = {
+        stock_id: `stock-${newProd.product_id}`,
+        user_id: newProd.user_id,
+        name: newProd.name,
+        category: newProd.category,
+        current_stock: newProd.current_stock,
+        min_stock: newProd.min_stock,
+        unit: newProd.unit,
+        cost_per_unit: Math.floor(newProd.price * 0.4),
+        supplier: 'Internal',
+        created_at: newProd.created_at,
+        updated_at: newProd.created_at
+      };
+      await supabase.from('stock_items').insert([dbStock]).catch(() => {});
+      store.stockItems.unshift(dbStock);
+
       if (!error && data) {
-        return res.status(201).json({ product: data });
+        // Return full merged data to frontend
+        return res.status(201).json({ product: { ...data, current_stock: newProd.current_stock, min_stock: newProd.min_stock, unit: newProd.unit } });
       }
+      if (error) console.error("Error inserting product:", error);
     }
 
     store.products.unshift(newProd);
