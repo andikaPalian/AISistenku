@@ -4,8 +4,9 @@ import '../core/theme/app_colors.dart';
 /// Custom bottom navigation bar with a center elevated FAB for AIsisten.
 ///
 /// Matches the reference design with 5 tabs: Home, POS, AIsisten (center),
-/// Stock, and Finance.
-class AppBottomNav extends StatelessWidget {
+/// Stock, and Finance. The center AIsisten button has a breathing glow
+/// animation to emphasize it as the hero feature.
+class AppBottomNav extends StatefulWidget {
   final int currentIndex;
   final Function(int) onTap;
 
@@ -14,6 +15,33 @@ class AppBottomNav extends StatelessWidget {
     required this.currentIndex,
     required this.onTap,
   });
+
+  @override
+  State<AppBottomNav> createState() => _AppBottomNavState();
+}
+
+class _AppBottomNavState extends State<AppBottomNav>
+    with SingleTickerProviderStateMixin {
+  late AnimationController _pulseController;
+  late Animation<double> _pulseAnimation;
+
+  @override
+  void initState() {
+    super.initState();
+    _pulseController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 2000),
+    )..repeat(reverse: true);
+    _pulseAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
+      CurvedAnimation(parent: _pulseController, curve: Curves.easeInOut),
+    );
+  }
+
+  @override
+  void dispose() {
+    _pulseController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -52,9 +80,9 @@ class AppBottomNav extends StatelessWidget {
   }
 
   Widget _buildNavItem(IconData icon, String label, int index) {
-    final isSelected = currentIndex == index;
+    final isSelected = widget.currentIndex == index;
     return GestureDetector(
-      onTap: () => onTap(index),
+      onTap: () => widget.onTap(index),
       behavior: HitTestBehavior.opaque,
       child: SizedBox(
         width: 56,
@@ -93,34 +121,56 @@ class AppBottomNav extends StatelessWidget {
 
   Widget _buildFabItem() {
     return GestureDetector(
-      onTap: () => onTap(2),
+      onTap: () => widget.onTap(2),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
           Transform.translate(
             offset: const Offset(0, -12),
-            child: Container(
-              padding: const EdgeInsets.all(10),
-              decoration: BoxDecoration(
-                gradient: const LinearGradient(
-                  colors: [AppColors.primary, AppColors.accent],
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                ),
-                shape: BoxShape.circle,
-                boxShadow: [
-                  BoxShadow(
-                    color: AppColors.primary.withOpacity(0.3),
-                    blurRadius: 12,
-                    offset: const Offset(0, 4),
+            child: AnimatedBuilder(
+              animation: _pulseAnimation,
+              builder: (context, child) {
+                final glowOpacity = 0.15 + (_pulseAnimation.value * 0.2);
+                final glowSpread = 2.0 + (_pulseAnimation.value * 6.0);
+                final glowBlur = 12.0 + (_pulseAnimation.value * 10.0);
+                return Container(
+                  padding: const EdgeInsets.all(3),
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    boxShadow: [
+                      BoxShadow(
+                        color: AppColors.primary.withOpacity(glowOpacity),
+                        blurRadius: glowBlur,
+                        spreadRadius: glowSpread,
+                      ),
+                    ],
                   ),
-                ],
-              ),
-              child: Image.asset(
-                'assets/icons/iconAisistenku.png',
-                width: 34,
-                height: 34,
-                color: Colors.white,
+                  child: child,
+                );
+              },
+              child: Container(
+                padding: const EdgeInsets.all(10),
+                decoration: BoxDecoration(
+                  gradient: const LinearGradient(
+                    colors: [AppColors.primary, AppColors.accent],
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                  ),
+                  shape: BoxShape.circle,
+                  boxShadow: [
+                    BoxShadow(
+                      color: AppColors.primary.withOpacity(0.3),
+                      blurRadius: 12,
+                      offset: const Offset(0, 4),
+                    ),
+                  ],
+                ),
+                child: Image.asset(
+                  'assets/icons/iconAisistenku.png',
+                  width: 34,
+                  height: 34,
+                  color: Colors.white,
+                ),
               ),
             ),
           ),
@@ -130,7 +180,7 @@ class AppBottomNav extends StatelessWidget {
               'AIsisten',
               style: TextStyle(
                 fontSize: 10,
-                color: currentIndex == 2
+                color: widget.currentIndex == 2
                     ? AppColors.primary
                     : AppColors.mutedText,
                 fontWeight: FontWeight.w600,
