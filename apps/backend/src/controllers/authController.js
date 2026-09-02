@@ -67,6 +67,21 @@ export const register = async (req, res, next) => {
   }
 };
 
+export const logout = async (req, res, next) => {
+  try {
+    // Stateless JWT: revocation is best-effort client-side.
+    // If Supabase is up we sign the user out server-side too.
+    if (supabase) {
+      const authHeader = req.headers.authorization || '';
+      const token = authHeader.startsWith('Bearer ') ? authHeader.split(' ')[1] : null;
+      if (token) {
+        await supabase.auth.admin.signOut(token).catch(() => null);
+      }
+    }
+    return res.json({ message: 'Logged out' });
+  } catch (err) { next(err); }
+};
+
 export const getMe = async (req, res, next) => {
   try {
     if (supabase) {

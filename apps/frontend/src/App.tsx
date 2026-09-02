@@ -4,10 +4,19 @@ import { LoginScreen } from './screens/LoginScreen';
 import { isAuthenticated } from './lib/auth';
 
 export const App: React.FC = () => {
-  const [showLogin, setShowLogin] = useState<boolean>(false);
+  const [authed, setAuthed] = useState<boolean>(isAuthenticated());
 
-  // Default to ShellLayout directly with rich mockup data for design testing
-  return <ShellLayout />;
+  useEffect(() => {
+    const handler = () => setAuthed(isAuthenticated());
+    window.addEventListener('storage', handler);
+    window.addEventListener('ta:auth-change', handler);
+    return () => {
+      window.removeEventListener('storage', handler);
+      window.removeEventListener('ta:auth-change', handler);
+    };
+  }, []);
+
+  return authed ? <ShellLayout /> : <LoginScreen />;
 };
 
 export default App;

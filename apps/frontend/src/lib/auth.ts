@@ -23,6 +23,7 @@ export async function login(email: string, password: string): Promise<AuthUser> 
   }
   setToken(data.access_token);
   localStorage.setItem(USER_KEY, JSON.stringify(data.user));
+  try { window.dispatchEvent(new Event('ta:auth-change')); } catch {}
   return data.user;
 }
 
@@ -31,6 +32,7 @@ export async function register(email: string, password: string, name: string): P
   if (data.access_token) {
     setToken(data.access_token);
     localStorage.setItem(USER_KEY, JSON.stringify(data.user));
+    try { window.dispatchEvent(new Event('ta:auth-change')); } catch {}
     return data.user;
   }
   // Email confirmation required — surface the server message
@@ -40,6 +42,7 @@ export async function register(email: string, password: string, name: string): P
 export function logout(): void {
   setToken(null);
   try { localStorage.removeItem(USER_KEY); } catch {}
+  try { window.dispatchEvent(new Event('ta:auth-change')); } catch {}
 }
 
 export function getStoredUser(): AuthUser | null {

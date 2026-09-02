@@ -89,18 +89,22 @@ export const ShellLayout: React.FC = () => {
             onRefresh={transactionsHook.refresh}
           />
         );
-      case 'ai':
-        return (
-          <AiAssistantScreen
-            onNavigateTab={setActiveTab}
-            messages={aiHook.data}
-            loading={aiHook.loading}
-            onSend={aiHook.send}
-            onConfirmAction={aiHook.confirmAction}
-            onClear={aiHook.clear}
-            refresh={aiHook.refresh}
-          />
-        );
+        case 'ai':
+          return (
+            <AiAssistantScreen
+              onNavigateTab={setActiveTab}
+              messages={aiHook.data}
+              messagesRaw={aiHook.raw}
+              loading={aiHook.loading}
+              onSend={aiHook.send}
+              onConfirmAction={async (actionId: string) => {
+                await aiHook.confirmAction(actionId);
+                await Promise.all([stocksHook.refresh(), transactionsHook.refresh()]);
+              }}
+              onClear={aiHook.clear}
+              refresh={aiHook.refresh}
+            />
+          );
       default:
         return (
           <HomeScreen

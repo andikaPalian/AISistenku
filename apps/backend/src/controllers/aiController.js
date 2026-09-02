@@ -4,9 +4,15 @@ import { store } from '../lib/store.js';
 const KELONTONG_API_URL = process.env.KELONTONG_API_URL || 'https://api.kelontongai.my.id/v1';
 const KELONTONG_API_KEY = process.env.KELONTONG_API_KEY || '';
 const KELONTONG_MODEL = process.env.KELONTONG_MODEL || 'mimo-v2.5';
+const KELONTONG_TIMEOUT_MS = 15000;
 
 async function callKelontongAI(messages, opts = {}) {
-  if (!KELONTONG_API_KEY) return null;
+  if (!KELONTONG_API_KEY) {
+    console.warn('[KelontongAI] KELONTONG_API_KEY not set — using local fallback.');
+    return null;
+  }
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), KELONTONG_TIMEOUT_MS);
   try {
     const res = await fetch(`${KELONTONG_API_URL}/chat/completions`, {
       method: 'POST',
@@ -20,7 +26,9 @@ async function callKelontongAI(messages, opts = {}) {
         temperature: opts.temperature ?? 0.5,
         max_tokens: opts.max_tokens ?? 500,
       }),
+      signal: controller.signal,
     });
+    clearTimeout(timeout);
     if (!res.ok) {
       console.warn(`[KelontongAI] HTTP ${res.status}: ${await res.text().catch(() => '')}`);
       return null;
@@ -28,7 +36,12 @@ async function callKelontongAI(messages, opts = {}) {
     const data = await res.json();
     return data?.choices?.[0]?.message?.content || null;
   } catch (err) {
-    console.warn('[KelontongAI] call failed:', err.message);
+    clearTimeout(timeout);
+    if (err.name === 'AbortError') {
+      console.warn(`[KelontongAI] request timed out after ${KELONTONG_TIMEOUT_MS}ms`);
+    } else {
+      console.warn('[KelontongAI] call failed:', err.message);
+    }
     return null;
   }
 }
@@ -88,7 +101,6 @@ export const sendChatMessage = async (req, res, next) => {
       else if (lower.includes('sirup') || lower.includes('syrup')) { item = 'Caramel Syrup'; unit = 'btl'; }
       else if (lower.includes('minyak')) { item = 'Minyak Goreng SunCo'; unit = 'pouch'; }
 
-      const priceRegex = /(\d+(?:[.,]\d+)?)\s*(rb|ribu|k|000|jt|juta)?/i;
       const priceMatch = lower.match(/(?:rp\.?\s*|harga\s*)?(\d+(?:[.,]\d+)?)\s*(rb|ribu|k|000|jt|juta)/i);
       if (priceMatch) {
         const num = parseFloat(priceMatch[1].replace(',', '.'));
@@ -111,7 +123,7 @@ export const sendChatMessage = async (req, res, next) => {
       const aiText = await callKelontongAI([
         { role: 'system', content: 'Anda adalah AI asisten bisnis toko kelontong berbahasa Indonesia. Ringkas, sopan, dan actionable.' },
         { role: 'user', content: `Owner ingin mencatat pembelian: ${qty} ${unit} ${item} seharga Rp${price.toLocaleString('id-ID')}. Beri respons singkat (maks 2 kalimat) untuk konfirmasi pencatatan stok & pengeluaran.` },
-      ]) || `Saya mendeteksi pembelian ${qty} ${unit} ${item} sebesar Rp${price.toLocaleString('id-ID')}. Apakah ingin saya catat ke Stok & Keuangan?`;
+      ]) || `Saya mendeteksi pembelian ${qty} ${unit} ${item} sebesar Rp${price.toLocaleString('id-ID')}. Apakah saya akan catat ke Stok & Keuangan?`;
 
       aiResponseMsg = {
         message_id: `msg-${Date.now() + 1}`,
@@ -258,14 +270,37 @@ export const confirmAiAction = async (req, res, next) => {
     payload.status = 'confirmed';
     if (actionItem) actionItem.status = 'CONFIRMED';
 
+    let resolvedStockId = null;
+    let isNewStock = false;
+    let newStockSnapshot = null;
+
     if (payload.itemName && payload.quantity) {
-      const existingIdx = store.stockItems.findIndex((i) => i.name.toLowerCase() === payload.itemName.toLowerCase());
+      // Try store first (dev fallback)…
+      let existingIdx = store.stockItems.findIndex(
+        (i) => i.name.toLowerCase() === payload.itemName.toLowerCase()
+      );
+
+      // …then query DB if store didn't match.
+      if (existingIdx === -1 && supabase) {
+        const { data } = await supabase
+          .from('stock_items')
+          .select('*')
+          .ilike('name', payload.itemName);
+        if (data && data.length) {
+          // Mirror into store so subsequent calls work
+          store.stockItems.push(data[0]);
+          existingIdx = store.stockItems.length - 1;
+        }
+      }
+
       if (existingIdx !== -1) {
         store.stockItems[existingIdx].current_stock += Number(payload.quantity);
         store.stockItems[existingIdx].updated_at = new Date().toISOString();
+        resolvedStockId = store.stockItems[existingIdx].stock_id;
       } else {
+        const slug = `stock-${Date.now()}`;
         const newStock = {
-          stock_id: `stock-${Date.now()}`,
+          stock_id: slug,
           name: payload.itemName,
           category: 'Bahan Baku',
           current_stock: Number(payload.quantity),
@@ -276,11 +311,14 @@ export const confirmAiAction = async (req, res, next) => {
           updated_at: new Date().toISOString(),
         };
         store.stockItems.unshift(newStock);
+        resolvedStockId = slug;
+        isNewStock = true;
+        newStockSnapshot = newStock;
       }
-      const stockId = existingIdx !== -1 ? store.stockItems[existingIdx].stock_id : `stock-${Date.now()}`;
+
       const log = {
         log_id: `log-${Date.now()}`,
-        stock_id: stockId,
+        stock_id: resolvedStockId,
         stock_name: payload.itemName,
         type: 'IN',
         quantity: Number(payload.quantity),
@@ -293,12 +331,15 @@ export const confirmAiAction = async (req, res, next) => {
       };
       store.stockLogs.unshift(log);
       if (supabase) {
-        await supabase.from('stock_logs').insert([log]);
-        if (existingIdx !== -1) {
-          await supabase.from('stock_items').update({ current_stock: store.stockItems[existingIdx].current_stock }).eq('stock_id', stockId);
-        } else {
-          await supabase.from('stock_items').insert([store.stockItems[0]]);
+        if (isNewStock && newStockSnapshot) {
+          await supabase.from('stock_items').insert([newStockSnapshot]);
+        } else if (existingIdx !== -1) {
+          await supabase
+            .from('stock_items')
+            .update({ current_stock: store.stockItems[existingIdx].current_stock })
+            .eq('stock_id', resolvedStockId);
         }
+        await supabase.from('stock_logs').insert([log]);
       }
     }
 

@@ -18,6 +18,7 @@ import {
 } from 'lucide-react';
 import { animateScreenEntrance } from '../lib/animations';
 import { Pagination } from '../components/common/Pagination';
+import { uploadImage, isCloudinaryUrl } from '../lib/cloudinary';
 import './StockScreen.css';
 
 interface StockScreenProps {
@@ -93,6 +94,8 @@ export const StockScreen: React.FC<StockScreenProps> = ({
   const [isDraggingFile, setIsDraggingFile] = useState<boolean>(false);
 
   const [saving, setSaving] = useState(false);
+  const [uploading, setUploading] = useState(false);
+  const [pendingUploadFile, setPendingUploadFile] = useState<File | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   // Combine default categories with any existing product categories
@@ -143,6 +146,7 @@ export const StockScreen: React.FC<StockScreenProps> = ({
     setFormMinStock(5);
     setFormIsPos(false);
     setFormImageUrl('');
+    setPendingUploadFile(null);
     setIsCreateModalOpen(true);
   };
 
@@ -158,6 +162,7 @@ export const StockScreen: React.FC<StockScreenProps> = ({
     setFormMinStock(p.minStock);
     setFormIsPos(['Kopi', 'Non-Kopi', 'Snack', 'Makanan'].includes(p.category));
     setFormImageUrl((p as any).image || '');
+    setPendingUploadFile(null);
   };
 
   const handleFileUpload = (file: File) => {
@@ -165,11 +170,13 @@ export const StockScreen: React.FC<StockScreenProps> = ({
       setError('Hanya file foto/gambar (JPG, PNG, WebP) yang didukung.');
       return;
     }
+    // Keep base64 for instant preview; defer Cloudinary upload until Save.
     const reader = new FileReader();
     reader.onload = (e) => {
       setFormImageUrl(e.target?.result as string);
     };
     reader.readAsDataURL(file);
+    setPendingUploadFile(file);
   };
 
   const handleDrop = (e: React.DragEvent) => {
@@ -212,6 +219,27 @@ export const StockScreen: React.FC<StockScreenProps> = ({
     setError(null);
     setSaving(true);
     try {
+      let imageUrl: string | undefined = formImageUrl || undefined;
+
+      if (pendingUploadFile) {
+        setUploading(true);
+        try {
+          const res = await uploadImage(pendingUploadFile);
+          imageUrl = res.url;
+          setFormImageUrl(res.url);
+        } catch (e: any) {
+          setError(e?.error || 'Upload gambar ke Cloudinary gagal');
+          setSaving(false);
+          setUploading(false);
+          return;
+        } finally {
+          setUploading(false);
+        }
+      } else if (imageUrl && imageUrl.startsWith('data:')) {
+        // base64 leftover without a file — drop it
+        imageUrl = undefined;
+      }
+
       if (onCreateItem) {
         await onCreateItem({
           name: formName,
@@ -222,11 +250,12 @@ export const StockScreen: React.FC<StockScreenProps> = ({
           minStock: Number(formMinStock) || 0,
           unit: formUnit,
           isPosProduct: formIsPos,
-          image: formImageUrl || undefined,
+          image: imageUrl,
         });
       }
       await refresh();
       setIsCreateModalOpen(false);
+      setPendingUploadFile(null);
     } catch (e: any) {
       setError(e?.error || 'Gagal menambahkan barang');
     } finally {
@@ -242,6 +271,28 @@ export const StockScreen: React.FC<StockScreenProps> = ({
     setError(null);
     setSaving(true);
     try {
+      let imageUrl: string | undefined = formImageUrl || undefined;
+
+      if (pendingUploadFile) {
+        setUploading(true);
+        try {
+          const res = await uploadImage(pendingUploadFile);
+          imageUrl = res.url;
+          setFormImageUrl(res.url);
+        } catch (e: any) {
+          setError(e?.error || 'Upload gambar ke Cloudinary gagal');
+          setSaving(false);
+          setUploading(false);
+          return;
+        } finally {
+          setUploading(false);
+        }
+      } else if (imageUrl && imageUrl.startsWith('data:')) {
+        imageUrl = undefined;
+      } else if (isCloudinaryUrl(imageUrl)) {
+        // already hosted — re-use the same URL
+      }
+
       if (onUpdateItem) {
         await onUpdateItem(editProduct.id, {
           name: formName,
@@ -251,11 +302,12 @@ export const StockScreen: React.FC<StockScreenProps> = ({
           stock: Number(formStock) || 0,
           minStock: Number(formMinStock) || 0,
           unit: formUnit,
-          image: formImageUrl || undefined,
-        });
+          image: imageUrl,
+        } as any);
       }
       await refresh();
       setEditProduct(null);
+      setPendingUploadFile(null);
     } catch (e: any) {
       setError(e?.error || 'Gagal mengupdate barang');
     } finally {
@@ -833,7 +885,7 @@ export const StockScreen: React.FC<StockScreenProps> = ({
                 {saving ? (
                   <>
                     <Loader2 size={16} className="spin" />
-                    <span>Menyimpan...</span>
+                    <span>{uploading ? 'Mengunggah foto…' : 'Menyimpan…'}</span>
                   </>
                 ) : (
                   <>
@@ -1147,7 +1199,7 @@ export const StockScreen: React.FC<StockScreenProps> = ({
                 {saving ? (
                   <>
                     <Loader2 size={16} className="spin" />
-                    <span>Menyimpan...</span>
+                    <span>{uploading ? 'Mengunggah foto…' : 'Menyimpan…'}</span>
                   </>
                 ) : (
                   <>

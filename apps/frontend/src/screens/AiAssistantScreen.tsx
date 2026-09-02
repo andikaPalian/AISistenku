@@ -1,5 +1,6 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { TabType, AiChatMessage } from '../types';
+import type { AdaptedAiMessage } from '../lib/adapters';
 import {
   Bot,
   Send,
@@ -19,6 +20,7 @@ import {
   Clock,
   CheckCircle2,
   Lightbulb,
+  ClipboardCheck,
 } from 'lucide-react';
 import { animateScreenEntrance } from '../lib/animations';
 import './AiAssistantScreen.css';
@@ -26,6 +28,7 @@ import './AiAssistantScreen.css';
 interface AiAssistantScreenProps {
   onNavigateTab: (tab: TabType) => void;
   messages: AiChatMessage[];
+  messagesRaw: AdaptedAiMessage[];
   loading: boolean;
   onSend: (text: string) => Promise<{ user: AiChatMessage; ai: AiChatMessage }>;
   onConfirmAction: (actionId: string) => Promise<void>;
@@ -34,8 +37,14 @@ interface AiAssistantScreenProps {
 }
 
 export const AiAssistantScreen: React.FC<AiAssistantScreenProps> = ({
-  onNavigateTab, messages, loading, onSend, onConfirmAction, onClear, refresh,
+  onNavigateTab, messages, messagesRaw, loading, onSend, onConfirmAction, onClear, refresh,
 }) => {
+  // Map message.id -> AdaptedAiMessage for quick lookup of action payloads.
+  const rawById = useMemo(() => {
+    const m = new Map<string, AdaptedAiMessage>();
+    (messagesRaw || []).forEach((r) => m.set(r.id, r));
+    return m;
+  }, [messagesRaw]);
   const containerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -226,6 +235,17 @@ export const AiAssistantScreen: React.FC<AiAssistantScreenProps> = ({
             ) : (
               messages.map((msg) => {
                 const isAi = msg.sender === 'ai';
+                const raw = rawById.get(msg.id);
+                const actionPayload = raw?.actionPayload;
+                const actionStatus = raw?.actionStatus || actionPayload?.status;
+                const isRestockConfirm =
+                  isAi &&
+                  actionPayload?.intent === 'ADD_STOCK_AND_EXPENSE' &&
+                  actionStatus === 'pending';
+                const isConfirmed =
+                  isAi &&
+                  actionPayload?.intent === 'ADD_STOCK_AND_EXPENSE' &&
+                  actionStatus === 'confirmed';
                 return (
                   <div key={msg.id} className={`message-bubble-wrap ${isAi ? 'ai' : 'user'}`}>
                     <div className={`message-avatar ${isAi ? 'ai-avatar' : 'user-avatar'}`}>
@@ -310,6 +330,52 @@ export const AiAssistantScreen: React.FC<AiAssistantScreenProps> = ({
                               </button>
                             </div>
                           ))}
+                        </div>
+                      )}
+
+                      {/* Restock/Expense confirm card from AI action payload */}
+                      {isRestockConfirm && actionPayload && (
+                        <div className="ai-action-confirm-card">
+                          <div className="ai-action-confirm-head">
+                            <ClipboardCheck size={16} className="text-teal" />
+                            <span>Konfirmasi Pencatatan Otomatis</span>
+                          </div>
+                          <div className="ai-action-confirm-body">
+                            <div className="ai-action-confirm-row">
+                              <span>Item</span>
+                              <strong>{actionPayload.itemName}</strong>
+                            </div>
+                            <div className="ai-action-confirm-row">
+                              <span>Jumlah</span>
+                              <strong>
+                                {actionPayload.quantity} {actionPayload.unit}
+                              </strong>
+                            </div>
+                            <div className="ai-action-confirm-row">
+                              <span>Estimasi Biaya</span>
+                              <strong>
+                                Rp {Number(actionPayload.expenseAmount || 0).toLocaleString('id-ID')}
+                              </strong>
+                            </div>
+                          </div>
+                          <button
+                            type="button"
+                            onClick={() => onConfirmAction(actionPayload.actionId)}
+                            className="btn-primary btn-confirm-action"
+                          >
+                            <Check size={14} />
+                            <span>Konfirmasi &amp; Catat</span>
+                          </button>
+                        </div>
+                      )}
+
+                      {isConfirmed && (
+                        <div className="ai-action-confirmed-pill">
+                          <CheckCircle2 size={14} className="text-teal" />
+                          <span>
+                            Tercatat: {actionPayload?.quantity} {actionPayload?.unit} {actionPayload?.itemName} • Rp{' '}
+                            {Number(actionPayload?.expenseAmount || 0).toLocaleString('id-ID')}
+                          </span>
                         </div>
                       )}
                     </div>

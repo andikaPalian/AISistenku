@@ -6,6 +6,7 @@ import orderRoutes from './orders.js';
 import stockRoutes from './stocks.js';
 import financeRoutes from './finance.js';
 import aiRoutes from './ai.js';
+import uploadRoutes from './uploads.js';
 
 const router = Router();
 
@@ -25,5 +26,6 @@ router.use('/orders', orderRoutes);
 router.use('/stocks', stockRoutes);
 router.use('/finance', financeRoutes);
 router.use('/ai', aiRoutes);
+router.use('/uploads', uploadRoutes);
 
 export default router;

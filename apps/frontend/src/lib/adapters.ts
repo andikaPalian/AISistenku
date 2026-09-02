@@ -38,6 +38,7 @@ export interface FinanceRow {
   amount: number;
   source?: string;
   notes?: string | null;
+  payment_method?: string | null;
   timestamp: string;
 }
 
@@ -48,6 +49,7 @@ export interface AiMessageRow {
   text: string;
   type: string;
   actionPayload?: any;
+  action_payload?: any;
   extra_data?: any;
   timestamp: string;
 }
@@ -66,7 +68,9 @@ export function adaptProduct(row: ProductRow): Product {
   };
 }
 
-export function adaptStockItem(row: StockItemRow): Product & { stockId: string; costPerUnit: number; supplier?: string; status?: string } {
+export function adaptStockItem(
+  row: StockItemRow
+): Product & { stockId: string; costPerUnit: number; supplier?: string; status?: string } {
   return {
     id: row.stock_id,
     code: row.stock_id.toUpperCase(),
@@ -89,46 +93,70 @@ export function adaptStockAlert(item: StockItemRow | ProductRow): StockAlert {
   const min = Number((item as any).min_stock);
   const unit = (item as any).unit || 'pcs';
   const id = (item as any).product_id || (item as any).stock_id;
+
+  // Kritis when at or below 50% of the safety stock, otherwise rendah.
+  const urgency: StockAlert['urgency'] = curr <= min * 0.5 ? 'high' : 'medium';
+
   return {
     id,
     productName: name,
     currentStock: curr,
     minStock: min,
     unit,
-    urgency: curr <= min * 0.5 ? 'high' : 'high',
+    urgency,
   };
 }
 
-function mapPaymentMethod(source?: string, notes?: string | null): 'qris' | 'cash' | 'transfer' {
-  const s = (source || '').toUpperCase();
-  const n = (notes || '').toLowerCase();
-  if (s.includes('QRIS') || n.includes('qris')) return 'qris';
-  if (s.includes('CASH') || n.includes('cash') || n.includes('tunai')) return 'cash';
+function mapPaymentMethod(
+  paymentMethod?: string | null,
+  source?: string,
+  notes?: string | null
+): 'qris' | 'cash' | 'transfer' {
+  const all = `${paymentMethod || ''} ${source || ''} ${notes || ''}`.toLowerCase();
+  if (all.includes('qris') || all.includes('e-wallet') || all.includes('ewallet')) return 'qris';
+  if (all.includes('cash') || all.includes('tunai')) return 'cash';
   return 'transfer';
 }
 
 export function adaptTransaction(row: FinanceRow): Transaction {
   const d = new Date(row.timestamp);
   const isExpense = row.type === 'EXPENSE';
+  const notes = row.notes || '';
+  const cleanTitle = row.title.replace(/^(Penjualan Kasir|Kulakan Stok|Listrik & WiFi)\s*/i, '');
   return {
     id: row.transaction_id,
-    invoiceNo: row.title.replace(/^(Penjualan Kasir|Kulakan Stok|Listrik & WiFi)\s*/i, '') || row.transaction_id,
+    invoiceNo: cleanTitle || row.transaction_id,
     date: d.toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' }),
     time: d.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }),
     type: isExpense ? 'expense' : 'sale',
-    category: row.category === 'sales' ? 'Penjualan Kasir' : row.category === 'operational' ? 'Operasional' : row.category,
+    category:
+      row.category === 'sales'
+        ? 'Penjualan Kasir'
+        : row.category === 'operational'
+        ? 'Operasional'
+        : row.category === 'ingredients'
+        ? 'Kulakan Stok'
+        : row.category,
     amount: Number(row.amount),
-    paymentMethod: mapPaymentMethod(row.source, row.notes),
+    paymentMethod: mapPaymentMethod(row.payment_method, row.source, row.notes),
     status: 'success',
-    notes: row.notes || undefined,
+    notes: notes || undefined,
   };
 }
 
-export function adaptAiMessage(row: AiMessageRow): AiChatMessage {
+export interface AdaptedAiMessage extends AiChatMessage {
+  raw: AiMessageRow;
+  actionPayload?: any;
+  actionStatus?: 'pending' | 'confirmed' | 'cancelled';
+  messageType?: string;
+}
+
+export function adaptAiMessage(row: AiMessageRow): AdaptedAiMessage {
   const d = new Date(row.timestamp);
+  const actionPayload = row.actionPayload ?? row.action_payload;
   const recs: { title: string; actionText: string; actionTab: TabType }[] | undefined =
-    row.actionPayload?.recommendations || row.extra_data?.recommendations
-      ? (row.actionPayload?.recommendations || row.extra_data?.recommendations).map((r: any) => ({
+    actionPayload?.recommendations || row.extra_data?.recommendations
+      ? (actionPayload?.recommendations || row.extra_data?.recommendations).map((r: any) => ({
           title: r.title,
           actionText: r.actionText,
           actionTab: (r.actionTab as TabType) || 'home',
@@ -141,5 +169,9 @@ export function adaptAiMessage(row: AiMessageRow): AiChatMessage {
     text: row.text,
     timestamp: d.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }),
     recommendations: recs,
+    raw: row,
+    actionPayload,
+    actionStatus: actionPayload?.status,
+    messageType: row.type,
   };
 }
