@@ -134,7 +134,7 @@ class _SplashScreenState extends State<SplashScreen>
               const SizedBox(height: 8),
               // Subtitle
               Text(
-                'AISISTENKu',
+                'AISISTENKU',
                 style: GoogleFonts.poppins(
                   fontSize: 14,
                   fontWeight: FontWeight.w400,
