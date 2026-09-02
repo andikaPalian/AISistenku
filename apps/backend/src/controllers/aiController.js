@@ -89,8 +89,117 @@ export const sendChatMessage = async (req, res, next) => {
 
     let aiResponseMsg = null;
 
+    // -------- Intent 5: Tambah Produk/Menu --------
+    if (lower.includes('tambah menu') || lower.includes('tambah produk')) {
+      let itemName = 'Kopi Susu Baru';
+      let price = 25000;
+      let category = 'Kopi';
+
+      const priceMatch = lower.match(/(?:rp\.?\s*|harga\s*)?(\d+(?:[.,]\d+)?)\s*(rb|ribu|k|000)/i);
+      if (priceMatch) {
+        const num = parseFloat(priceMatch[1].replace(',', '.'));
+        const mult = /rb|ribu|k/i.test(priceMatch[2]) ? 1000 : 1;
+        price = num * mult;
+      }
+      
+      const nameMatch = lower.match(/(?:tambah menu|tambah produk) (.*?) (?:harga|rp|sebesar|senilai)/i);
+      if (nameMatch && nameMatch[1]) {
+        itemName = nameMatch[1].trim();
+      }
+
+      if (lower.includes('snack') || lower.includes('cemilan')) category = 'Snack';
+      else if (lower.includes('makanan')) category = 'Makanan';
+      else if (lower.includes('non kopi') || lower.includes('teh')) category = 'Non Kopi';
+      
+      const actionId = `act-${Date.now()}`;
+      const actionPayload = {
+        actionId,
+        intent: 'ADD_PRODUCT',
+        itemName: itemName,
+        expenseAmount: price, // We reuse this field so mobile UI can parse it natively
+        category: category,
+        status: 'pending',
+      };
+
+      const aiText = `Saya mendeteksi Anda ingin menambahkan menu baru: ${itemName} dengan harga jual Rp${price.toLocaleString('id-ID')} (Kategori: ${category}). Apakah Anda ingin saya menambahkannya ke POS dan sistem Stok sekarang?`;
+
+      aiResponseMsg = {
+        message_id: `msg-${Date.now() + 1}`,
+        user_id: req.user?.user_id || '00000000-0000-0000-0000-000000000001',
+        sender: 'AI',
+        text: aiText,
+        type: 'actionConfirm',
+        actionPayload,
+        extra_data: null,
+        timestamp: new Date().toISOString(),
+      };
+
+      const aiAction = {
+        action_id: actionId,
+        message_id: aiResponseMsg.message_id,
+        intent: 'ADD_PRODUCT',
+        payload: actionPayload,
+        status: 'PENDING',
+        created_at: new Date().toISOString(),
+      };
+      if (supabase) {
+        await supabase.from('ai_messages').insert([aiResponseMsg]);
+        await supabase.from('ai_actions').insert([aiAction]);
+      }
+      store.aiActions.push(aiAction);
+    }
+    // -------- Intent 2: Stock inquiry --------
+    else if (lower.includes('stok') || lower.includes('habis') || lower.includes('bahan') || lower.includes('menipis')) {
+      let items = store.stockItems;
+      if (supabase) {
+        const { data } = await supabase.from('stock_items').select('*');
+        if (data && data.length) items = data;
+      }
+      const lowItems = items
+        .filter((i) => Number(i.current_stock) <= Number(i.min_stock))
+        .map((i) => ({
+          name: i.name,
+          qty: Number(i.current_stock),
+          unit: i.unit,
+          status: Number(i.current_stock) <= Number(i.min_stock) * 0.6 ? 'Kritis' : 'Rendah',
+        }));
+
+      // Create a string of ALL items to give the AI context about specific items
+      const allStockContext = items.map(i => `${i.name}: ${i.current_stock} ${i.unit}`).join(', ');
+
+      const stockSummary = lowItems.length > 0
+        ? lowItems.map((i) => `${i.name} (${i.qty} ${i.unit}, ${i.status})`).join(', ')
+        : 'semua stok aman';
+
+      let fallbackText = '';
+      const specificMatches = items.filter(i => lower.includes(i.name.toLowerCase()));
+      if (specificMatches.length > 0) {
+        fallbackText = specificMatches.map(m => `Sisa stok ${m.name} saat ini adalah ${m.current_stock} ${m.unit}.`).join(' ');
+      } else {
+        fallbackText = lowItems.length > 0
+          ? `Ada ${lowItems.length} bahan baku yang perlu diperhatikan: ${lowItems.map((i) => i.name).join(', ')}.`
+          : 'Semua stok bahan baku saat ini dalam kondisi aman (Baik).';
+      }
+
+      const aiText = await callKelontongAI([
+        { role: 'system', content: 'Anda AI asisten toko kelontong. Ringkas & helpful. Jawab spesifik jika user menanyakan satu barang.' },
+        { role: 'user', content: `Daftar SEMUA stok saat ini: ${allStockContext}. Status stok menipis: ${stockSummary}. Pertanyaan user: "${cleanText}". Jawablah pertanyaan user tersebut (maks 3 kalimat). Jika user menanyakan barang tertentu, sebutkan stoknya dari daftar tersebut.` },
+      ]) || fallbackText;
+
+      aiResponseMsg = {
+        message_id: `msg-${Date.now() + 1}`,
+        user_id: req.user?.user_id || '00000000-0000-0000-0000-000000000001',
+        sender: 'AI',
+        text: aiText,
+        type: 'stockAlert',
+        actionPayload: { lowItems },
+        extra_data: { lowItems },
+        timestamp: new Date().toISOString(),
+      };
+      if (supabase) await supabase.from('ai_messages').insert([aiResponseMsg]);
+    }
     // -------- Intent 1: Restock / Beli bahan --------
-    if (lower.includes('beli') || lower.includes('belanja') || lower.includes('restock')) {
+    else if (lower.includes('beli') || lower.includes('belanja') || lower.includes('restock')) {
       let qty = 5, unit = 'kg', item = 'Sugar', price = 170000;
 
       const qtyRegex = /(\d+(?:[.,]\d+)?)\s*(kg|g|liter|l|botol|btl|dus|karton|pack|pcs)/i;
@@ -99,13 +208,15 @@ export const sendChatMessage = async (req, res, next) => {
         qty = parseFloat(qtyMatch[1].replace(',', '.')) || 5;
         unit = qtyMatch[2].toLowerCase();
       }
-      if (lower.includes('gula')) item = 'Sugar';
-      else if (lower.includes('kopi') || lower.includes('beans')) item = 'Coffee Beans';
-      else if (lower.includes('susu') || lower.includes('milk')) { item = 'Fresh Milk'; unit = 'L'; }
-      else if (lower.includes('sirup') || lower.includes('syrup')) { item = 'Caramel Syrup'; unit = 'btl'; }
-      else if (lower.includes('minyak')) { item = 'Minyak Goreng SunCo'; unit = 'pouch'; }
+      
+      const cleanLower = lower.replace(qtyRegex, ''); // remove qty from string so we can find name easier
+      if (cleanLower.includes('gula')) item = 'Sugar';
+      else if (cleanLower.includes('kopi') || cleanLower.includes('beans')) item = 'Coffee Beans';
+      else if (cleanLower.includes('susu') || cleanLower.includes('milk')) { item = 'Fresh Milk'; unit = 'L'; }
+      else if (cleanLower.includes('sirup') || cleanLower.includes('syrup')) { item = 'Caramel Syrup'; unit = 'btl'; }
+      else if (cleanLower.includes('minyak')) { item = 'Minyak Goreng SunCo'; unit = 'pouch'; }
 
-      const priceMatch = lower.match(/(?:rp\.?\s*|harga\s*)?(\d+(?:[.,]\d+)?)\s*(rb|ribu|k|000|jt|juta)/i);
+      const priceMatch = lower.match(/(?:rp\.?\s*|harga\s*(?:total\s*)?)?(\d+(?:[.,]\d+)?)\s*(rb|ribu|k(?!g)|000|jt|juta)/i);
       if (priceMatch) {
         const num = parseFloat(priceMatch[1].replace(',', '.'));
         const mult = /jt|juta/i.test(priceMatch[2]) ? 1_000_000 : 1000;
@@ -154,45 +265,6 @@ export const sendChatMessage = async (req, res, next) => {
       }
       store.aiActions.push(aiAction);
     }
-    // -------- Intent 2: Stock inquiry --------
-    else if (lower.includes('stok') || lower.includes('habis') || lower.includes('bahan') || lower.includes('menipis')) {
-      let items = store.stockItems;
-      if (supabase) {
-        const { data } = await supabase.from('stock_items').select('*');
-        if (data && data.length) items = data;
-      }
-      const lowItems = items
-        .filter((i) => Number(i.current_stock) <= Number(i.min_stock))
-        .map((i) => ({
-          name: i.name,
-          qty: Number(i.current_stock),
-          unit: i.unit,
-          status: Number(i.current_stock) <= Number(i.min_stock) * 0.6 ? 'Kritis' : 'Rendah',
-        }));
-
-      const stockSummary = lowItems.length > 0
-        ? lowItems.map((i) => `${i.name} (${i.qty} ${i.unit}, ${i.status})`).join(', ')
-        : 'semua stok aman';
-
-      const aiText = await callKelontongAI([
-        { role: 'system', content: 'Anda AI asisten toko kelontong. Ringkas & helpful.' },
-        { role: 'user', content: `Status stok menipis: ${stockSummary}. Buat respons singkat (maks 2 kalimat) untuk owner.` },
-      ]) || (lowItems.length > 0
-        ? `Ada ${lowItems.length} bahan baku yang perlu diperhatikan: ${lowItems.map((i) => i.name).join(', ')}.`
-        : 'Semua stok bahan baku saat ini dalam kondisi aman (Baik).');
-
-      aiResponseMsg = {
-        message_id: `msg-${Date.now() + 1}`,
-        user_id: req.user?.user_id || '00000000-0000-0000-0000-000000000001',
-        sender: 'AI',
-        text: aiText,
-        type: 'stockAlert',
-        actionPayload: { lowItems },
-        extra_data: { lowItems },
-        timestamp: new Date().toISOString(),
-      };
-      if (supabase) await supabase.from('ai_messages').insert([aiResponseMsg]);
-    }
     // -------- Intent 3: Caption / Promo --------
     else if (lower.includes('caption') || lower.includes('konten') || lower.includes('sosmed') || lower.includes('promo') || lower.includes('ide')) {
       const aiText = await callKelontongAI([
@@ -227,7 +299,7 @@ export const sendChatMessage = async (req, res, next) => {
         message_id: `msg-${Date.now() + 1}`,
         user_id: req.user?.user_id || '00000000-0000-0000-0000-000000000001',
         sender: 'AI',
-        text: 'Halo! Saya AIsisten, partner cerdas toko Anda. Ada yang bisa saya bantu? Anda bisa meminta saya analisis penjualan, cek stok menipis, catat belanja bahan, atau ide konten promo medsos!',
+        text: 'Halo! Saya AIsisten, partner cerdas toko Anda. Anda bisa meminta saya analisis omzet, tambah menu/produk baru, cek stok, catat belanja bahan, atau ide konten promosi medsos!',
         type: 'text',
         actionPayload: null,
         extra_data: null,
@@ -300,93 +372,128 @@ export const confirmAiAction = async (req, res, next) => {
     let isNewStock = false;
     let newStockSnapshot = null;
 
-    if (payload.itemName && payload.quantity) {
-      // Try store first (dev fallback)…
-      let existingIdx = store.stockItems.findIndex(
-        (i) => i.name.toLowerCase() === payload.itemName.toLowerCase()
-      );
-
-      // …then query DB if store didn't match.
-      if (existingIdx === -1 && supabase) {
-        const { data } = await supabase
-          .from('stock_items')
-          .select('*')
-          .ilike('name', payload.itemName);
-        if (data && data.length) {
-          // Mirror into store so subsequent calls work
-          store.stockItems.push(data[0]);
-          existingIdx = store.stockItems.length - 1;
-        }
-      }
-
-      if (existingIdx !== -1) {
-        store.stockItems[existingIdx].current_stock += Number(payload.quantity);
-        store.stockItems[existingIdx].updated_at = new Date().toISOString();
-        resolvedStockId = store.stockItems[existingIdx].stock_id;
-      } else {
-        const slug = `stock-${Date.now()}`;
-        const newStock = {
-          stock_id: slug,
-          name: payload.itemName,
-          category: 'Bahan Baku',
-          current_stock: Number(payload.quantity),
-          min_stock: 5.0,
-          unit: payload.unit || 'kg',
-          cost_per_unit: Math.round((payload.expenseAmount || 170000) / (payload.quantity || 1)),
-          supplier: 'Supplier Utama',
-          updated_at: new Date().toISOString(),
-        };
-        store.stockItems.unshift(newStock);
-        resolvedStockId = slug;
-        isNewStock = true;
-        newStockSnapshot = newStock;
-      }
-
-      const log = {
-        log_id: `log-${Date.now()}`,
-        stock_id: resolvedStockId,
-        stock_name: payload.itemName,
-        type: 'IN',
-        quantity: Number(payload.quantity),
-        unit: payload.unit || 'kg',
-        source: 'AI Agent',
-        reference_code: `#AI-${Date.now().toString().substring(7)}`,
-        operator_name: 'AI Assistant',
-        note: 'Restock otomatis via konfirmasi AI',
-        created_at: new Date().toISOString(),
+    if (payload.intent === 'ADD_PRODUCT') {
+      const productId = `prod-${Date.now()}`;
+      const product = {
+        product_id: productId,
+        name: payload.itemName,
+        category: payload.category || 'Lainnya',
+        price: Number(payload.expenseAmount) || 0,
+        default_variant: 'Regular',
+        image_url: null,
       };
-      store.stockLogs.unshift(log);
+      
+      const stockId = `stock-${productId}`;
+      const stock = {
+        stock_id: stockId,
+        name: payload.itemName,
+        category: payload.category || 'Lainnya',
+        current_stock: 50,
+        min_stock: 5,
+        unit: 'porsi',
+        cost_per_unit: Math.floor((Number(payload.expenseAmount) || 0) * 0.4),
+        supplier: 'Internal',
+        updated_at: new Date().toISOString(),
+      };
+      
+      store.products.unshift(product);
+      store.stockItems.unshift(stock);
+      
       if (supabase) {
-        if (isNewStock && newStockSnapshot) {
-          await supabase.from('stock_items').insert([newStockSnapshot]);
-        } else if (existingIdx !== -1) {
-          await supabase
+        try { await supabase.from('products').insert([product]); } catch (e) {}
+        try { await supabase.from('stock_items').insert([stock]); } catch (e) {}
+        try { await supabase.from('ai_actions').update({ status: 'CONFIRMED' }).eq('action_id', actionId); } catch (e) {}
+      }
+    } else {
+      // Existing logic for ADD_STOCK_AND_EXPENSE
+      if (payload.itemName && payload.quantity) {
+        // Try store first (dev fallback)…
+        let existingIdx = store.stockItems.findIndex(
+          (i) => i.name.toLowerCase() === payload.itemName.toLowerCase()
+        );
+
+        // …then query DB if store didn't match.
+        if (existingIdx === -1 && supabase) {
+          const { data } = await supabase
             .from('stock_items')
-            .update({ current_stock: store.stockItems[existingIdx].current_stock })
-            .eq('stock_id', resolvedStockId);
+            .select('*')
+            .ilike('name', payload.itemName);
+          if (data && data.length) {
+            // Mirror into store so subsequent calls work
+            store.stockItems.push(data[0]);
+            existingIdx = store.stockItems.length - 1;
+          }
         }
-        await supabase.from('stock_logs').insert([log]);
-      }
-    }
 
-    if (payload.expenseAmount && payload.expenseAmount > 0) {
-      const financeTx = {
-        transaction_id: `tx-${Date.now()}`,
-        user_id: req.user?.user_id || '00000000-0000-0000-0000-000000000001',
-        order_id: null,
-        title: `Pembelian ${payload.itemName || 'Bahan Baku'}`,
-        type: 'EXPENSE',
-        category: 'ingredients',
-        amount: Number(payload.expenseAmount),
-        source: 'AI_AGENT',
-        notes: 'Restock otomatis via konfirmasi AI Assistant',
-        timestamp: new Date().toISOString(),
-      };
-      if (supabase) {
-        await supabase.from('finance_transactions').insert([financeTx]);
-        await supabase.from('ai_actions').update({ status: 'CONFIRMED' }).eq('action_id', actionId);
+        if (existingIdx !== -1) {
+          store.stockItems[existingIdx].current_stock += Number(payload.quantity);
+          store.stockItems[existingIdx].updated_at = new Date().toISOString();
+          resolvedStockId = store.stockItems[existingIdx].stock_id;
+        } else {
+          const slug = `stock-${Date.now()}`;
+          const newStock = {
+            stock_id: slug,
+            name: payload.itemName,
+            category: 'Bahan Baku',
+            current_stock: Number(payload.quantity),
+            min_stock: 5.0,
+            unit: payload.unit || 'kg',
+            cost_per_unit: Math.round((payload.expenseAmount || 170000) / (payload.quantity || 1)),
+            supplier: 'Supplier Utama',
+            updated_at: new Date().toISOString(),
+          };
+          store.stockItems.unshift(newStock);
+          resolvedStockId = slug;
+          isNewStock = true;
+          newStockSnapshot = newStock;
+        }
+
+        const log = {
+          log_id: `log-${Date.now()}`,
+          stock_id: resolvedStockId,
+          stock_name: payload.itemName,
+          type: 'IN',
+          quantity: Number(payload.quantity),
+          unit: payload.unit || 'kg',
+          source: 'AI Agent',
+          reference_code: `#AI-${Date.now().toString().substring(7)}`,
+          operator_name: 'AI Assistant',
+          note: 'Restock otomatis via konfirmasi AI',
+          created_at: new Date().toISOString(),
+        };
+        store.stockLogs.unshift(log);
+        if (supabase) {
+          if (isNewStock && newStockSnapshot) {
+            await supabase.from('stock_items').insert([newStockSnapshot]);
+          } else if (existingIdx !== -1) {
+            await supabase
+              .from('stock_items')
+              .update({ current_stock: store.stockItems[existingIdx].current_stock })
+              .eq('stock_id', resolvedStockId);
+          }
+          await supabase.from('stock_logs').insert([log]);
+        }
       }
-      store.financeTransactions.unshift(financeTx);
+
+      if (payload.expenseAmount && payload.expenseAmount > 0) {
+        const financeTx = {
+          transaction_id: `tx-${Date.now()}`,
+          user_id: req.user?.user_id || '00000000-0000-0000-0000-000000000001',
+          order_id: null,
+          title: `Pembelian ${payload.itemName || 'Bahan Baku'}`,
+          type: 'EXPENSE',
+          category: 'ingredients',
+          amount: Number(payload.expenseAmount),
+          source: 'AI_AGENT',
+          notes: 'Restock otomatis via konfirmasi AI Assistant',
+          timestamp: new Date().toISOString(),
+        };
+        if (supabase) {
+          await supabase.from('finance_transactions').insert([financeTx]);
+          await supabase.from('ai_actions').update({ status: 'CONFIRMED' }).eq('action_id', actionId);
+        }
+        store.financeTransactions.unshift(financeTx);
+      }
     }
 
     return res.json({ message: 'AI action confirmed and executed', actionId, status: 'CONFIRMED', payload });

@@ -35,11 +35,11 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ onNavigateTab, stockAler
     bestSellerUnit: 'cup'
   };
   const insight = dashboard?.aiInsight?.message || 'Penjualan hari ini berjalan lancar. Iced Latte saat ini menjadi produk terlaris (42 cup), namun stok Gula Aren dan Susu UHT mulai menipis.';
-  const avgNota = txCount > 0 ? Math.round(revenue / txCount) : 39063;
+  const avgNota = txCount > 0 ? Math.round(revenue / txCount) : 0;
 
-  const estimatedExpense = 420000;
+  const estimatedExpense = 0; // In a real app, this would come from the backend's expense calculation
   const estimatedProfit = revenue - estimatedExpense;
-  const grossMargin = ((estimatedProfit / revenue) * 100).toFixed(1);
+  const grossMargin = revenue > 0 ? ((estimatedProfit / revenue) * 100).toFixed(1) : '0.0';
 
   return (
     <div ref={containerRef} className="page-screen">

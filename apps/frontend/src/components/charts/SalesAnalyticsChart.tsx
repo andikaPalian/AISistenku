@@ -17,20 +17,20 @@ interface SalesAnalyticsChartProps {
 }
 
 const DATA_7_DAYS: ChartDataPoint[] = [
-  { label: 'Sen', fullDate: 'Senin, 24 Agt', income: 950000, expense: 320000, ordersCount: 28 },
-  { label: 'Sel', fullDate: 'Selasa, 25 Agt', income: 1100000, expense: 180000, ordersCount: 34 },
-  { label: 'Rab', fullDate: 'Rabu, 26 Agt', income: 850000, expense: 400000, ordersCount: 22 },
-  { label: 'Kam', fullDate: 'Kamis, 27 Agt', income: 1250000, expense: 420000, ordersCount: 38 },
-  { label: 'Jum', fullDate: 'Jumat, 28 Agt', income: 1400000, expense: 250000, ordersCount: 42 },
-  { label: 'Sab', fullDate: 'Sabtu, 29 Agt', income: 1850000, expense: 600000, ordersCount: 56 },
-  { label: 'Min', fullDate: 'Minggu, 30 Agt', income: 2100000, expense: 450000, ordersCount: 64 },
+  { label: 'Sen', fullDate: 'Senin', income: 0, expense: 0, ordersCount: 0 },
+  { label: 'Sel', fullDate: 'Selasa', income: 0, expense: 0, ordersCount: 0 },
+  { label: 'Rab', fullDate: 'Rabu', income: 0, expense: 0, ordersCount: 0 },
+  { label: 'Kam', fullDate: 'Kamis', income: 0, expense: 0, ordersCount: 0 },
+  { label: 'Jum', fullDate: 'Jumat', income: 0, expense: 0, ordersCount: 0 },
+  { label: 'Sab', fullDate: 'Sabtu', income: 0, expense: 0, ordersCount: 0 },
+  { label: 'Min', fullDate: 'Minggu', income: 0, expense: 0, ordersCount: 0 },
 ];
 
 const DATA_30_DAYS: ChartDataPoint[] = [
-  { label: 'Mgg 1', fullDate: '1 - 7 Agt', income: 7200000, expense: 2100000, ordersCount: 210 },
-  { label: 'Mgg 2', fullDate: '8 - 14 Agt', income: 8400000, expense: 2400000, ordersCount: 245 },
-  { label: 'Mgg 3', fullDate: '15 - 21 Agt', income: 9100000, expense: 2800000, ordersCount: 270 },
-  { label: 'Mgg 4', fullDate: '22 - 28 Agt', income: 9500000, expense: 2620000, ordersCount: 284 },
+  { label: 'Mgg 1', income: 0, expense: 0, ordersCount: 0 },
+  { label: 'Mgg 2', income: 0, expense: 0, ordersCount: 0 },
+  { label: 'Mgg 3', income: 0, expense: 0, ordersCount: 0 },
+  { label: 'Mgg 4', income: 0, expense: 0, ordersCount: 0 },
 ];
 
 export const SalesAnalyticsChart: React.FC<SalesAnalyticsChartProps> = ({
