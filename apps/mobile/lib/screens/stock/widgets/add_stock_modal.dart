@@ -39,7 +39,7 @@ class _AddStockModalState extends State<AddStockModal> {
   StockCategory _selectedCategory = StockCategory.kopi;
   String _selectedUnit = 'kg';
 
-  final List<String> _availableUnits = ['kg', 'L', 'btl', 'g', 'pcs', 'pack'];
+  final List<String> _availableUnits = ['kg', 'L', 'liter', 'btl', 'botol', 'g', 'gram', 'pcs', 'cup', 'porsi', 'pack', 'ml', 'dus', 'kaleng'];
 
   bool get isEditing => widget.itemToEdit != null;
 

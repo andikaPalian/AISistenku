@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../models/stock_model.dart';
+import '../../../models/finance_model.dart';
 
 /// Modal bottom sheet for recording incoming stock (Restock / Pembelian).
 class RestockModal extends StatefulWidget {
@@ -91,17 +92,33 @@ class _RestockModalState extends State<RestockModal> {
     }
 
     final unitCost = int.tryParse(_costController.text) ?? _selectedItem!.costPerUnit;
+    final supplierName = _supplierController.text.trim();
+    final noteText = _notesController.text.trim();
+    final totalExpense = (_enteredQty * unitCost).round();
 
     StockRepository.instance.restockItem(
       stockId: _selectedItem!.id,
       quantity: _enteredQty,
       costPerUnit: unitCost,
-      supplier: _supplierController.text.trim(),
-      note: _notesController.text.trim().isNotEmpty
-          ? _notesController.text.trim()
-          : null,
+      supplier: supplierName,
+      note: noteText.isNotEmpty ? noteText : null,
       operatorName: 'Owner',
     );
+
+    // Auto-record expense to Finance if enabled (aligns with web flow)
+    if (_recordToFinance && totalExpense > 0) {
+      FinanceRepository.instance.addTransaction(
+        title: 'Restock ${_selectedItem!.name}',
+        type: TransactionType.expense,
+        category: FinanceCategory.ingredients,
+        amount: totalExpense.toDouble(),
+        source: TransactionSource.manual,
+        notes: noteText.isNotEmpty
+            ? 'Restock ${_enteredQty.toStringAsFixed(_enteredQty == _enteredQty.roundToDouble() ? 0 : 1)} ${_selectedItem!.unit} • $noteText'
+            : 'Restock ${_enteredQty.toStringAsFixed(_enteredQty == _enteredQty.roundToDouble() ? 0 : 1)} ${_selectedItem!.unit} dari ${supplierName.isNotEmpty ? supplierName : _selectedItem!.supplier}',
+        timestamp: DateTime.now(),
+      );
+    }
 
     Navigator.pop(context, true);
 

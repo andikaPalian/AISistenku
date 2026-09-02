@@ -13,6 +13,7 @@ import 'package:tiga_angkatan/main.dart';
 void main() {
   testWidgets('App renders ShellScreen and Home tab without crash', (WidgetTester tester) async {
     await tester.pumpWidget(const TigaAngkatanApp());
+    await tester.pump(const Duration(seconds: 3));
     expect(find.byType(TigaAngkatanApp), findsOneWidget);
   });
 }

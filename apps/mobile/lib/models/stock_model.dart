@@ -20,10 +20,25 @@ enum StockCategory {
   pemanis('Gula & Pemanis'),
   sirup('Sirup & Perisa'),
   kemasan('Cup & Kemasan'),
-  topping('Topping & Lainnya');
+  topping('Topping & Lainnya'),
+  makanan('Makanan & Snack'),
+  bahanBaku('Bahan Baku Lainnya'),
+  merchandise('Merchandise');
 
   final String label;
   const StockCategory(this.label);
+}
+
+/// Sorting options for stock listing.
+enum StockSortBy {
+  nameAsc('Nama (A - Z)', Icons.sort_by_alpha_rounded),
+  stockAsc('Stok Terendah (Prioritas Restock)', Icons.arrow_upward_rounded),
+  stockDesc('Stok Tertinggi', Icons.arrow_downward_rounded),
+  valueDesc('Nilai Aset Terbesar', Icons.monetization_on_outlined);
+
+  final String label;
+  final IconData icon;
+  const StockSortBy(this.label, this.icon);
 }
 
 /// Type of stock movement log.
@@ -46,6 +61,8 @@ class StockItem {
   final double minStock;
   final String unit; // 'kg', 'L', 'btl', 'g', 'pcs'
   final int costPerUnit; // Rupiah per unit
+  final int sellingPrice; // Selling price in POS if applicable
+  final bool isPosProduct; // Whether synced to POS kasir
   final DateTime lastUpdated;
   final String supplier;
   final List<String> linkedProducts;
@@ -60,6 +77,8 @@ class StockItem {
     required this.minStock,
     required this.unit,
     required this.costPerUnit,
+    this.sellingPrice = 0,
+    this.isPosProduct = false,
     required this.lastUpdated,
     this.supplier = 'Supplier Utama',
     this.linkedProducts = const [],
@@ -122,6 +141,8 @@ class StockItem {
     double? minStock,
     String? unit,
     int? costPerUnit,
+    int? sellingPrice,
+    bool? isPosProduct,
     DateTime? lastUpdated,
     String? supplier,
     List<String>? linkedProducts,
@@ -136,6 +157,8 @@ class StockItem {
       minStock: minStock ?? this.minStock,
       unit: unit ?? this.unit,
       costPerUnit: costPerUnit ?? this.costPerUnit,
+      sellingPrice: sellingPrice ?? this.sellingPrice,
+      isPosProduct: isPosProduct ?? this.isPosProduct,
       lastUpdated: lastUpdated ?? this.lastUpdated,
       supplier: supplier ?? this.supplier,
       linkedProducts: linkedProducts ?? this.linkedProducts,

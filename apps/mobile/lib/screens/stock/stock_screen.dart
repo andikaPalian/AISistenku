@@ -5,6 +5,7 @@ import '../../models/stock_model.dart';
 import 'widgets/stock_summary_section.dart';
 import 'widgets/stock_card.dart';
 import 'widgets/stock_action_sheet.dart';
+import 'widgets/stock_filter_sheet.dart';
 import 'stock_detail_screen.dart';
 
 /// Main Stock & Inventory overview screen.
@@ -19,12 +20,59 @@ class _StockScreenState extends State<StockScreen> {
   String _searchQuery = '';
   StockStatus? _statusFilter;
   StockCategory _categoryFilter = StockCategory.all;
+  bool _lowStockOnly = false;
+  StockSortBy _sortBy = StockSortBy.nameAsc;
   final TextEditingController _searchController = TextEditingController();
 
   @override
   void dispose() {
     _searchController.dispose();
     super.dispose();
+  }
+
+  bool get _hasActiveFilters =>
+      _statusFilter != null ||
+      _categoryFilter != StockCategory.all ||
+      _lowStockOnly ||
+      _sortBy != StockSortBy.nameAsc;
+
+  int get _activeFilterCount {
+    int count = 0;
+    if (_statusFilter != null) count++;
+    if (_categoryFilter != StockCategory.all) count++;
+    if (_lowStockOnly) count++;
+    if (_sortBy != StockSortBy.nameAsc) count++;
+    return count;
+  }
+
+  void _resetAllFilters() {
+    _searchController.clear();
+    setState(() {
+      _searchQuery = '';
+      _statusFilter = null;
+      _categoryFilter = StockCategory.all;
+      _lowStockOnly = false;
+      _sortBy = StockSortBy.nameAsc;
+    });
+  }
+
+  Future<void> _openFilterBottomSheet() async {
+    final result = await StockFilterSheet.show(
+      context,
+      currentStatus: _statusFilter,
+      currentCategory: _categoryFilter,
+      currentLowStockOnly: _lowStockOnly,
+      currentSortBy: _sortBy,
+    );
+
+    if (result != null) {
+      setState(() {
+        _statusFilter = result.status;
+        _categoryFilter = result.category;
+        _lowStockOnly = result.lowStockOnly;
+        _sortBy = result.sortBy;
+      });
+    }
   }
 
   @override
@@ -35,19 +83,38 @@ class _StockScreenState extends State<StockScreen> {
         final repo = StockRepository.instance;
         final allItems = repo.items;
 
-        // Filter items based on search query, status filter, and category filter
+        // Filter items based on search query, status filter, category filter, and low stock toggle
         final filteredItems = allItems.where((item) {
           final matchesSearch = _searchQuery.isEmpty ||
               item.name.toLowerCase().contains(_searchQuery.toLowerCase()) ||
-              item.supplier.toLowerCase().contains(_searchQuery.toLowerCase());
+              item.supplier.toLowerCase().contains(_searchQuery.toLowerCase()) ||
+              (item.note != null && item.note!.toLowerCase().contains(_searchQuery.toLowerCase()));
 
           final matchesStatus = _statusFilter == null || item.status == _statusFilter;
 
           final matchesCategory = _categoryFilter == StockCategory.all ||
               item.category == _categoryFilter;
 
-          return matchesSearch && matchesStatus && matchesCategory;
+          final matchesLowStock = !_lowStockOnly || item.currentStock <= item.minStock;
+
+          return matchesSearch && matchesStatus && matchesCategory && matchesLowStock;
         }).toList();
+
+        // Apply selected sorting
+        switch (_sortBy) {
+          case StockSortBy.nameAsc:
+            filteredItems.sort((a, b) => a.name.toLowerCase().compareTo(b.name.toLowerCase()));
+            break;
+          case StockSortBy.stockAsc:
+            filteredItems.sort((a, b) => a.currentStock.compareTo(b.currentStock));
+            break;
+          case StockSortBy.stockDesc:
+            filteredItems.sort((a, b) => b.currentStock.compareTo(a.currentStock));
+            break;
+          case StockSortBy.valueDesc:
+            filteredItems.sort((a, b) => b.totalValue.compareTo(a.totalValue));
+            break;
+        }
 
         return Scaffold(
           backgroundColor: AppColors.pageBackground,
@@ -101,7 +168,7 @@ class _StockScreenState extends State<StockScreen> {
                         ],
                       ),
 
-                      // Quick info pill
+                      // Quick info pill: Total Asset Value
                       Container(
                         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
                         decoration: BoxDecoration(
@@ -155,130 +222,189 @@ class _StockScreenState extends State<StockScreen> {
                       ),
                       const SizedBox(height: 16),
 
-                      // 2. Search Bar
-                      Container(
-                        decoration: BoxDecoration(
-                          color: AppColors.cardBackground,
-                          borderRadius: BorderRadius.circular(14),
-                          border: Border.all(color: AppColors.cardBorder),
-                          boxShadow: const [
-                            BoxShadow(
-                              color: AppColors.cardShadow,
-                              blurRadius: 8,
-                              offset: Offset(0, 2),
-                            ),
-                          ],
-                        ),
-                        child: TextField(
-                          controller: _searchController,
-                          onChanged: (val) => setState(() => _searchQuery = val),
-                          style: GoogleFonts.inter(fontSize: 14),
-                          decoration: InputDecoration(
-                            hintText: 'Cari bahan baku...',
-                            hintStyle: GoogleFonts.inter(
-                              fontSize: 14,
-                              color: AppColors.mutedText,
-                            ),
-                            prefixIcon: const Icon(
-                              Icons.search_rounded,
-                              color: AppColors.primaryTeal,
-                              size: 22,
-                            ),
-                            suffixIcon: _searchQuery.isNotEmpty
-                                ? IconButton(
-                                    icon: const Icon(Icons.close_rounded, size: 18),
-                                    onPressed: () {
-                                      _searchController.clear();
-                                      setState(() => _searchQuery = '');
-                                    },
-                                  )
-                                : null,
-                            border: InputBorder.none,
-                            contentPadding: const EdgeInsets.symmetric(
-                              horizontal: 16,
-                              vertical: 14,
+                      // 2. Unified Search Bar + Filter Container Row
+                      Row(
+                        children: [
+                          // Search Input Container
+                          Expanded(
+                            child: Container(
+                              height: 48,
+                              decoration: BoxDecoration(
+                                color: AppColors.cardBackground,
+                                borderRadius: BorderRadius.circular(14),
+                                border: Border.all(color: AppColors.cardBorder),
+                                boxShadow: const [
+                                  BoxShadow(
+                                    color: AppColors.cardShadow,
+                                    blurRadius: 8,
+                                    offset: Offset(0, 2),
+                                  ),
+                                ],
+                              ),
+                              child: TextField(
+                                controller: _searchController,
+                                onChanged: (val) => setState(() => _searchQuery = val),
+                                style: GoogleFonts.inter(fontSize: 14),
+                                decoration: InputDecoration(
+                                  hintText: 'Cari bahan baku...',
+                                  hintStyle: GoogleFonts.inter(
+                                    fontSize: 14,
+                                    color: AppColors.mutedText,
+                                  ),
+                                  prefixIcon: const Icon(
+                                    Icons.search_rounded,
+                                    color: AppColors.primaryTeal,
+                                    size: 22,
+                                  ),
+                                  suffixIcon: _searchQuery.isNotEmpty
+                                      ? IconButton(
+                                          icon: const Icon(Icons.close_rounded, size: 18),
+                                          onPressed: () {
+                                            _searchController.clear();
+                                            setState(() => _searchQuery = '');
+                                          },
+                                        )
+                                      : null,
+                                  border: InputBorder.none,
+                                  contentPadding: const EdgeInsets.symmetric(
+                                    horizontal: 14,
+                                    vertical: 12,
+                                  ),
+                                ),
+                              ),
                             ),
                           ),
-                        ),
-                      ),
-                      const SizedBox(height: 14),
+                          const SizedBox(width: 10),
 
-                      // 3. Status Filter Pills (Semua, Baik, Rendah, Kritis)
-                      SingleChildScrollView(
-                        scrollDirection: Axis.horizontal,
-                        physics: const BouncingScrollPhysics(),
-                        child: Row(
-                          children: [
-                            _buildStatusPill(
-                              label: 'Semua',
-                              status: null,
-                              count: repo.totalItemsCount,
-                            ),
-                            const SizedBox(width: 8),
-                            _buildStatusPill(
-                              label: 'Aman',
-                              status: StockStatus.baik,
-                              count: repo.safeStockCount,
-                              activeColor: AppColors.successGreen,
-                            ),
-                            const SizedBox(width: 8),
-                            _buildStatusPill(
-                              label: 'Rendah',
-                              status: StockStatus.rendah,
-                              count: repo.lowStockCount,
-                              activeColor: AppColors.warningOrange,
-                            ),
-                            const SizedBox(width: 8),
-                            _buildStatusPill(
-                              label: 'Kritis',
-                              status: StockStatus.kritis,
-                              count: repo.criticalStockCount,
-                              activeColor: AppColors.destructive,
-                            ),
-                          ],
-                        ),
-                      ),
-                      const SizedBox(height: 10),
-
-                      // 4. Category Filter Horizontal Chips
-                      SingleChildScrollView(
-                        scrollDirection: Axis.horizontal,
-                        physics: const BouncingScrollPhysics(),
-                        child: Row(
-                          children: StockCategory.values.map((cat) {
-                            final isSelected = _categoryFilter == cat;
-                            return Padding(
-                              padding: const EdgeInsets.only(right: 6),
-                              child: ChoiceChip(
-                                label: Text(cat.label),
-                                selected: isSelected,
-                                onSelected: (_) {
-                                  setState(() => _categoryFilter = cat);
-                                },
-                                labelStyle: GoogleFonts.inter(
-                                  fontSize: 12,
-                                  fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
-                                  color: isSelected ? Colors.white : AppColors.mutedText,
-                                ),
-                                selectedColor: AppColors.primaryTeal,
-                                backgroundColor: AppColors.cardBackground,
-                                side: BorderSide(
-                                  color: isSelected
+                          // Filter Container Button
+                          InkWell(
+                            key: const Key('stock_filter_button'),
+                            onTap: _openFilterBottomSheet,
+                            borderRadius: BorderRadius.circular(14),
+                            child: AnimatedContainer(
+                              duration: const Duration(milliseconds: 200),
+                              height: 48,
+                              padding: const EdgeInsets.symmetric(horizontal: 14),
+                              decoration: BoxDecoration(
+                                color: _hasActiveFilters
+                                    ? AppColors.primaryTeal
+                                    : AppColors.cardBackground,
+                                borderRadius: BorderRadius.circular(14),
+                                border: Border.all(
+                                  color: _hasActiveFilters
                                       ? AppColors.primaryTeal
                                       : AppColors.cardBorder,
                                 ),
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(16),
-                                ),
-                                padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: _hasActiveFilters
+                                        ? AppColors.primaryTeal.withOpacity(0.25)
+                                        : AppColors.cardShadow,
+                                    blurRadius: 8,
+                                    offset: const Offset(0, 2),
+                                  ),
+                                ],
                               ),
-                            );
-                          }).toList(),
-                        ),
+                              child: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Icon(
+                                    Icons.tune_rounded,
+                                    size: 19,
+                                    color: _hasActiveFilters
+                                        ? Colors.white
+                                        : AppColors.primaryTeal,
+                                  ),
+                                  const SizedBox(width: 6),
+                                  Text(
+                                    'Filter',
+                                    style: GoogleFonts.inter(
+                                      fontSize: 13,
+                                      fontWeight: FontWeight.w600,
+                                      color: _hasActiveFilters
+                                          ? Colors.white
+                                          : AppColors.darkText,
+                                    ),
+                                  ),
+                                  if (_activeFilterCount > 0) ...[
+                                    const SizedBox(width: 6),
+                                    Container(
+                                      padding: const EdgeInsets.symmetric(
+                                        horizontal: 6,
+                                        vertical: 2,
+                                      ),
+                                      decoration: BoxDecoration(
+                                        color: Colors.white.withOpacity(0.25),
+                                        borderRadius: BorderRadius.circular(10),
+                                      ),
+                                      child: Text(
+                                        _activeFilterCount.toString(),
+                                        style: GoogleFonts.inter(
+                                          fontSize: 10,
+                                          fontWeight: FontWeight.w700,
+                                          color: Colors.white,
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ],
+                              ),
+                            ),
+                          ),
+                        ],
                       ),
+
+                      // 3. Active Filters Chips Row (Clean Quick Dismissals)
+                      if (_hasActiveFilters) ...[
+                        const SizedBox(height: 12),
+                        SingleChildScrollView(
+                          scrollDirection: Axis.horizontal,
+                          physics: const BouncingScrollPhysics(),
+                          child: Row(
+                            children: [
+                              if (_statusFilter != null)
+                                _buildActiveTag(
+                                  label: 'Status: ${_statusFilter!.label}',
+                                  onDeleted: () => setState(() => _statusFilter = null),
+                                ),
+                              if (_categoryFilter != StockCategory.all)
+                                _buildActiveTag(
+                                  label: 'Kategori: ${_categoryFilter.label}',
+                                  onDeleted: () => setState(() => _categoryFilter = StockCategory.all),
+                                ),
+                              if (_lowStockOnly)
+                                _buildActiveTag(
+                                  label: 'Menipis Saja',
+                                  onDeleted: () => setState(() => _lowStockOnly = false),
+                                ),
+                              if (_sortBy != StockSortBy.nameAsc)
+                                _buildActiveTag(
+                                  label: _sortBy.label,
+                                  onDeleted: () => setState(() => _sortBy = StockSortBy.nameAsc),
+                                ),
+                              InkWell(
+                                onTap: _resetAllFilters,
+                                borderRadius: BorderRadius.circular(8),
+                                child: Padding(
+                                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                                  child: Text(
+                                    'Reset Semua',
+                                    style: GoogleFonts.inter(
+                                      fontSize: 12,
+                                      fontWeight: FontWeight.w600,
+                                      color: AppColors.primaryTeal,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+
                       const SizedBox(height: 16),
 
-                      // 5. Stock Items List Header
+                      // 4. Stock Items List Header
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
@@ -290,16 +416,9 @@ class _StockScreenState extends State<StockScreen> {
                               color: AppColors.darkText,
                             ),
                           ),
-                          if (_statusFilter != null || _categoryFilter != StockCategory.all || _searchQuery.isNotEmpty)
+                          if (_hasActiveFilters || _searchQuery.isNotEmpty)
                             InkWell(
-                              onTap: () {
-                                _searchController.clear();
-                                setState(() {
-                                  _searchQuery = '';
-                                  _statusFilter = null;
-                                  _categoryFilter = StockCategory.all;
-                                });
-                              },
+                              onTap: _resetAllFilters,
                               child: Text(
                                 'Reset Filter',
                                 style: GoogleFonts.inter(
@@ -313,7 +432,7 @@ class _StockScreenState extends State<StockScreen> {
                       ),
                       const SizedBox(height: 12),
 
-                      // 6. Stock Items Cards
+                      // 5. Stock Items Cards
                       if (filteredItems.isEmpty)
                         Container(
                           padding: const EdgeInsets.all(32),
@@ -341,12 +460,24 @@ class _StockScreenState extends State<StockScreen> {
                               ),
                               const SizedBox(height: 4),
                               Text(
-                                'Coba ubah kata kunci pencarian atau reset filter',
+                                'Coba ubah kata kunci pencarian atau atur ulang filter',
                                 style: GoogleFonts.inter(
                                   fontSize: 12,
                                   color: AppColors.mutedText,
                                 ),
                                 textAlign: TextAlign.center,
+                              ),
+                              const SizedBox(height: 16),
+                              ElevatedButton(
+                                onPressed: _resetAllFilters,
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: AppColors.primaryTeal,
+                                  foregroundColor: Colors.white,
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(12),
+                                  ),
+                                ),
+                                child: const Text('Reset Semua Filter'),
                               ),
                             ],
                           ),
@@ -408,70 +539,42 @@ class _StockScreenState extends State<StockScreen> {
     );
   }
 
-  Widget _buildStatusPill({
+  Widget _buildActiveTag({
     required String label,
-    required StockStatus? status,
-    required int count,
-    Color activeColor = const Color(0xFF134E4A),
+    required VoidCallback onDeleted,
   }) {
-    final isSelected = _statusFilter == status;
-    return InkWell(
-      onTap: () {
-        setState(() {
-          _statusFilter = status;
-        });
-      },
-      borderRadius: BorderRadius.circular(20),
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 180),
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 7),
-        decoration: BoxDecoration(
-          color: isSelected ? activeColor : AppColors.cardBackground,
-          borderRadius: BorderRadius.circular(20),
-          border: Border.all(
-            color: isSelected ? activeColor : AppColors.cardBorder,
+    return Container(
+      margin: const EdgeInsets.only(right: 8),
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+      decoration: BoxDecoration(
+        color: AppColors.primaryTeal.withOpacity(0.1),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(
+          color: AppColors.primaryTeal.withOpacity(0.3),
+        ),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text(
+            label,
+            style: GoogleFonts.inter(
+              fontSize: 12,
+              fontWeight: FontWeight.w600,
+              color: AppColors.primaryTeal,
+            ),
           ),
-          boxShadow: isSelected
-              ? [
-                  BoxShadow(
-                    color: activeColor.withOpacity(0.25),
-                    blurRadius: 6,
-                    offset: const Offset(0, 2),
-                  ),
-                ]
-              : null,
-        ),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Text(
-              label,
-              style: GoogleFonts.inter(
-                fontSize: 13,
-                fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
-                color: isSelected ? Colors.white : AppColors.darkText,
-              ),
+          const SizedBox(width: 4),
+          InkWell(
+            onTap: onDeleted,
+            borderRadius: BorderRadius.circular(10),
+            child: const Icon(
+              Icons.close_rounded,
+              size: 14,
+              color: AppColors.primaryTeal,
             ),
-            const SizedBox(width: 6),
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 1),
-              decoration: BoxDecoration(
-                color: isSelected
-                    ? Colors.white.withOpacity(0.25)
-                    : AppColors.surface,
-                borderRadius: BorderRadius.circular(10),
-              ),
-              child: Text(
-                count.toString(),
-                style: GoogleFonts.inter(
-                  fontSize: 11,
-                  fontWeight: FontWeight.w700,
-                  color: isSelected ? Colors.white : AppColors.mutedText,
-                ),
-              ),
-            ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }

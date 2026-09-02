@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../core/theme/app_colors.dart';
 import '../../models/product.dart';
+import '../../models/finance_model.dart';
 import 'payment_success_screen.dart';
 
 /// Checkout and Payment method selection screen.
@@ -89,6 +90,17 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
       cashGiven: _selectedMethod == PaymentMethodType.cash ? _cashGiven : _total,
       change: _selectedMethod == PaymentMethodType.cash ? _change : 0,
       createdAt: DateTime.now(),
+    );
+
+    // Auto-record POS sale to Finance
+    FinanceRepository.instance.addTransaction(
+      title: 'Penjualan Kasir (${widget.items.length} item)',
+      type: TransactionType.income,
+      category: FinanceCategory.sales,
+      amount: _total.toDouble(),
+      source: TransactionSource.posAutomatic,
+      notes: '${widget.orderType.label}${widget.tableNumber != null ? ' • Meja ${widget.tableNumber}' : ''} • ${_selectedMethod.label}',
+      timestamp: DateTime.now(),
     );
 
     setState(() => _isProcessing = false);
