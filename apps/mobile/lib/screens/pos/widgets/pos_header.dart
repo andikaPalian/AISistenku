@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../models/product.dart';
+import 'add_edit_product_modal.dart';
 
 /// POS screen header with title, subtitle, and history button.
 class PosHeader extends StatelessWidget {
@@ -229,11 +230,49 @@ class PosHeader extends StatelessWidget {
               ],
             ),
           ),
+          // Add Menu Button
+          GestureDetector(
+            onTap: () => AddEditProductModal.show(context),
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+              margin: const EdgeInsets.only(right: 8),
+              decoration: BoxDecoration(
+                color: AppColors.primaryTeal,
+                borderRadius: BorderRadius.circular(10),
+                boxShadow: [
+                  BoxShadow(
+                    color: AppColors.primaryTeal.withOpacity(0.25),
+                    blurRadius: 6,
+                    offset: const Offset(0, 2),
+                  ),
+                ],
+              ),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const Icon(
+                    Icons.add_rounded,
+                    color: Colors.white,
+                    size: 18,
+                  ),
+                  const SizedBox(width: 4),
+                  Text(
+                    'Menu',
+                    style: GoogleFonts.poppins(
+                      fontSize: 12,
+                      fontWeight: FontWeight.w600,
+                      color: Colors.white,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
           // History button with interactive bottom sheet
           GestureDetector(
             onTap: () => _showOrderHistory(context),
             child: Container(
-              padding: const EdgeInsets.all(10),
+              padding: const EdgeInsets.all(8),
               decoration: BoxDecoration(
                 color: AppColors.tealBackgrounds,
                 shape: BoxShape.circle,
@@ -245,7 +284,7 @@ class PosHeader extends StatelessWidget {
               child: const Icon(
                 Icons.history_rounded,
                 color: AppColors.darkText,
-                size: 22,
+                size: 20,
               ),
             ),
           ),

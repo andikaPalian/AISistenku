@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../core/services/api_service.dart';
 
 /// Type of financial transaction.
 enum TransactionType {
@@ -186,6 +187,17 @@ class FinanceRepository extends ChangeNotifier {
 
   List<FinanceTransaction> get transactions => List.unmodifiable(_transactions);
 
+  void clearForNewUser() {
+    _transactions.clear();
+    notifyListeners();
+  }
+
+  void loadDemoData() {
+    _transactions.clear();
+    _seedData();
+    notifyListeners();
+  }
+
   void _seedData() {
     final now = DateTime.now();
     _transactions.addAll([
@@ -282,6 +294,56 @@ class FinanceRepository extends ChangeNotifier {
     ]);
   }
 
+  Future<void> fetchFinanceFromBackend() async {
+    try {
+      final res = await ApiService.instance.get('/finance/transactions');
+      if (res != null && res['transactions'] is List) {
+        final List list = res['transactions'];
+        final List<FinanceTransaction> loaded = [];
+        for (final t in list) {
+          final isIncome = (t['type'] ?? '').toString().toLowerCase() == 'income';
+          FinanceCategory cat = FinanceCategory.sales;
+          final catStr = (t['category'] ?? '').toString().toLowerCase();
+          if (catStr.contains('bahan') || catStr.contains('ingredient')) {
+            cat = FinanceCategory.ingredients;
+          } else if (catStr.contains('operasional') || catStr.contains('operational')) {
+            cat = FinanceCategory.operational;
+          } else if (catStr.contains('gaji') || catStr.contains('salary')) {
+            cat = FinanceCategory.salary;
+          } else if (catStr.contains('listrik') || catStr.contains('utility')) {
+            cat = FinanceCategory.utility;
+          }
+
+          TransactionSource src = TransactionSource.manual;
+          final srcStr = (t['source'] ?? '').toString().toLowerCase();
+          if (srcStr.contains('pos') || srcStr.contains('otomatis')) {
+            src = TransactionSource.posAutomatic;
+          } else if (srcStr.contains('ai')) {
+            src = TransactionSource.aiAgent;
+          }
+
+          loaded.add(FinanceTransaction(
+            id: (t['transaction_id'] ?? t['id'] ?? 'tx-${DateTime.now().millisecondsSinceEpoch}').toString(),
+            title: (t['title'] ?? 'Transaksi').toString(),
+            type: isIncome ? TransactionType.income : TransactionType.expense,
+            category: cat,
+            amount: (t['amount'] as num?)?.toDouble() ?? 0.0,
+            source: src,
+            notes: t['notes'],
+            timestamp: t['timestamp'] != null
+                ? DateTime.tryParse(t['timestamp']) ?? DateTime.now()
+                : DateTime.now(),
+          ));
+        }
+        _transactions.clear();
+        _transactions.addAll(loaded);
+        notifyListeners();
+      }
+    } catch (e) {
+      debugPrint('⚠️ fetchFinanceFromBackend error: $e');
+    }
+  }
+
   /// Add new transaction and notify UI listeners.
   void addTransaction({
     required String title,
@@ -305,6 +367,17 @@ class FinanceRepository extends ChangeNotifier {
 
     _transactions.insert(0, newTx);
     notifyListeners();
+
+    // Sync to backend
+    ApiService.instance.post('/finance/transactions', {
+      'title': title.trim(),
+      'type': type == TransactionType.income ? 'income' : 'expense',
+      'category': category.label,
+      'amount': amount,
+      'source': source.label,
+      'notes': notes?.trim().isEmpty == true ? null : notes?.trim(),
+      'timestamp': timestamp.toIso8601String(),
+    }).catchError((_) => null);
   }
 
   /// Remove transaction.

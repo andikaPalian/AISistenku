@@ -221,6 +221,20 @@ export const sendChatMessage = async (req, res, next) => {
       };
       if (supabase) await supabase.from('ai_messages').insert([aiResponseMsg]);
     }
+    // -------- Intent 4: Greetings (Halo, Hi, dsb) --------
+    else if (/^(hi|halo|hello|hai|p|hey|assalamualaikum|selamat\s*(pagi|siang|sore|malam)?|tes|ping)[\s!?.]*$/i.test(cleanText.trim())) {
+      aiResponseMsg = {
+        message_id: `msg-${Date.now() + 1}`,
+        user_id: req.user?.user_id || '00000000-0000-0000-0000-000000000001',
+        sender: 'AI',
+        text: 'Halo! Saya AIsisten, partner cerdas toko Anda. Ada yang bisa saya bantu? Anda bisa meminta saya analisis penjualan, cek stok menipis, catat belanja bahan, atau ide konten promo medsos!',
+        type: 'text',
+        actionPayload: null,
+        extra_data: null,
+        timestamp: new Date().toISOString(),
+      };
+      if (supabase) await supabase.from('ai_messages').insert([aiResponseMsg]);
+    }
     // -------- Default: General business Q&A via KelontongAI --------
     else {
       // Gather simple business context
@@ -233,6 +247,8 @@ export const sendChatMessage = async (req, res, next) => {
           totalExpense = data.filter((t) => t.type === 'EXPENSE').reduce((s, t) => s + Number(t.amount), 0);
         }
       }
+
+      const isBizAnalysis = lower.includes('omset') || lower.includes('penjualan') || lower.includes('laba') || lower.includes('untung') || lower.includes('bisnis') || lower.includes('rekap');
 
       const aiText = await callKelontongAI([
         {
@@ -250,9 +266,15 @@ export const sendChatMessage = async (req, res, next) => {
         user_id: req.user?.user_id || '00000000-0000-0000-0000-000000000001',
         sender: 'AI',
         text: aiText,
-        type: 'businessSummary',
+        type: isBizAnalysis ? 'businessSummary' : 'text',
         actionPayload: null,
-        extra_data: { revenue: totalIncome, expense: totalExpense, txCount },
+        extra_data: {
+          revenue: Number(totalIncome) || 0,
+          profit: Number(totalIncome - totalExpense) || 0,
+          expense: Number(totalExpense) || 0,
+          bestSeller: 'Iced Latte',
+          txCount,
+        },
         timestamp: new Date().toISOString(),
       };
       if (supabase) await supabase.from('ai_messages').insert([aiResponseMsg]);

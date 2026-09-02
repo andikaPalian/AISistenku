@@ -61,6 +61,11 @@ export const login = async (req, res, next) => {
               role: data.user.user_metadata?.role || 'owner',
             },
           });
+        } else if (error) {
+           if (error.message.includes('Invalid login credentials')) {
+               return res.status(401).json({ error: 'Email atau password salah. Pastikan Anda telah mendaftar.' });
+           }
+           return res.status(401).json({ error: error.message });
         }
       } catch (err) {
         console.warn('[auth/login] Supabase auth attempt error:', err?.message);

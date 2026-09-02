@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../core/services/api_service.dart';
 
 /// Status of stock item based on current stock vs minimum stock.
 enum StockStatus {
@@ -248,6 +249,25 @@ class StockRepository extends ChangeNotifier {
   List<StockItem> get items => List.unmodifiable(_items);
   List<StockLog> get logs => List.unmodifiable(_logs);
 
+  void clearForNewUser() {
+    _items.clear();
+    _logs.clear();
+    notifyListeners();
+  }
+
+  void loadDemoData() {
+    _items.clear();
+    _logs.clear();
+    _initDefaultData();
+    notifyListeners();
+  }
+
+  void setItems(List<StockItem> newItems) {
+    _items.clear();
+    _items.addAll(newItems);
+    notifyListeners();
+  }
+
   int get totalItemsCount => _items.length;
   int get lowStockCount =>
       _items.where((i) => i.status == StockStatus.rendah).length;
@@ -354,6 +374,48 @@ class StockRepository extends ChangeNotifier {
     notifyListeners();
   }
 
+  Future<void> fetchStocksFromBackend() async {
+    try {
+      final res = await ApiService.instance.get('/stocks');
+      if (res != null && res['stockItems'] is List) {
+        final List list = res['stockItems'];
+        final List<StockItem> loaded = [];
+        for (final item in list) {
+          StockCategory cat = StockCategory.pemanis;
+          final catStr = (item['category'] ?? '').toString().toLowerCase();
+          if (catStr.contains('kopi') || catStr.contains('bean')) {
+            cat = StockCategory.kopi;
+          } else if (catStr.contains('susu') || catStr.contains('dairy') || catStr.contains('milk')) {
+            cat = StockCategory.dairy;
+          } else if (catStr.contains('sirup') || catStr.contains('perasa') || catStr.contains('syrup')) {
+            cat = StockCategory.sirup;
+          } else if (catStr.contains('kemas') || catStr.contains('cup')) {
+            cat = StockCategory.kemasan;
+          }
+
+          loaded.add(StockItem(
+            id: (item['stock_id'] ?? item['id'] ?? 'stock-${DateTime.now().millisecondsSinceEpoch}').toString(),
+            name: (item['name'] ?? 'Bahan').toString(),
+            category: cat,
+            currentStock: (item['current_stock'] as num?)?.toDouble() ?? 0.0,
+            minStock: (item['min_stock'] as num?)?.toDouble() ?? 5.0,
+            unit: (item['unit'] ?? 'kg').toString(),
+            costPerUnit: (item['cost_per_unit'] as num?)?.toInt() ?? 0,
+            supplier: item['supplier'],
+            lastUpdated: item['last_updated'] != null
+                ? DateTime.tryParse(item['last_updated']) ?? DateTime.now()
+                : DateTime.now(),
+          ));
+        }
+        _items.clear();
+        _items.addAll(loaded);
+        notifyListeners();
+      }
+    } catch (e) {
+      debugPrint('⚠️ fetchStocksFromBackend error: $e');
+    }
+  }
+
   /// Add a brand new stock raw material.
   void addStockItem(StockItem item) {
     _items.add(item);
@@ -373,6 +435,17 @@ class StockRepository extends ChangeNotifier {
       ),
     );
     notifyListeners();
+
+    // Sync to backend
+    ApiService.instance.post('/stocks', {
+      'name': item.name,
+      'category': item.category.label,
+      'current_stock': item.currentStock,
+      'min_stock': item.minStock,
+      'unit': item.unit,
+      'cost_per_unit': item.costPerUnit,
+      'supplier': item.supplier,
+    }).catchError((_) => null);
   }
 
   /// Update details of existing item.
@@ -382,6 +455,16 @@ class StockRepository extends ChangeNotifier {
       _items[index] = item;
       notifyListeners();
     }
+    // Sync to backend
+    ApiService.instance.put('/stocks/${item.id}', {
+      'name': item.name,
+      'category': item.category.label,
+      'current_stock': item.currentStock,
+      'min_stock': item.minStock,
+      'unit': item.unit,
+      'cost_per_unit': item.costPerUnit,
+      'supplier': item.supplier,
+    }).catchError((_) => null);
   }
 
   /// Delete stock item.
@@ -389,6 +472,8 @@ class StockRepository extends ChangeNotifier {
     _items.removeWhere((i) => i.id == stockId);
     _logs.removeWhere((l) => l.stockId == stockId);
     notifyListeners();
+    // Sync to backend
+    ApiService.instance.delete('/stocks/$stockId').catchError((_) => null);
   }
 
   void _initDefaultData() {

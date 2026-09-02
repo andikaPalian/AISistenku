@@ -1,7 +1,9 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../models/product.dart';
+import 'add_edit_product_modal.dart';
 
 /// Individual product card in the POS grid.
 ///
@@ -66,34 +68,8 @@ class ProductCard extends StatelessWidget {
                 child: Stack(
                   fit: StackFit.expand,
                   children: [
-                    // Network Image or Fallback
-                    if (product.imageUrl != null && product.imageUrl!.isNotEmpty)
-                      Image.network(
-                        product.imageUrl!,
-                        fit: BoxFit.cover,
-                        loadingBuilder: (context, child, loadingProgress) {
-                          if (loadingProgress == null) return child;
-                          return Container(
-                            color: AppColors.surface,
-                            child: const Center(
-                              child: SizedBox(
-                                width: 20,
-                                height: 20,
-                                child: CircularProgressIndicator(
-                                  strokeWidth: 2,
-                                  valueColor: AlwaysStoppedAnimation<Color>(
-                                    AppColors.primaryTeal,
-                                  ),
-                                ),
-                              ),
-                            ),
-                          );
-                        },
-                        errorBuilder: (context, error, stackTrace) =>
-                            _buildFallbackImage(),
-                      )
-                    else
-                      _buildFallbackImage(),
+                    // Network / Base64 / Fallback Image
+                    _buildProductImage(),
 
                     // Category Pill Tag (Top-Left)
                     Positioned(
@@ -119,26 +95,30 @@ class ProductCard extends StatelessWidget {
                       ),
                     ),
 
-                    // Code Tag (Top-Left secondary or right)
-                    if (product.code != null && !_isInCart)
+                    // Edit Pencil Button (Top-Right when not in cart)
+                    if (!_isInCart)
                       Positioned(
                         top: 8,
                         right: 8,
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 6,
-                            vertical: 3,
-                          ),
-                          decoration: BoxDecoration(
-                            color: Colors.white.withOpacity(0.85),
-                            borderRadius: BorderRadius.circular(6),
-                          ),
-                          child: Text(
-                            product.code!,
-                            style: GoogleFonts.inter(
-                              fontSize: 9,
-                              fontWeight: FontWeight.w700,
-                              color: AppColors.darkText,
+                        child: GestureDetector(
+                          onTap: () => AddEditProductModal.show(context, product: product),
+                          child: Container(
+                            padding: const EdgeInsets.all(5),
+                            decoration: BoxDecoration(
+                              color: Colors.white.withOpacity(0.9),
+                              shape: BoxShape.circle,
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.black.withOpacity(0.15),
+                                  blurRadius: 4,
+                                  offset: const Offset(0, 1),
+                                ),
+                              ],
+                            ),
+                            child: const Icon(
+                              Icons.edit_outlined,
+                              size: 13,
+                              color: AppColors.primaryTeal,
                             ),
                           ),
                         ),
@@ -360,6 +340,52 @@ class ProductCard extends StatelessWidget {
           ),
         ),
       ),
+    );
+  }
+
+  Widget _buildProductImage() {
+    final imgUrl = product.imageUrl;
+    if (imgUrl == null || imgUrl.isEmpty) {
+      return _buildFallbackImage();
+    }
+
+    if (imgUrl.startsWith('data:image')) {
+      try {
+        final commaIdx = imgUrl.indexOf(',');
+        final base64Data = commaIdx != -1 ? imgUrl.substring(commaIdx + 1) : imgUrl;
+        final bytes = base64Decode(base64Data);
+        return Image.memory(
+          bytes,
+          fit: BoxFit.cover,
+          errorBuilder: (_, __, ___) => _buildFallbackImage(),
+        );
+      } catch (_) {
+        return _buildFallbackImage();
+      }
+    }
+
+    return Image.network(
+      imgUrl,
+      fit: BoxFit.cover,
+      loadingBuilder: (context, child, loadingProgress) {
+        if (loadingProgress == null) return child;
+        return Container(
+          color: AppColors.surface,
+          child: const Center(
+            child: SizedBox(
+              width: 20,
+              height: 20,
+              child: CircularProgressIndicator(
+                strokeWidth: 2,
+                valueColor: AlwaysStoppedAnimation<Color>(
+                  AppColors.primaryTeal,
+                ),
+              ),
+            ),
+          ),
+        );
+      },
+      errorBuilder: (context, error, stackTrace) => _buildFallbackImage(),
     );
   }
 

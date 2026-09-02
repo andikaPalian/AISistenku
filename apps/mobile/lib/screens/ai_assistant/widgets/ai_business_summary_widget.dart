@@ -5,8 +5,8 @@ import '../../../models/finance_model.dart';
 
 /// Mini KPI card rendered inside AI chat messages for quick financial overview.
 class AiBusinessSummaryWidget extends StatelessWidget {
-  final double revenue;
-  final double profit;
+  final num revenue;
+  final num profit;
   final String bestSeller;
 
   const AiBusinessSummaryWidget({

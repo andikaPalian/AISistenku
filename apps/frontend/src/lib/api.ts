@@ -26,11 +26,19 @@ async function request<T>(method: string, path: string, body?: unknown): Promise
   const headers: Record<string, string> = { 'Content-Type': 'application/json' };
   if (token) headers.Authorization = `Bearer ${token}`;
 
-  const res = await fetch(`${BASE_URL}${path}`, {
-    method,
-    headers,
-    body: body ? JSON.stringify(body) : undefined,
-  });
+  let res: Response;
+  try {
+    res = await fetch(`${BASE_URL}${path}`, {
+      method,
+      headers,
+      body: body ? JSON.stringify(body) : undefined,
+    });
+  } catch (netErr: any) {
+    throw {
+      error: `Koneksi backend gagal. Pastikan backend server aktif di ${BASE_URL} (Jalankan: npm run dev di folder apps/backend)`,
+      status: 0,
+    } as ApiError;
+  }
 
   if (res.status === 401) {
     setToken(null);

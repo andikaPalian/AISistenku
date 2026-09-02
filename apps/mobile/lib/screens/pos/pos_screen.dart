@@ -101,48 +101,54 @@ class _PosScreenState extends State<PosScreen> {
       backgroundColor: AppColors.pageBackground,
       body: SafeArea(
         bottom: false,
-        child: Column(
-          children: [
-            // ── Fixed header area ───────────────────────────
-            const PosHeader(),
-            const Divider(height: 1, color: AppColors.border),
+        child: AnimatedBuilder(
+          animation: ProductRepository.instance,
+          builder: (context, _) {
+            final products = _filteredProducts;
+            return Column(
+              children: [
+                // ── Fixed header area ───────────────────────────
+                const PosHeader(),
+                const Divider(height: 1, color: AppColors.border),
 
-            // ── Scrollable content ──────────────────────────
-            Expanded(
-              child: Column(
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.fromLTRB(20, 16, 20, 0),
-                    child: PosSearchBar(
-                      onChanged: _onSearchChanged,
-                    ),
+                // ── Scrollable content ──────────────────────────
+                Expanded(
+                  child: Column(
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.fromLTRB(20, 16, 20, 0),
+                        child: PosSearchBar(
+                          onChanged: _onSearchChanged,
+                        ),
+                      ),
+                      const SizedBox(height: 14),
+                      CategoryChips(
+                        selected: _selectedCategory,
+                        onChanged: _onCategoryChanged,
+                      ),
+                      const SizedBox(height: 8),
+                      Expanded(
+                        child: ProductGrid(
+                          products: products,
+                          getQuantity: _getQuantity,
+                          onAdd: _addToCart,
+                          onRemove: _removeFromCart,
+                        ),
+                      ),
+                    ],
                   ),
-                  const SizedBox(height: 14),
-                  CategoryChips(
-                    selected: _selectedCategory,
-                    onChanged: _onCategoryChanged,
-                  ),
-                  const SizedBox(height: 8),
-                  Expanded(
-                    child: ProductGrid(
-                      products: _filteredProducts,
-                      getQuantity: _getQuantity,
-                      onAdd: _addToCart,
-                      onRemove: _removeFromCart,
-                    ),
-                  ),
-                ],
-              ),
-            ),
+                ),
 
-            // ── Cart bar (only visible when items in cart) ──
-            if (_totalItems > 0)
-              CartBottomBar(
-                itemCount: _totalItems,
-                totalFormatted: _formattedTotal,
-                onViewOrder: _navigateToOrderReview,
-              ),
-          ],
+                // ── Cart bar (only visible when items in cart) ──
+                if (_totalItems > 0)
+                  CartBottomBar(
+                    itemCount: _totalItems,
+                    totalFormatted: _formattedTotal,
+                    onViewOrder: _navigateToOrderReview,
+                  ),
+              ],
+            );
+          },
         ),
       ),
     );

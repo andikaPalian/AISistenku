@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../core/theme/app_colors.dart';
+import '../../core/services/api_service.dart';
 import '../../models/product.dart';
 import '../../models/finance_model.dart';
 import 'payment_success_screen.dart';
@@ -102,6 +103,31 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
       notes: '${widget.orderType.label}${widget.tableNumber != null ? ' • Meja ${widget.tableNumber}' : ''} • ${_selectedMethod.label}',
       timestamp: DateTime.now(),
     );
+
+    // Sync order to Backend API
+    ApiService.instance.post('/orders', {
+      'order_code': orderRecord.orderCode,
+      'order_type': widget.orderType.label,
+      'table_number': widget.tableNumber,
+      'customer_name': 'Pelanggan POS',
+      'payment_method': _selectedMethod.label,
+      'subtotal': _subtotal,
+      'tax': _tax,
+      'total_amount': _total,
+      'cash_given': _selectedMethod == PaymentMethodType.cash ? _cashGiven : _total,
+      'change': _selectedMethod == PaymentMethodType.cash ? _change : 0,
+      'items': widget.items.map((it) => {
+        'product_id': it.product.id,
+        'name': it.product.name,
+        'quantity': it.quantity,
+        'unit_price': it.product.price,
+        'subtotal': it.subtotal,
+        'variant': it.variant,
+      }).toList(),
+    }).catchError((e) {
+      debugPrint('⚠️ Create order sync note: $e');
+      return null;
+    });
 
     setState(() => _isProcessing = false);
 

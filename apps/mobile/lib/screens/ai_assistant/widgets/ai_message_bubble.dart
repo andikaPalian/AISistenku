@@ -127,10 +127,13 @@ class AiMessageBubble extends StatelessWidget {
                   if (message.type == AiMessageType.businessSummary &&
                       message.extraData != null) ...[
                     AiBusinessSummaryWidget(
-                      revenue: message.extraData!['revenue'] ?? 1250000.0,
-                      profit: message.extraData!['profit'] ?? 450000.0,
-                      bestSeller: message.extraData!['bestSeller'] ??
-                          'Iced Aren Latte',
+                      revenue: (message.extraData!['revenue'] as num?) ?? 0,
+                      profit: (message.extraData!['profit'] as num?) ??
+                          (((message.extraData!['revenue'] as num?) ?? 0) -
+                              ((message.extraData!['expense'] as num?) ?? 0)),
+                      bestSeller: (message.extraData!['bestSeller'] ??
+                              'Iced Aren Latte')
+                          .toString(),
                     ),
                   ],
 

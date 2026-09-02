@@ -1,6 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../core/theme/app_colors.dart';
+import '../../core/services/api_service.dart';
+import '../../models/product.dart';
+import '../../models/stock_model.dart';
+import '../../models/finance_model.dart';
+import '../../models/ai_chat_model.dart';
 import '../shell_screen.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -11,33 +16,213 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
+  final _nameController = TextEditingController();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
+  bool _isRegister = false;
   bool _obscurePassword = true;
   bool _isLoading = false;
+  bool _isServerConnected = false;
 
-  void _handleLogin() async {
+  @override
+  void initState() {
+    super.initState();
+    _checkServer();
+  }
+
+  Future<void> _checkServer() async {
+    await ApiConfig.autoDetectServer();
+    final ok = await ApiService.instance.checkHealth();
+    if (mounted) {
+      setState(() => _isServerConnected = ok);
+    }
+  }
+
+  void _showServerConfigDialog() {
+    final controller = TextEditingController(
+      text: ApiConfig.baseUrl.replaceAll('http://', '').replaceAll('/api', ''),
+    );
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        title: Text(
+          'Atur IP Server Backend',
+          style: GoogleFonts.poppins(fontWeight: FontWeight.w700, fontSize: 17),
+        ),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'Masukkan IP PC atau pilih preset di bawah:',
+              style: GoogleFonts.inter(fontSize: 13, color: AppColors.mutedText),
+            ),
+            const SizedBox(height: 12),
+            TextField(
+              controller: controller,
+              decoration: InputDecoration(
+                prefixText: 'http://',
+                suffixText: '/api',
+                hintText: '192.168.62.21:3000',
+                filled: true,
+                fillColor: AppColors.surface,
+                contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+              ),
+            ),
+            const SizedBox(height: 12),
+            Wrap(
+              spacing: 6,
+              runSpacing: 6,
+              children: [
+                ActionChip(
+                  label: const Text('Wi-Fi PC (192.168.62.21)'),
+                  onPressed: () => controller.text = '192.168.62.21:3000',
+                ),
+                ActionChip(
+                  label: const Text('USB adb (localhost:3000)'),
+                  onPressed: () => controller.text = 'localhost:3000',
+                ),
+                ActionChip(
+                  label: const Text('Emulator (10.0.2.2:3000)'),
+                  onPressed: () => controller.text = '10.0.2.2:3000',
+                ),
+              ],
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: const Text('Batal'),
+          ),
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(
+              backgroundColor: AppColors.primaryTeal,
+              foregroundColor: Colors.white,
+            ),
+            onPressed: () async {
+              final raw = controller.text.trim();
+              if (raw.isNotEmpty) {
+                final formatted = raw.startsWith('http') ? raw : 'http://$raw';
+                ApiConfig.setBaseUrl(formatted);
+              }
+              Navigator.pop(ctx);
+              await _checkServer();
+              if (mounted) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text(
+                      _isServerConnected
+                          ? '✅ Terhubung ke ${ApiConfig.baseUrl}'
+                          : '⚠️ Belum terhubung, pastikan backend berjalan di IP tersebut',
+                    ),
+                    backgroundColor: _isServerConnected ? AppColors.primaryTeal : AppColors.destructive,
+                  ),
+                );
+              }
+            },
+            child: const Text('Simpan & Tes'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _handleSubmit() async {
+    final email = _emailController.text.trim();
+    final password = _passwordController.text.trim();
+    final name = _nameController.text.trim();
+
+    if (email.isEmpty || password.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Email dan password wajib diisi')),
+      );
+      return;
+    }
+
+    if (_isRegister && name.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Nama lengkap / toko wajib diisi')),
+      );
+      return;
+    }
+
     setState(() {
       _isLoading = true;
     });
 
-    // Simulasi loading atau panggil API Supabase di sini nanti
-    await Future.delayed(const Duration(seconds: 2));
+    try {
+      final endpoint = _isRegister ? '/auth/register' : '/auth/login';
+      final body = _isRegister
+          ? {'name': name, 'email': email, 'password': password}
+          : {'email': email, 'password': password};
 
-    if (!mounted) return;
+      final res = await ApiService.instance.post(endpoint, body);
+      final token = res?['access_token'] as String?;
+      if (token == null) {
+        throw Exception(res?['message'] ?? 'Gagal masuk: tidak menerima token dari backend.');
+      }
+      ApiService.instance.setAuthToken(token);
 
-    setState(() {
-      _isLoading = false;
-    });
+      // If logging in as demo account, load demo data; otherwise fetch user's isolated data from backend
+      final isDemoAccount = email.toLowerCase() == 'owner@tigaangkatan.id';
+      if (isDemoAccount) {
+        ProductRepository.instance.loadDemoProducts();
+        StockRepository.instance.loadDemoData();
+        FinanceRepository.instance.loadDemoData();
+      } else {
+        ProductRepository.instance.clearForNewUser();
+        StockRepository.instance.clearForNewUser();
+        FinanceRepository.instance.clearForNewUser();
+        AiChatRepository.instance.clearForNewUser();
 
-    // Pindah ke halaman utama
-    Navigator.of(context).pushReplacement(
-      MaterialPageRoute(builder: (_) => const ShellScreen()),
-    );
+        // Fetch live data from backend for this user
+        await Future.wait([
+          ProductRepository.instance.fetchProductsFromBackend(),
+          StockRepository.instance.fetchStocksFromBackend(),
+          FinanceRepository.instance.fetchFinanceFromBackend(),
+          AiChatRepository.instance.fetchMessagesFromBackend(),
+        ]).catchError((e) {
+          debugPrint('⚠️ Sync user data from backend: $e');
+          return <void>[];
+        });
+      }
+
+      if (!mounted) return;
+
+      Navigator.of(context).pushReplacement(
+        MaterialPageRoute(builder: (_) => const ShellScreen()),
+      );
+    } catch (e) {
+      if (!mounted) return;
+      final cleanMsg = e.toString().replaceAll('Exception: ', '');
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(cleanMsg),
+          backgroundColor: AppColors.destructive,
+        ),
+      );
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
+      }
+    }
+  }
+
+  void _handleDemoLogin() {
+    _emailController.text = 'owner@tigaangkatan.id';
+    _passwordController.text = 'password123';
+    _isRegister = false;
+    _handleSubmit();
   }
 
   @override
   void dispose() {
+    _nameController.dispose();
     _emailController.dispose();
     _passwordController.dispose();
     super.dispose();
@@ -82,37 +267,114 @@ class _LoginScreenState extends State<LoginScreen> {
                     color: Colors.white,
                   ),
                 ),
-                const SizedBox(height: 32),
+                const SizedBox(height: 24),
                 Text(
-                  'Selamat Datang',
+                  _isRegister ? 'Daftar Akun Baru' : 'Selamat Datang',
                   textAlign: TextAlign.center,
                   style: GoogleFonts.poppins(
-                    fontSize: 28,
+                    fontSize: 26,
                     fontWeight: FontWeight.w700,
                     color: AppColors.darkText,
                     letterSpacing: -0.5,
                   ),
                 ),
-                const SizedBox(height: 8),
+                const SizedBox(height: 6),
                 Text(
-                  'AISISTENKU',
+                  _isRegister
+                      ? 'Kelola bisnis Anda dengan mudah dan mandiri'
+                      : 'AISISTENKU — Sistem Manajemen Toko & POS',
                   textAlign: TextAlign.center,
                   style: GoogleFonts.poppins(
-                    fontSize: 14,
+                    fontSize: 13,
                     color: AppColors.mutedText,
                     fontWeight: FontWeight.w500,
                   ),
                 ),
-                const SizedBox(height: 48),
+                const SizedBox(height: 32),
+
+                // Tab Switcher (Masuk / Daftar)
+                Container(
+                  decoration: BoxDecoration(
+                    color: AppColors.card,
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(color: AppColors.border),
+                  ),
+                  padding: const EdgeInsets.all(4),
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: GestureDetector(
+                          onTap: () => setState(() => _isRegister = false),
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(vertical: 10),
+                            decoration: BoxDecoration(
+                              color: !_isRegister
+                                  ? AppColors.primary
+                                  : Colors.transparent,
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            child: Text(
+                              'Masuk',
+                              textAlign: TextAlign.center,
+                              style: GoogleFonts.poppins(
+                                fontSize: 14,
+                                fontWeight: FontWeight.w600,
+                                color: !_isRegister
+                                    ? Colors.white
+                                    : AppColors.mutedText,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                      Expanded(
+                        child: GestureDetector(
+                          onTap: () => setState(() => _isRegister = true),
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(vertical: 10),
+                            decoration: BoxDecoration(
+                              color: _isRegister
+                                  ? AppColors.primary
+                                  : Colors.transparent,
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            child: Text(
+                              'Daftar Baru',
+                              textAlign: TextAlign.center,
+                              style: GoogleFonts.poppins(
+                                fontSize: 14,
+                                fontWeight: FontWeight.w600,
+                                color: _isRegister
+                                    ? Colors.white
+                                    : AppColors.mutedText,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 24),
+
+                // Form Name (Only on Register)
+                if (_isRegister) ...[
+                  _buildTextField(
+                    controller: _nameController,
+                    label: 'Nama Lengkap / Toko',
+                    icon: Icons.person_outline_rounded,
+                  ),
+                  const SizedBox(height: 16),
+                ],
 
                 // Form Email
                 _buildTextField(
                   controller: _emailController,
-                  label: 'Email / Username',
+                  label: 'Email',
                   icon: Icons.email_outlined,
                   keyboardType: TextInputType.emailAddress,
                 ),
-                const SizedBox(height: 20),
+                const SizedBox(height: 16),
 
                 // Form Password
                 _buildTextField(
@@ -134,28 +396,11 @@ class _LoginScreenState extends State<LoginScreen> {
                     },
                   ),
                 ),
-                const SizedBox(height: 12),
+                const SizedBox(height: 28),
 
-                // Lupa Password
-                Align(
-                  alignment: Alignment.centerRight,
-                  child: TextButton(
-                    onPressed: () {},
-                    child: Text(
-                      'Lupa Password?',
-                      style: GoogleFonts.poppins(
-                        fontSize: 13,
-                        color: AppColors.primary,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 32),
-
-                // Tombol Login
+                // Submit Button
                 ElevatedButton(
-                  onPressed: _isLoading ? null : _handleLogin,
+                  onPressed: _isLoading ? null : _handleSubmit,
                   style: ElevatedButton.styleFrom(
                     backgroundColor: AppColors.primary,
                     foregroundColor: AppColors.onPrimary,
@@ -175,7 +420,7 @@ class _LoginScreenState extends State<LoginScreen> {
                           ),
                         )
                       : Text(
-                          'Masuk',
+                          _isRegister ? 'Daftar Sekarang' : 'Masuk',
                           style: GoogleFonts.poppins(
                             fontSize: 16,
                             fontWeight: FontWeight.w600,
@@ -183,31 +428,70 @@ class _LoginScreenState extends State<LoginScreen> {
                         ),
                 ),
 
-                const SizedBox(height: 24),
+                const SizedBox(height: 16),
 
-                // Bantuan Support
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Text(
-                      'Butuh bantuan?',
-                      style: GoogleFonts.poppins(
-                        fontSize: 13,
-                        color: AppColors.mutedText,
-                      ),
+                // Demo Mode Button
+                OutlinedButton.icon(
+                  onPressed: _isLoading ? null : _handleDemoLogin,
+                  icon: const Icon(Icons.coffee_rounded, size: 18, color: AppColors.primary),
+                  label: Text(
+                    'Coba Demo Akun Cafe (Data Contoh)',
+                    style: GoogleFonts.poppins(
+                      fontSize: 13,
+                      fontWeight: FontWeight.w600,
+                      color: AppColors.primary,
                     ),
-                    TextButton(
-                      onPressed: () {},
-                      child: Text(
-                        'Hubungi Support',
-                        style: GoogleFonts.poppins(
-                          fontSize: 13,
-                          color: AppColors.primary,
-                          fontWeight: FontWeight.w600,
+                  ),
+                  style: OutlinedButton.styleFrom(
+                    padding: const EdgeInsets.symmetric(vertical: 13),
+                    side: const BorderSide(color: AppColors.primary, width: 1.2),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                  ),
+                ),
+
+                const SizedBox(height: 18),
+
+                // Server IP connection indicator & changer
+                Center(
+                  child: InkWell(
+                    onTap: _showServerConfigDialog,
+                    borderRadius: BorderRadius.circular(20),
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 7),
+                      decoration: BoxDecoration(
+                        color: AppColors.surface,
+                        borderRadius: BorderRadius.circular(20),
+                        border: Border.all(
+                          color: _isServerConnected ? AppColors.primaryTeal.withOpacity(0.5) : AppColors.border,
                         ),
                       ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(
+                            _isServerConnected ? Icons.check_circle_rounded : Icons.cloud_queue_rounded,
+                            size: 14,
+                            color: _isServerConnected ? AppColors.successGreen : AppColors.mutedText,
+                          ),
+                          const SizedBox(width: 6),
+                          Text(
+                            _isServerConnected
+                                ? 'Server Aktif (${ApiConfig.baseUrl.replaceAll("http://", "").replaceAll("/api", "")})'
+                                : 'Atur IP Server (${ApiConfig.baseUrl.replaceAll("http://", "").replaceAll("/api", "")})',
+                            style: GoogleFonts.inter(
+                              fontSize: 11,
+                              fontWeight: FontWeight.w600,
+                              color: AppColors.darkText,
+                            ),
+                          ),
+                          const SizedBox(width: 6),
+                          const Icon(Icons.settings_outlined, size: 12, color: AppColors.mutedText),
+                        ],
+                      ),
                     ),
-                  ],
+                  ),
                 ),
               ],
             ),

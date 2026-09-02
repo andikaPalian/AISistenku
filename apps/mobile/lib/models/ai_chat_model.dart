@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import '../core/services/api_service.dart';
 import 'stock_model.dart';
 import 'finance_model.dart';
 
@@ -94,6 +95,17 @@ class AiChatRepository extends ChangeNotifier {
   List<AiChatMessage> get messages => List.unmodifiable(_messages);
   bool get isTyping => _isTyping;
 
+  void clearForNewUser() {
+    _messages.clear();
+    notifyListeners();
+  }
+
+  void loadDemoData() {
+    _messages.clear();
+    _seedChat();
+    notifyListeners();
+  }
+
   void _seedChat() {
     final now = DateTime.now();
 
@@ -149,7 +161,67 @@ class AiChatRepository extends ChangeNotifier {
     ]);
   }
 
-  /// Send user message and trigger automated AI intelligence.
+  /// Fetch previous messages from backend API.
+  Future<void> fetchMessagesFromBackend() async {
+    try {
+      final res = await ApiService.instance.get('/ai/messages');
+      if (res != null && res['messages'] is List) {
+        final List list = res['messages'];
+        if (list.isNotEmpty) {
+          final List<AiChatMessage> loaded = [];
+          for (final m in list) {
+            final sender = m['sender'] == 'USER' ? ChatSender.user : ChatSender.ai;
+            final typeStr = m['type'] ?? 'text';
+            AiMessageType msgType = AiMessageType.text;
+            AiActionPayload? actionPayload;
+            Map<String, dynamic>? extraData;
+
+            if (typeStr == 'actionConfirm' && m['actionPayload'] != null) {
+              msgType = AiMessageType.actionConfirm;
+              final ap = m['actionPayload'];
+              actionPayload = AiActionPayload(
+                actionId: ap['actionId'] ?? 'act-001',
+                intent: ap['intent'] ?? 'ADD_STOCK_AND_EXPENSE',
+                itemName: ap['itemName'],
+                quantity: (ap['quantity'] as num?)?.toDouble(),
+                unit: ap['unit'],
+                expenseAmount: (ap['expenseAmount'] as num?)?.toDouble(),
+                category: ap['category'],
+                status: ap['status'] == 'confirmed' ? AiActionStatus.confirmed : AiActionStatus.pending,
+              );
+            } else if (typeStr == 'businessSummary') {
+              msgType = AiMessageType.businessSummary;
+              if (m['extra_data'] is Map) extraData = Map<String, dynamic>.from(m['extra_data']);
+            } else if (typeStr == 'caption') {
+              msgType = AiMessageType.contentCaption;
+              if (m['extra_data'] is Map) extraData = Map<String, dynamic>.from(m['extra_data']);
+            }
+
+            loaded.add(AiChatMessage(
+              id: m['message_id'] ?? m['id'] ?? 'msg-${DateTime.now().millisecondsSinceEpoch}',
+              sender: sender,
+              text: m['text'] ?? '',
+              type: msgType,
+              actionPayload: actionPayload,
+              extraData: extraData,
+              timestamp: m['timestamp'] != null
+                  ? DateTime.tryParse(m['timestamp']) ?? DateTime.now()
+                  : DateTime.now(),
+            ));
+          }
+          if (loaded.isNotEmpty) {
+            _messages.clear();
+            _messages.addAll(loaded);
+            notifyListeners();
+          }
+        }
+      }
+    } catch (e) {
+      debugPrint('⚠️ Fetch AI messages error: $e');
+    }
+  }
+
+  /// Send user message and trigger automated AI intelligence via Backend API.
   Future<void> sendMessage(String text) async {
     final cleanText = text.trim();
     if (cleanText.isEmpty) return;
@@ -166,9 +238,64 @@ class AiChatRepository extends ChangeNotifier {
     _isTyping = true;
     notifyListeners();
 
-    // Simulate AI thinking and processing
-    await Future.delayed(const Duration(milliseconds: 900));
+    try {
+      // 1. Send to Backend AI API
+      final res = await ApiService.instance.post('/ai/chat', {'text': cleanText});
+      if (res != null && res['aiResponse'] != null) {
+        final r = res['aiResponse'];
+        final resText = (r['text'] ?? '').toString();
+        final resTypeStr = (r['type'] ?? 'text').toString();
 
+        AiMessageType msgType = AiMessageType.text;
+        AiActionPayload? actionPayload;
+        Map<String, dynamic>? extraData;
+
+        if (resTypeStr == 'actionConfirm' && r['actionPayload'] != null) {
+          msgType = AiMessageType.actionConfirm;
+          final ap = r['actionPayload'];
+          actionPayload = AiActionPayload(
+            actionId: ap['actionId'] ?? 'act-${DateTime.now().millisecondsSinceEpoch}',
+            intent: ap['intent'] ?? 'ADD_STOCK_AND_EXPENSE',
+            itemName: ap['itemName'],
+            quantity: (ap['quantity'] as num?)?.toDouble(),
+            unit: ap['unit'],
+            expenseAmount: (ap['expenseAmount'] as num?)?.toDouble(),
+            category: ap['category'] ?? 'Bahan Baku',
+            status: AiActionStatus.pending,
+          );
+        } else if (resTypeStr == 'businessSummary') {
+          msgType = AiMessageType.businessSummary;
+          if (r['extra_data'] != null && r['extra_data'] is Map) {
+            extraData = Map<String, dynamic>.from(r['extra_data']);
+          }
+        } else if (resTypeStr == 'caption') {
+          msgType = AiMessageType.contentCaption;
+          if (r['extra_data'] != null && r['extra_data'] is Map) {
+            extraData = Map<String, dynamic>.from(r['extra_data']);
+          }
+        }
+
+        final aiMsg = AiChatMessage(
+          id: r['message_id'] ?? 'msg-${DateTime.now().millisecondsSinceEpoch}',
+          sender: ChatSender.ai,
+          text: resText,
+          type: msgType,
+          actionPayload: actionPayload,
+          extraData: extraData,
+          timestamp: DateTime.now(),
+        );
+
+        _messages.add(aiMsg);
+        _isTyping = false;
+        notifyListeners();
+        return;
+      }
+    } catch (e) {
+      debugPrint('⚠️ Backend AI error, falling back to local NLP: $e');
+    }
+
+    // 2. Offline / Local Fallback NLP Engine
+    await Future.delayed(const Duration(milliseconds: 600));
     final aiResponse = _generateAiResponse(cleanText);
     _messages.add(aiResponse);
     _isTyping = false;
@@ -181,8 +308,11 @@ class AiChatRepository extends ChangeNotifier {
     notifyListeners();
   }
 
-  /// Confirm and execute an action (mutates Stock and Finance repositories!).
+  /// Confirm and execute an action (mutates Stock and Finance repositories & backend).
   void confirmAction(String actionId) {
+    // Sync with backend action confirmation
+    ApiService.instance.post('/ai/actions/$actionId/confirm', {}).catchError((_) => null);
+
     for (final msg in _messages) {
       if (msg.actionPayload != null &&
           msg.actionPayload!.actionId == actionId) {
@@ -386,10 +516,23 @@ class AiChatRepository extends ChangeNotifier {
       );
     }
 
-    // 4. Default / Business Overview Query
+    // 4. Check for Greeting (Hi, Halo, etc.)
+    final isGreeting = RegExp(r'^(hi|halo|hello|hai|p|hey|assalamualaikum|selamat|tes|ping)\b', caseSensitive: false).hasMatch(lower.trim());
+    if (isGreeting) {
+      return AiChatMessage(
+        id: 'msg-${DateTime.now().millisecondsSinceEpoch}',
+        sender: ChatSender.ai,
+        text:
+            'Halo! Saya AIsisten, partner cerdas untuk kelola toko Anda. Ada yang bisa saya bantu hari ini? Anda bisa minta saya cek stok bahan, catat pengeluaran belanja, lihat analisis laba rugi, atau ide konten promo medsos!',
+        type: AiMessageType.text,
+        timestamp: now,
+      );
+    }
+
+    // 5. Default / Business Overview Query
     final finRepo = FinanceRepository.instance;
-    final income = finRepo.getTotalIncome(FinancePeriod.today);
-    final expense = finRepo.getTotalExpense(FinancePeriod.today);
+    final income = finRepo.getTotalIncome(FinancePeriod.today).toDouble();
+    final expense = finRepo.getTotalExpense(FinancePeriod.today).toDouble();
     final profit = income - expense;
 
     return AiChatMessage(
@@ -402,6 +545,7 @@ class AiChatRepository extends ChangeNotifier {
       extraData: {
         'revenue': income,
         'profit': profit,
+        'expense': expense,
         'bestSeller': 'Iced Aren Latte',
       },
     );
