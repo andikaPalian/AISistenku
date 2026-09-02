@@ -719,10 +719,9 @@ class _OrderReviewScreenState extends State<OrderReviewScreen> {
                         orderType: _orderType,
                         tableNumber: _orderType == OrderType.dineIn ? _tableNumber : null,
                         onPaymentSuccess: () {
-                          // Clear cart and pop back to POS catalog
+                          // Clear cart and update parent POS catalog
                           setState(() => _cart.clear());
                           _notifyCartChanged();
-                          Navigator.pop(context);
                         },
                       ),
                     ),

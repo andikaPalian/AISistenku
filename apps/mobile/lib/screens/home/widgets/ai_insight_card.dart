@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../../core/theme/app_colors.dart';
+import '../../ai_assistant/ai_assistant_screen.dart';
 
 /// AI Insight card with left teal accent border and subtle watermark.
 class AiInsightCard extends StatelessWidget {
@@ -63,7 +64,14 @@ class AiInsightCard extends StatelessWidget {
                   SizedBox(
                     height: 44, // minimum touch target
                     child: ElevatedButton.icon(
-                      onPressed: () {},
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => const AiAssistantScreen(),
+                          ),
+                        );
+                      },
                       icon: const Icon(Icons.auto_awesome, size: 18),
                       label: Text(
                         'Tanya AIsisten',

@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../../core/theme/app_colors.dart';
+import '../../../models/notification_model.dart';
+import 'notification_sheet.dart';
 
 /// Header section with dynamic time-based greeting and notification bell.
 class HeaderSection extends StatelessWidget {
@@ -58,48 +60,61 @@ class HeaderSection extends StatelessWidget {
           ),
         ),
         const SizedBox(width: 12),
-        _NotificationBell(),
+        const _NotificationBell(),
       ],
     );
   }
 }
 
 class _NotificationBell extends StatelessWidget {
+  const _NotificationBell();
+
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(10),
-      decoration: BoxDecoration(
-        color: AppColors.tealBackgrounds,
-        shape: BoxShape.circle,
-        border: Border.all(
-          color: AppColors.lightTealBorder,
-          width: 1,
-        ),
-      ),
-      child: Stack(
-        clipBehavior: Clip.none,
-        children: [
-          const Icon(
-            Icons.notifications_outlined,
-            color: AppColors.darkText,
-            size: 22,
-          ),
-          Positioned(
-            right: -1,
-            top: -1,
-            child: Container(
-              width: 9,
-              height: 9,
-              decoration: BoxDecoration(
-                color: AppColors.destructive,
-                shape: BoxShape.circle,
-                border: Border.all(color: Colors.white, width: 1.5),
+    return AnimatedBuilder(
+      animation: NotificationRepository.instance,
+      builder: (context, _) {
+        final unreadCount = NotificationRepository.instance.unreadCount;
+
+        return GestureDetector(
+          onTap: () => NotificationSheet.show(context),
+          child: Container(
+            padding: const EdgeInsets.all(10),
+            decoration: BoxDecoration(
+              color: AppColors.tealBackgrounds,
+              shape: BoxShape.circle,
+              border: Border.all(
+                color: AppColors.lightTealBorder,
+                width: 1,
               ),
             ),
+            child: Stack(
+              clipBehavior: Clip.none,
+              children: [
+                const Icon(
+                  Icons.notifications_outlined,
+                  color: AppColors.darkText,
+                  size: 22,
+                ),
+                if (unreadCount > 0)
+                  Positioned(
+                    right: -1,
+                    top: -1,
+                    child: Container(
+                      width: 9,
+                      height: 9,
+                      decoration: BoxDecoration(
+                        color: AppColors.destructive,
+                        shape: BoxShape.circle,
+                        border: Border.all(color: Colors.white, width: 1.5),
+                      ),
+                    ),
+                  ),
+              ],
+            ),
           ),
-        ],
-      ),
+        );
+      },
     );
   }
 }

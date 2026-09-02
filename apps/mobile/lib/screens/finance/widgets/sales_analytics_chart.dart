@@ -59,37 +59,46 @@ class _SalesAnalyticsChartState extends State<SalesAnalyticsChart> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    children: [
-                      const Icon(
-                        Icons.analytics_rounded,
-                        color: AppColors.primaryTeal,
-                        size: 20,
-                      ),
-                      const SizedBox(width: 6),
-                      Text(
-                        'Grafik Penjualan & Arus Kas',
-                        style: GoogleFonts.poppins(
-                          fontSize: 15,
-                          fontWeight: FontWeight.w600,
-                          color: AppColors.darkText,
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        const Icon(
+                          Icons.analytics_rounded,
+                          color: AppColors.primaryTeal,
+                          size: 20,
                         ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 2),
-                  Text(
-                    'Tren performa finansial bisnis Anda',
-                    style: GoogleFonts.inter(
-                      fontSize: 12,
-                      color: AppColors.mutedText,
+                        const SizedBox(width: 6),
+                        Flexible(
+                          child: Text(
+                            'Grafik Penjualan & Arus Kas',
+                            style: GoogleFonts.poppins(
+                              fontSize: 14,
+                              fontWeight: FontWeight.w600,
+                              color: AppColors.darkText,
+                            ),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
+                      ],
                     ),
-                  ),
-                ],
+                    const SizedBox(height: 2),
+                    Text(
+                      'Tren performa finansial bisnis Anda',
+                      style: GoogleFonts.inter(
+                        fontSize: 11,
+                        color: AppColors.mutedText,
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ],
+                ),
               ),
+              const SizedBox(width: 8),
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                 decoration: BoxDecoration(
@@ -216,42 +225,92 @@ class _SalesAnalyticsChartState extends State<SalesAnalyticsChart> {
               return Container(
                 margin: const EdgeInsets.only(bottom: 12),
                 padding:
-                    const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                    const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
                 decoration: BoxDecoration(
                   color: AppColors.darkText,
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      'Periode: ${p.label}',
-                      style: GoogleFonts.inter(
-                        fontSize: 12,
-                        color: Colors.white70,
-                      ),
+                  borderRadius: BorderRadius.circular(12),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.1),
+                      blurRadius: 8,
+                      offset: const Offset(0, 2),
                     ),
+                  ],
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
                     Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Text(
-                          'Pemasukan: ${FinanceRepository.formatRupiah(p.income)}',
+                          'Periode: ${p.label}',
                           style: GoogleFonts.inter(
-                            fontSize: 12,
+                            fontSize: 11,
                             fontWeight: FontWeight.w600,
-                            color: const Color(0xFF34D399),
+                            color: Colors.white70,
                           ),
                         ),
-                        if (p.expense > 0) ...[
-                          const SizedBox(width: 8),
-                          Text(
-                            'Pengeluaran: ${FinanceRepository.formatRupiah(p.expense)}',
-                            style: GoogleFonts.inter(
-                              fontSize: 12,
-                              fontWeight: FontWeight.w600,
-                              color: const Color(0xFFF87171),
-                            ),
+                        InkWell(
+                          onTap: () => setState(() => _selectedIndex = null),
+                          child: const Icon(
+                            Icons.close_rounded,
+                            size: 14,
+                            color: Colors.white54,
                           ),
-                        ],
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 6),
+                    Wrap(
+                      spacing: 12,
+                      runSpacing: 4,
+                      children: [
+                        Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Container(
+                              width: 8,
+                              height: 8,
+                              decoration: const BoxDecoration(
+                                color: Color(0xFF34D399),
+                                shape: BoxShape.circle,
+                              ),
+                            ),
+                            const SizedBox(width: 5),
+                            Text(
+                              'Masuk: ${FinanceRepository.formatRupiah(p.income)}',
+                              style: GoogleFonts.inter(
+                                fontSize: 12,
+                                fontWeight: FontWeight.w600,
+                                color: const Color(0xFF34D399),
+                              ),
+                            ),
+                          ],
+                        ),
+                        if (p.expense > 0)
+                          Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Container(
+                                width: 8,
+                                height: 8,
+                                decoration: const BoxDecoration(
+                                  color: Color(0xFFF87171),
+                                  shape: BoxShape.circle,
+                                ),
+                              ),
+                              const SizedBox(width: 5),
+                              Text(
+                                'Keluar: ${FinanceRepository.formatRupiah(p.expense)}',
+                                style: GoogleFonts.inter(
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w600,
+                                  color: const Color(0xFFF87171),
+                                ),
+                              ),
+                            ],
+                          ),
                       ],
                     ),
                   ],

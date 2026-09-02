@@ -41,31 +41,38 @@ class PeakHoursChart extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Row(
-                children: [
-                  Container(
-                    padding: const EdgeInsets.all(6),
-                    decoration: BoxDecoration(
-                      color: const Color(0xFFFEF3C7),
-                      borderRadius: BorderRadius.circular(8),
+              Expanded(
+                child: Row(
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(6),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFFEF3C7),
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: const Icon(
+                        Icons.local_fire_department_rounded,
+                        color: Color(0xFFD97706),
+                        size: 18,
+                      ),
                     ),
-                    child: const Icon(
-                      Icons.local_fire_department_rounded,
-                      color: Color(0xFFD97706),
-                      size: 18,
+                    const SizedBox(width: 8),
+                    Flexible(
+                      child: Text(
+                        'Jam Sibuk Penjualan (Peak Hours)',
+                        style: GoogleFonts.poppins(
+                          fontSize: 13.5,
+                          fontWeight: FontWeight.w600,
+                          color: AppColors.darkText,
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
                     ),
-                  ),
-                  const SizedBox(width: 8),
-                  Text(
-                    'Jam Sibuk Penjualan (Peak Hours)',
-                    style: GoogleFonts.poppins(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w600,
-                      color: AppColors.darkText,
-                    ),
-                  ),
-                ],
+                  ],
+                ),
               ),
+              const SizedBox(width: 8),
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                 decoration: BoxDecoration(
@@ -98,7 +105,7 @@ class PeakHoursChart extends StatelessWidget {
                       child: Text(
                         '${item.timeRange} WIB',
                         style: GoogleFonts.inter(
-                          fontSize: 11,
+                          fontSize: 10.5,
                           fontWeight:
                               item.isPeak ? FontWeight.w700 : FontWeight.w500,
                           color: item.isPeak
@@ -107,7 +114,7 @@ class PeakHoursChart extends StatelessWidget {
                         ),
                       ),
                     ),
-                    const SizedBox(width: 8),
+                    const SizedBox(width: 6),
                     Expanded(
                       child: Stack(
                         children: [
@@ -119,7 +126,7 @@ class PeakHoursChart extends StatelessWidget {
                             ),
                           ),
                           FractionallySizedBox(
-                            widthFactor: ratio.clamp(0.05, 1.0),
+                            widthFactor: ratio.clamp(0.08, 1.0),
                             child: Container(
                               height: 18,
                               decoration: BoxDecoration(
@@ -151,9 +158,9 @@ class PeakHoursChart extends StatelessWidget {
                         ],
                       ),
                     ),
-                    const SizedBox(width: 8),
+                    const SizedBox(width: 6),
                     SizedBox(
-                      width: 70,
+                      width: 76,
                       child: Text(
                         FinanceRepository.formatRupiah(item.revenue),
                         textAlign: TextAlign.end,
@@ -165,6 +172,8 @@ class PeakHoursChart extends StatelessWidget {
                               ? AppColors.darkText
                               : const Color(0xFF64748B),
                         ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
                       ),
                     ),
                   ],

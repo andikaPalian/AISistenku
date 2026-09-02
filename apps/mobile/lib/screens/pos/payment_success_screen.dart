@@ -18,63 +18,87 @@ class PaymentSuccessScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: AppColors.pageBackground,
-      body: SafeArea(
-        child: Column(
-          children: [
-            Expanded(
-              child: SingleChildScrollView(
-                physics: const BouncingScrollPhysics(),
-                padding: const EdgeInsets.fromLTRB(24, 28, 24, 20),
-                child: Column(
-                  children: [
-                    // ── Success Animated Icon ─────────────────────────
-                    Container(
-                      width: 80,
-                      height: 80,
-                      decoration: BoxDecoration(
-                        color: AppColors.primaryTeal.withOpacity(0.12),
-                        shape: BoxShape.circle,
-                      ),
-                      child: const Center(
-                        child: Icon(
-                          Icons.check_circle_rounded,
-                          color: AppColors.primaryTeal,
-                          size: 52,
+    return PopScope(
+      canPop: false,
+      onPopInvokedWithResult: (didPop, _) {
+        if (!didPop) {
+          onNewTransaction();
+          Navigator.of(context).popUntil((route) => route.isFirst);
+        }
+      },
+      child: Scaffold(
+        backgroundColor: AppColors.pageBackground,
+        appBar: AppBar(
+          backgroundColor: Colors.transparent,
+          elevation: 0,
+          automaticallyImplyLeading: false,
+          actions: [
+            IconButton(
+              icon: const Icon(Icons.close_rounded, color: AppColors.darkText),
+              onPressed: () {
+                onNewTransaction();
+                Navigator.of(context).popUntil((route) => route.isFirst);
+              },
+            ),
+            const SizedBox(width: 8),
+          ],
+        ),
+        body: SafeArea(
+          child: Column(
+            children: [
+              Expanded(
+                child: SingleChildScrollView(
+                  physics: const BouncingScrollPhysics(),
+                  padding: const EdgeInsets.fromLTRB(24, 8, 24, 20),
+                  child: Column(
+                    children: [
+                      // ── Success Animated Icon ─────────────────────────
+                      Container(
+                        width: 80,
+                        height: 80,
+                        decoration: BoxDecoration(
+                          color: AppColors.primaryTeal.withOpacity(0.12),
+                          shape: BoxShape.circle,
+                        ),
+                        child: const Center(
+                          child: Icon(
+                            Icons.check_circle_rounded,
+                            color: AppColors.primaryTeal,
+                            size: 52,
+                          ),
                         ),
                       ),
-                    ),
-                    const SizedBox(height: 16),
-                    Text(
-                      'Pembayaran Berhasil!',
-                      style: GoogleFonts.poppins(
-                        fontSize: 22,
-                        fontWeight: FontWeight.w700,
-                        color: AppColors.darkText,
+                      const SizedBox(height: 16),
+                      Text(
+                        'Pembayaran Berhasil!',
+                        style: GoogleFonts.poppins(
+                          fontSize: 22,
+                          fontWeight: FontWeight.w700,
+                          color: AppColors.darkText,
+                        ),
                       ),
-                    ),
-                    const SizedBox(height: 4),
-                    Text(
-                      'Pesanan telah diteruskan ke Barista & Dapur',
-                      textAlign: TextAlign.center,
-                      style: GoogleFonts.inter(
-                        fontSize: 13,
-                        color: AppColors.mutedText,
+                      const SizedBox(height: 4),
+                      Text(
+                        'Pesanan telah diteruskan ke Barista & Dapur',
+                        textAlign: TextAlign.center,
+                        style: GoogleFonts.inter(
+                          fontSize: 13,
+                          color: AppColors.mutedText,
+                        ),
                       ),
-                    ),
-                    const SizedBox(height: 24),
+                      const SizedBox(height: 24),
 
-                    // ── Digital Receipt Card ──────────────────────────
-                    _buildReceiptCard(context),
-                  ],
+                      // ── Digital Receipt Card ──────────────────────────
+                      _buildReceiptCard(context),
+                    ],
+                  ),
                 ),
               ),
-            ),
 
-            // ── Bottom Action Buttons ───────────────────────────
-            _buildBottomActions(context),
-          ],
+              // ── Bottom Action Buttons ───────────────────────────
+              _buildBottomActions(context),
+            ],
+          ),
         ),
       ),
     );

@@ -112,6 +112,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
           order: orderRecord,
           onNewTransaction: () {
             widget.onPaymentSuccess();
+            Navigator.of(context).popUntil((route) => route.isFirst);
           },
         ),
       ),
