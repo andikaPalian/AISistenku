@@ -173,7 +173,7 @@ class _FinanceScreenState extends State<FinanceScreen> {
                     child: ElevatedButton(
                       onPressed: () => _openAddTransaction(),
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xFF0F766E),
+                        backgroundColor: AppColors.primaryTeal,
                         elevation: 0,
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(28),

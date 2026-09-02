@@ -453,46 +453,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
                 const SizedBox(height: 18),
 
-                // Server IP connection indicator & changer
-                Center(
-                  child: InkWell(
-                    onTap: _showServerConfigDialog,
-                    borderRadius: BorderRadius.circular(20),
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 7),
-                      decoration: BoxDecoration(
-                        color: AppColors.surface,
-                        borderRadius: BorderRadius.circular(20),
-                        border: Border.all(
-                          color: _isServerConnected ? AppColors.primaryTeal.withOpacity(0.5) : AppColors.border,
-                        ),
-                      ),
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Icon(
-                            _isServerConnected ? Icons.check_circle_rounded : Icons.cloud_queue_rounded,
-                            size: 14,
-                            color: _isServerConnected ? AppColors.successGreen : AppColors.mutedText,
-                          ),
-                          const SizedBox(width: 6),
-                          Text(
-                            _isServerConnected
-                                ? 'Server Aktif (${ApiConfig.baseUrl.replaceAll("http://", "").replaceAll("/api", "")})'
-                                : 'Atur IP Server (${ApiConfig.baseUrl.replaceAll("http://", "").replaceAll("/api", "")})',
-                            style: GoogleFonts.inter(
-                              fontSize: 11,
-                              fontWeight: FontWeight.w600,
-                              color: AppColors.darkText,
-                            ),
-                          ),
-                          const SizedBox(width: 6),
-                          const Icon(Icons.settings_outlined, size: 12, color: AppColors.mutedText),
-                        ],
-                      ),
-                    ),
-                  ),
-                ),
+                // Removed Server IP connection indicator as requested
               ],
             ),
           ),
