@@ -63,11 +63,24 @@ export const createOrder = async (req, res, next) => {
     store.orders.unshift(newOrder);
     store.orderItems.push(...newOrderItems);
 
-    // Auto deduct recipe stock & create stock log
+    // Auto deduct stock
     for (const orderItem of newOrderItems) {
-      const recipes = store.productRecipes.filter(
-        (r) => r.product_id === orderItem.product_id
-      );
+      // 1. Deduct Product stock directly (if it's a simple menu item)
+      const prodIdx = store.products.findIndex((p) => p.product_id === orderItem.product_id);
+      if (prodIdx !== -1) {
+        store.products[prodIdx].current_stock = Math.max(0, (store.products[prodIdx].current_stock || 0) - orderItem.quantity);
+        if (supabase) {
+          await supabase.from('products').update({ current_stock: store.products[prodIdx].current_stock }).eq('product_id', orderItem.product_id).catch(() => {});
+        }
+      }
+
+      // 2. Deduct Recipes if they exist
+      let recipes = store.productRecipes.filter((r) => r.product_id === orderItem.product_id);
+      
+      // 3. Fallback: If no recipes, try to deduct the auto-created stock item (stock-{product_id})
+      if (recipes.length === 0) {
+        recipes = [{ stock_id: `stock-${orderItem.product_id}`, quantity_required: 1 }];
+      }
 
       for (const recipe of recipes) {
         const stockIdx = store.stockItems.findIndex((s) => s.stock_id === recipe.stock_id);
@@ -95,11 +108,11 @@ export const createOrder = async (req, res, next) => {
           };
 
           if (supabase) {
-            await supabase.from('stock_logs').insert([stockLog]);
+            await supabase.from('stock_logs').insert([stockLog]).catch(() => {});
             await supabase
               .from('stock_items')
               .update({ current_stock: store.stockItems[stockIdx].current_stock })
-              .eq('stock_id', recipe.stock_id);
+              .eq('stock_id', recipe.stock_id).catch(() => {});
           }
           store.stockLogs.unshift(stockLog);
         }

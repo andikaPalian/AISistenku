@@ -4,6 +4,7 @@ import '../../core/theme/app_colors.dart';
 import '../../core/services/api_service.dart';
 import '../../models/product.dart';
 import '../../models/finance_model.dart';
+import '../../models/stock_model.dart';
 import 'payment_success_screen.dart';
 
 /// Checkout and Payment method selection screen.
@@ -124,6 +125,15 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
         'subtotal': it.subtotal,
         'variant': it.variant,
       }).toList(),
+    }).then((_) {
+      // Refetch from backend to ensure stock is updated
+      try {
+        StockRepository.instance.fetchStocksFromBackend();
+        ProductRepository.instance.fetchProductsFromBackend();
+      } catch (e) {
+        debugPrint('Fetch after checkout failed: $e');
+      }
+      return null;
     }).catchError((e) {
       debugPrint('⚠️ Create order sync note: $e');
       return null;
