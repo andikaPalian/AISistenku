@@ -517,7 +517,7 @@ class _StockDetailScreenState extends State<StockDetailScreen> {
                             icon: const Icon(Icons.add_rounded, size: 20),
                             label: const Text('Tambah Stok +'),
                             style: ElevatedButton.styleFrom(
-                              backgroundColor: const Color(0xFF134E4A),
+                              backgroundColor: AppColors.primaryTeal,
                               foregroundColor: Colors.white,
                               elevation: 0,
                               shape: RoundedRectangleBorder(
@@ -550,10 +550,10 @@ class _StockDetailScreenState extends State<StockDetailScreen> {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
         decoration: BoxDecoration(
-          color: isSelected ? const Color(0xFF134E4A) : AppColors.cardBackground,
+          color: isSelected ? AppColors.primaryTeal : AppColors.cardBackground,
           borderRadius: BorderRadius.circular(20),
           border: Border.all(
-            color: isSelected ? const Color(0xFF134E4A) : AppColors.border,
+            color: isSelected ? AppColors.primaryTeal : AppColors.border,
           ),
         ),
         child: Text(

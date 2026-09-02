@@ -524,12 +524,13 @@ class _StockScreenState extends State<StockScreen> {
                   ),
                 ),
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF134E4A), // Rich Deep Teal CTA matching screenshot
+                  backgroundColor: AppColors.primaryTeal,
+                  foregroundColor: Colors.white,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(26),
                   ),
-                  elevation: 6,
-                  shadowColor: const Color(0xFF134E4A).withOpacity(0.4),
+                  elevation: 4,
+                  shadowColor: AppColors.primaryTeal.withOpacity(0.35),
                 ),
               ),
             ),
