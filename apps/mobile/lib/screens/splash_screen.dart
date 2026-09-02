@@ -98,29 +98,28 @@ class _SplashScreenState extends State<SplashScreen>
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              // Logo dengan efek bayangan
+              // Logo AIsistenku dengan efek bayangan
               Container(
-                width: 160,
-                height: 160,
+                width: 135,
+                height: 135,
                 decoration: BoxDecoration(
-                  shape: BoxShape.circle,
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.black.withOpacity(0.15),
-                      blurRadius: 30,
+                      color: Colors.black.withOpacity(0.12),
+                      blurRadius: 28,
                       offset: const Offset(0, 10),
                     ),
                   ],
                 ),
-                child: Transform.scale(
-                  scale: 1.8,
-                  child: Image.asset(
-                    'assets/icons/iconAisistenku.png',
-                    color: Colors.white,
-                  ),
+                child: Image.asset(
+                  'assets/icons/logoAisitenku.png',
+                  width: 135,
+                  height: 135,
+                  fit: BoxFit.contain,
+                  color: Colors.white,
                 ),
               ),
-              const SizedBox(height: 32),
+              const SizedBox(height: 28),
               // Nama Aplikasi
               Text(
                 'Tiga Angkatan',
@@ -137,9 +136,9 @@ class _SplashScreenState extends State<SplashScreen>
                 'AISISTENKU',
                 style: GoogleFonts.poppins(
                   fontSize: 14,
-                  fontWeight: FontWeight.w400,
-                  color: Colors.white.withOpacity(0.8),
-                  letterSpacing: 0.5,
+                  fontWeight: FontWeight.w500,
+                  color: Colors.white.withOpacity(0.85),
+                  letterSpacing: 2.0,
                 ),
               ),
             ],

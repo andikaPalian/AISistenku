@@ -58,7 +58,7 @@ class _LoginScreenState extends State<LoginScreen> {
               children: [
                 // Logo & Header
                 Container(
-                  padding: const EdgeInsets.all(20),
+                  padding: const EdgeInsets.all(22),
                   decoration: BoxDecoration(
                     gradient: const LinearGradient(
                       colors: [AppColors.primary, AppColors.accent],
@@ -74,14 +74,12 @@ class _LoginScreenState extends State<LoginScreen> {
                       ),
                     ],
                   ),
-                  child: Transform.scale(
-                    scale: 1.8, // Memperbesar ikon melewati padding transparan dari file PNG
-                    child: Image.asset(
-                      'assets/icons/iconAisistenku.png',
-                      width: 80,
-                      height: 80,
-                      color: Colors.white, // Memastikan ikonnya dirender putih
-                    ),
+                  child: Image.asset(
+                    'assets/icons/logoAisitenku.png',
+                    width: 60,
+                    height: 60,
+                    fit: BoxFit.contain,
+                    color: Colors.white,
                   ),
                 ),
                 const SizedBox(height: 32),
