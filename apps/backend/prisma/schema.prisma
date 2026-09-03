@@ -116,7 +116,7 @@ model BusinessMember {
   id         String       @id @default(uuid())
   businessId String
   userId     String
-  role       BusinessRole @default(CASHIER)
+  role       BusinessRole @default(OWNER)
   createdAt  DateTime     @default(now())
 
   business Business @relation(fields: [businessId], references: [id], onDelete: Cascade)
