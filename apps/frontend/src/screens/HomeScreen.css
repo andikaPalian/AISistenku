@@ -85,6 +85,12 @@
   margin-top: 2px;
 }
 
+.quick-action-group {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
 /* ── Main 2-Column Grid ── */
 .home-grid {
   display: grid;

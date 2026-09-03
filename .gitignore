@@ -58,3 +58,9 @@ apps/mobile/ios/ServiceDefinitions.json
 apps/mobile/ios/Runner/GeneratedPluginRegistrant.*
 apps/mobile/**/*.g.dart
 apps/mobile/**/*.freezed.dart
+
+.agents
+.agent
+.impeccable
+.kilo
+.turbo
