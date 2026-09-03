@@ -1,7 +1,7 @@
 import { Pool } from 'pg';
 import { PrismaPg } from '@prisma/adapter-pg';
-import { PrismaClient } from '@/generated/prisma/client.js';
 import { env } from './env.config.js';
+import { PrismaClient } from '@prisma/client';
 
 const createPrismaClient = (): PrismaClient => {
   const pool = new Pool({
