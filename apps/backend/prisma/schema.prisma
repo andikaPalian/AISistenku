@@ -17,7 +17,6 @@ enum BusinessRole {
   CASHIER
 }
 
-
 enum ProductCategory {
   COFFEE
   NON_COFFEE
@@ -30,7 +29,6 @@ enum OrderType {
   DineIn
   TakeAway
 }
-
 
 enum OrderStatus {
   PENDING
@@ -49,7 +47,6 @@ enum StockLogType {
   IN
   OUT
 }
-
 
 enum StockLogSource {
   MANUAL
@@ -79,7 +76,6 @@ enum ActionStatus {
   CONFIRMED
   CANCELLED
 }
-
 
 enum MarketingContentType {
   CAPTION
@@ -131,9 +127,10 @@ model User {
   id        String   @id @default(uuid())
   name      String
   email     String   @unique
-  password  String 
+  password  String
   createdAt DateTime @default(now())
 
+  refreshTokens       RefreshToken[]
   memberships         BusinessMember[]
   orders              Order[]
   stockLogs           StockLog[]
@@ -141,6 +138,20 @@ model User {
   aiMessages          AiMessage[]
 
   @@map("users")
+}
+
+model RefreshToken {
+  id        String   @id
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  browser   String?
+  os        String?
+  ipAddress String?
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+
+  @@index([userId])
+  @@index([expiresAt])
 }
 
 // PRODUK & STOK
@@ -350,9 +361,9 @@ model MarketingContent {
   productId       String?
   sourceMessageId String?
   type            MarketingContentType
-  platform        String? 
-  prompt          String? 
-  content         String 
+  platform        String?
+  prompt          String?
+  content         String
   status          MarketingContentStatus @default(DRAFT)
   createdAt       DateTime               @default(now())
   updatedAt       DateTime               @updatedAt
