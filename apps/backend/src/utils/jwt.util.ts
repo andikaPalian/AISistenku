@@ -1,5 +1,8 @@
 import { env } from '@/config/env.config.js';
+import crypto from 'crypto';
 import jwt, { JwtPayload, Secret, SignOptions } from 'jsonwebtoken';
+
+export const generateJti = () => crypto.randomUUID();
 
 export type BaseTokenPayload = JwtPayload;
 
