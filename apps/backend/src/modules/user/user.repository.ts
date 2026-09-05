@@ -61,9 +61,10 @@ export const createUser = withPrismaErrorHandling(
 );
 
 export const findUserByEmail = withPrismaErrorHandling(
-  async (email: string): Promise<User | null> => {
+  async (email: string): Promise<UserWithMemberships | null> => {
     return await prisma.user.findUnique({
       where: { email },
+      include: userWithMembershipsSelect,
     });
   },
   'User'
