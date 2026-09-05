@@ -2,10 +2,10 @@ import { AppError } from './base.error.js';
 
 export abstract class DomainError extends AppError {
   public abstract override readonly statusCode: number;
-  public readonly code: string;
+  public override readonly code: string;
 
-  constructor(message: string, code: string, isOperational = true) {
-    super(message, isOperational);
+  constructor(message: string, code: string) {
+    super(message);
     this.code = code;
   }
 }
@@ -37,6 +37,6 @@ export class DatabaseError extends DomainError {
     message: string,
     public readonly originalCode?: string
   ) {
-    super(message, 'DATABASE_ERROR', false);
+    super(message, 'DATABASE_ERROR');
   }
 }
