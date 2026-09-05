@@ -37,6 +37,6 @@ export class DatabaseError extends DomainError {
     message: string,
     public readonly originalCode?: string
   ) {
-    super(message, 'DATABASE_ERROR');
+    super(message, 'DATABASE_ERROR', false);
   }
 }
