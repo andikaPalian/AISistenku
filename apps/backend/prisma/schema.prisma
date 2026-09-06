@@ -376,3 +376,11 @@ model MarketingContent {
   @@index([productId])
   @@map("marketing_contents")
 }
+
+model RateLimiterFlexible {
+  key    String    @id
+  points Int
+  expire DateTime?
+
+  @@map("rate_limiter_flexible")
+}
