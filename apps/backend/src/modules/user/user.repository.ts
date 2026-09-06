@@ -64,8 +64,19 @@ export const findUserByEmail = withPrismaErrorHandling(
   async (email: string): Promise<UserWithMemberships | null> => {
     return await prisma.user.findUnique({
       where: { email },
-      include: userWithMembershipsSelect,
+      select: userWithMembershipsSelect,
     });
   },
   'User'
+);
+
+export const findUserById = withPrismaErrorHandling(
+  async (userId: string): Promise<UserWithMemberships | null> => {
+    return await prisma.user.findUnique({
+      where: {
+        id: userId,
+      },
+      select: userWithMembershipsSelect,
+    });
+  }
 );
