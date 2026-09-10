@@ -32,12 +32,12 @@ class IncomeExpenseCards extends StatelessWidget {
                 color: Colors.white,
                 borderRadius: BorderRadius.circular(18),
                 border: Border.all(
-                  color: const Color(0xFFE2E8F0),
+                  color: AppColors.lightTealBorder,
                   width: 1.2,
                 ),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withOpacity(0.02),
+                    color: Colors.black.withValues(alpha: 0.02),
                     blurRadius: 10,
                     offset: const Offset(0, 4),
                   ),
@@ -62,11 +62,11 @@ class IncomeExpenseCards extends StatelessWidget {
                   ),
                   const SizedBox(height: 12),
                   Text(
-                    'INCOME',
+                    'PEMASUKAN',
                     style: GoogleFonts.inter(
                       fontSize: 11,
                       fontWeight: FontWeight.w600,
-                      color: const Color(0xFF64748B),
+                      color: AppColors.mutedText,
                       letterSpacing: 1.1,
                     ),
                   ),
@@ -101,12 +101,12 @@ class IncomeExpenseCards extends StatelessWidget {
                 color: Colors.white,
                 borderRadius: BorderRadius.circular(18),
                 border: Border.all(
-                  color: const Color(0xFFE2E8F0),
+                  color: AppColors.lightTealBorder,
                   width: 1.2,
                 ),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withOpacity(0.02),
+                    color: Colors.black.withValues(alpha: 0.02),
                     blurRadius: 10,
                     offset: const Offset(0, 4),
                   ),
@@ -131,11 +131,11 @@ class IncomeExpenseCards extends StatelessWidget {
                   ),
                   const SizedBox(height: 12),
                   Text(
-                    'EXPENSE',
+                    'PENGELUARAN',
                     style: GoogleFonts.inter(
                       fontSize: 11,
                       fontWeight: FontWeight.w600,
-                      color: const Color(0xFF64748B),
+                      color: AppColors.mutedText,
                       letterSpacing: 1.1,
                     ),
                   ),
@@ -148,7 +148,7 @@ class IncomeExpenseCards extends StatelessWidget {
                       style: GoogleFonts.poppins(
                         fontSize: 17,
                         fontWeight: FontWeight.w700,
-                        color: const Color(0xFFEF4444),
+                        color: AppColors.destructive,
                       ),
                     ),
                   ),

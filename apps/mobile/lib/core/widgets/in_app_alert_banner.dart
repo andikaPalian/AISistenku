@@ -154,17 +154,17 @@ class _InAppAlertWidgetState extends State<_InAppAlertWidget>
                   color: Colors.white,
                   borderRadius: BorderRadius.circular(20),
                   border: Border.all(
-                    color: widget.type.color.withOpacity(0.3),
+                    color: widget.type.color.withValues(alpha: 0.3),
                     width: 1.5,
                   ),
                   boxShadow: [
                     BoxShadow(
-                      color: widget.type.color.withOpacity(0.12),
+                      color: widget.type.color.withValues(alpha: 0.12),
                       blurRadius: 18,
                       offset: const Offset(0, 8),
                     ),
                     BoxShadow(
-                      color: Colors.black.withOpacity(0.06),
+                      color: Colors.black.withValues(alpha: 0.06),
                       blurRadius: 10,
                       offset: const Offset(0, 3),
                     ),

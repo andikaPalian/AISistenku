@@ -56,6 +56,18 @@ class AppColors {
   static const Color infoBg = Color(0xFFDBEAFE);
   static const Color infoText = Color(0xFF1D4ED8);
 
+  // ── AI Business Insight (Dark Emerald Theme) ─────────────────────
+  static const Color forestTeal = Color(0xFF064E3B);
+  static const Color forestTealDark = Color(0xFF022C22);
+  static const Color forestTealBorder = Color(0xFF047857);
+  static const Color mintAccent = Color(0xFF34D399);
+  static const Color mintText = Color(0xFFECFDF5);
+  static const Color terracotta = Color(0xFFC2410C);
+  static const Color terracottaDark = Color(0xFF9A3412);
+  static const Color bronzeGold = Color(0xFFB45309);
+  static const Color neutralSubCard = Color(0xFFF8FAFC);
+  static const Color neutralSubBorder = Color(0xFFE2E8F0);
+
   // ── Border / Divider ─────────────────────────────────────────────
   static const Color border = Color(0xFFE2E8F0);
   static const Color cardShadow = Color(0x0A0F172A);

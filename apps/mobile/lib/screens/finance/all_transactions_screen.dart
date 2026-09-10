@@ -67,6 +67,13 @@ class _AllTransactionsScreenState extends State<AllTransactionsScreen> {
               ),
             ),
             centerTitle: true,
+            bottom: PreferredSize(
+              preferredSize: const Size.fromHeight(1),
+              child: Container(
+                color: AppColors.lightTealBorder,
+                height: 1,
+              ),
+            ),
             actions: [
               IconButton(
                 icon: const Icon(
@@ -94,7 +101,8 @@ class _AllTransactionsScreenState extends State<AllTransactionsScreen> {
                 ),
               );
             },
-            backgroundColor: const Color(0xFF0F766E),
+            backgroundColor: AppColors.primaryTeal,
+            elevation: 2,
             icon: const Icon(Icons.add_rounded, color: Colors.white),
             label: Text(
               'Tambah Transaksi',
@@ -118,14 +126,18 @@ class _AllTransactionsScreenState extends State<AllTransactionsScreen> {
                         height: 44,
                         padding: const EdgeInsets.symmetric(horizontal: 12),
                         decoration: BoxDecoration(
-                          color: const Color(0xFFF1F5F9),
+                          color: AppColors.tealBackgrounds,
                           borderRadius: BorderRadius.circular(12),
+                          border: Border.all(
+                            color: AppColors.lightTealBorder,
+                            width: 1.1,
+                          ),
                         ),
                         child: Row(
                           children: [
                             const Icon(
                               Icons.search_rounded,
-                              color: Color(0xFF94A3B8),
+                              color: AppColors.primaryTeal,
                               size: 20,
                             ),
                             const SizedBox(width: 8),
@@ -136,11 +148,11 @@ class _AllTransactionsScreenState extends State<AllTransactionsScreen> {
                                   fontSize: 13,
                                   color: AppColors.darkText,
                                 ),
-                                decoration: const InputDecoration(
+                                decoration: InputDecoration(
                                   hintText: 'Cari transaksi, menu, atau catatan...',
-                                  hintStyle: TextStyle(
+                                  hintStyle: GoogleFonts.inter(
                                     fontSize: 13,
-                                    color: Color(0xFF94A3B8),
+                                    color: AppColors.mutedText,
                                   ),
                                   border: InputBorder.none,
                                   isDense: true,
@@ -162,7 +174,7 @@ class _AllTransactionsScreenState extends State<AllTransactionsScreen> {
                                 },
                                 child: const Icon(
                                   Icons.close_rounded,
-                                  color: Color(0xFF94A3B8),
+                                  color: AppColors.mutedText,
                                   size: 18,
                                 ),
                               ),
@@ -190,7 +202,7 @@ class _AllTransactionsScreenState extends State<AllTransactionsScreen> {
                   ),
                 ),
 
-                const Divider(height: 1, color: Color(0xFFE2E8F0)),
+                Divider(height: 1, color: AppColors.lightTealBorder),
 
                 // ── Transaction List ────────────────────────────────
                 Expanded(
@@ -202,7 +214,7 @@ class _AllTransactionsScreenState extends State<AllTransactionsScreen> {
                               Icon(
                                 Icons.receipt_long_outlined,
                                 size: 54,
-                                color: AppColors.mutedText.withOpacity(0.4),
+                                color: AppColors.mutedText.withValues(alpha: 0.4),
                               ),
                               const SizedBox(height: 12),
                               Text(
@@ -232,12 +244,12 @@ class _AllTransactionsScreenState extends State<AllTransactionsScreen> {
                                 color: Colors.white,
                                 borderRadius: BorderRadius.circular(16),
                                 border: Border.all(
-                                  color: const Color(0xFFE2E8F0),
-                                  width: 1,
+                                  color: AppColors.lightTealBorder,
+                                  width: 1.1,
                                 ),
                                 boxShadow: [
                                   BoxShadow(
-                                    color: Colors.black.withOpacity(0.02),
+                                    color: AppColors.primaryTeal.withValues(alpha: 0.04),
                                     blurRadius: 8,
                                     offset: const Offset(0, 2),
                                   ),
@@ -291,7 +303,7 @@ class _AllTransactionsScreenState extends State<AllTransactionsScreen> {
                                   tx.listSubtitle,
                                   style: GoogleFonts.inter(
                                     fontSize: 12,
-                                    color: const Color(0xFF64748B),
+                                    color: AppColors.mutedText,
                                   ),
                                 ),
                                 trailing: Text(
@@ -301,7 +313,7 @@ class _AllTransactionsScreenState extends State<AllTransactionsScreen> {
                                     fontWeight: FontWeight.w700,
                                     color: isIncome
                                         ? AppColors.successText
-                                        : const Color(0xFFEF4444),
+                                        : AppColors.destructive,
                                   ),
                                 ),
                               ),
@@ -329,15 +341,19 @@ class _AllTransactionsScreenState extends State<AllTransactionsScreen> {
         duration: const Duration(milliseconds: 180),
         padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 7),
         decoration: BoxDecoration(
-          color: isSelected ? const Color(0xFF0F766E) : const Color(0xFFF1F5F9),
+          color: isSelected ? AppColors.primaryTeal : AppColors.tealBackgrounds,
           borderRadius: BorderRadius.circular(20),
+          border: Border.all(
+            color: isSelected ? AppColors.primaryTeal : AppColors.lightTealBorder,
+            width: 1.1,
+          ),
         ),
         child: Text(
           label,
           style: GoogleFonts.inter(
             fontSize: 12,
             fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
-            color: isSelected ? Colors.white : const Color(0xFF475569),
+            color: isSelected ? Colors.white : AppColors.darkText,
           ),
         ),
       ),

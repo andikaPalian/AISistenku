@@ -134,7 +134,7 @@ class _AdjustStockModalState extends State<AdjustStockModal> {
                     width: 44,
                     height: 4,
                     decoration: BoxDecoration(
-                      color: AppColors.border,
+                      color: AppColors.lightTealBorder,
                       borderRadius: BorderRadius.circular(2),
                     ),
                   ),
@@ -191,9 +191,9 @@ class _AdjustStockModalState extends State<AdjustStockModal> {
                 Container(
                   padding: const EdgeInsets.all(16),
                   decoration: BoxDecoration(
-                    color: AppColors.surface,
+                    color: AppColors.tealBackgrounds,
                     borderRadius: BorderRadius.circular(16),
-                    border: Border.all(color: AppColors.border),
+                    border: Border.all(color: AppColors.lightTealBorder),
                   ),
                   child: Row(
                     children: [
@@ -223,7 +223,7 @@ class _AdjustStockModalState extends State<AdjustStockModal> {
                       Container(
                         width: 1,
                         height: 40,
-                        color: AppColors.border,
+                        color: AppColors.lightTealBorder,
                       ),
                       Expanded(
                         child: Padding(
@@ -285,7 +285,7 @@ class _AdjustStockModalState extends State<AdjustStockModal> {
                   ),
                   decoration: InputDecoration(
                     filled: true,
-                    fillColor: AppColors.surface,
+                    fillColor: AppColors.tealBackgrounds,
                     suffixText: item.unit,
                     suffixStyle: GoogleFonts.inter(
                       fontSize: 15,
@@ -295,7 +295,11 @@ class _AdjustStockModalState extends State<AdjustStockModal> {
                     contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
-                      borderSide: const BorderSide(color: AppColors.border),
+                      borderSide: const BorderSide(color: AppColors.lightTealBorder),
+                    ),
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: const BorderSide(color: AppColors.lightTealBorder),
                     ),
                     focusedBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
@@ -323,9 +327,9 @@ class _AdjustStockModalState extends State<AdjustStockModal> {
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 4),
                   decoration: BoxDecoration(
-                    color: AppColors.surface,
+                    color: AppColors.tealBackgrounds,
                     borderRadius: BorderRadius.circular(12),
-                    border: Border.all(color: AppColors.border),
+                    border: Border.all(color: AppColors.lightTealBorder),
                   ),
                   child: DropdownButtonHideUnderline(
                     child: DropdownButton<String>(
@@ -370,11 +374,19 @@ class _AdjustStockModalState extends State<AdjustStockModal> {
                   decoration: InputDecoration(
                     hintText: 'Contoh: Kemasan bocor saat penyimpanan',
                     filled: true,
-                    fillColor: AppColors.surface,
+                    fillColor: AppColors.tealBackgrounds,
                     contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
-                      borderSide: const BorderSide(color: AppColors.border),
+                      borderSide: const BorderSide(color: AppColors.lightTealBorder),
+                    ),
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: const BorderSide(color: AppColors.lightTealBorder),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: const BorderSide(color: AppColors.primaryTeal, width: 1.5),
                     ),
                   ),
                 ),

@@ -24,7 +24,7 @@ class AiCaptionCard extends StatelessWidget {
           children: [
             Icon(Icons.check_circle_outline, color: Colors.white, size: 18),
             SizedBox(width: 8),
-            Text('Caption berhasil disalin ke Clipboard! Siap diposting 🚀'),
+            Text('Caption berhasil disalin ke Clipboard!'),
           ],
         ),
         backgroundColor: AppColors.primaryTeal,
@@ -43,12 +43,12 @@ class AiCaptionCard extends StatelessWidget {
         color: Colors.white,
         borderRadius: BorderRadius.circular(18),
         border: Border.all(
-          color: const Color(0xFFCCFBF1),
+          color: AppColors.lightTealBorder,
           width: 1.2,
         ),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.03),
+            color: Colors.black.withValues(alpha: 0.03),
             blurRadius: 10,
             offset: const Offset(0, 3),
           ),
@@ -66,7 +66,7 @@ class AiCaptionCard extends StatelessWidget {
                   Container(
                     padding: const EdgeInsets.all(6),
                     decoration: BoxDecoration(
-                      color: AppColors.primaryTeal.withOpacity(0.12),
+                      color: AppColors.primaryTeal.withValues(alpha: 0.12),
                       shape: BoxShape.circle,
                     ),
                     child: const Icon(
@@ -89,15 +89,16 @@ class AiCaptionCard extends StatelessWidget {
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                 decoration: BoxDecoration(
-                  color: const Color(0xFFF1F5F9),
+                  color: AppColors.tealBackgrounds,
                   borderRadius: BorderRadius.circular(8),
+                  border: Border.all(color: AppColors.lightTealBorder),
                 ),
                 child: Text(
                   payload.platform ?? 'Instagram',
                   style: GoogleFonts.inter(
                     fontSize: 10,
                     fontWeight: FontWeight.w600,
-                    color: const Color(0xFF475569),
+                    color: AppColors.primaryTeal,
                   ),
                 ),
               ),
@@ -111,9 +112,9 @@ class AiCaptionCard extends StatelessWidget {
             width: double.infinity,
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
-              color: const Color(0xFFF8FAFC),
+              color: AppColors.tealBackgrounds,
               borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: const Color(0xFFE2E8F0)),
+              border: Border.all(color: AppColors.lightTealBorder),
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -123,7 +124,7 @@ class AiCaptionCard extends StatelessWidget {
                   style: GoogleFonts.inter(
                     fontSize: 13,
                     fontWeight: FontWeight.w400,
-                    color: const Color(0xFF1E293B),
+                    color: AppColors.darkText,
                     height: 1.5,
                   ),
                 ),
@@ -171,7 +172,7 @@ class AiCaptionCard extends StatelessWidget {
                 ),
               ),
               style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF0F766E),
+                backgroundColor: AppColors.primaryTeal,
                 elevation: 0,
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(12),

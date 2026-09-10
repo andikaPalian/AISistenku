@@ -36,12 +36,12 @@ class CurrentBalanceCard extends StatelessWidget {
         ),
         borderRadius: BorderRadius.circular(22),
         border: Border.all(
-          color: const Color(0xFF99F6E4).withOpacity(0.8),
-          width: 1.2,
+          color: AppColors.lightTealBorder,
+          width: 1.5,
         ),
         boxShadow: [
           BoxShadow(
-            color: AppColors.primaryTeal.withOpacity(0.06),
+            color: AppColors.primaryTeal.withValues(alpha: 0.06),
             blurRadius: 16,
             offset: const Offset(0, 6),
           ),
@@ -55,11 +55,11 @@ class CurrentBalanceCard extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                'CURRENT BALANCE',
+                'SALDO KAS UTAMA',
                 style: GoogleFonts.inter(
                   fontSize: 12,
                   fontWeight: FontWeight.w600,
-                  color: const Color(0xFF64748B),
+                  color: AppColors.mutedText,
                   letterSpacing: 1.2,
                 ),
               ),
@@ -72,8 +72,8 @@ class CurrentBalanceCard extends StatelessWidget {
                   borderRadius: BorderRadius.circular(12),
                   border: Border.all(
                     color: isProfitable
-                        ? AppColors.successGreen.withOpacity(0.3)
-                        : AppColors.destructive.withOpacity(0.3),
+                        ? AppColors.successGreen.withValues(alpha: 0.3)
+                        : AppColors.destructive.withValues(alpha: 0.3),
                   ),
                 ),
                 child: Row(
@@ -126,15 +126,15 @@ class CurrentBalanceCard extends StatelessWidget {
               const Icon(
                 Icons.update_rounded,
                 size: 15,
-                color: Color(0xFF64748B),
+                color: AppColors.mutedText,
               ),
               const SizedBox(width: 5),
               Text(
-                'Updated today',
+                'Diperbarui hari ini',
                 style: GoogleFonts.inter(
                   fontSize: 12,
                   fontWeight: FontWeight.w400,
-                  color: const Color(0xFF64748B),
+                  color: AppColors.mutedText,
                 ),
               ),
               const Spacer(),

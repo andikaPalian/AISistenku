@@ -78,9 +78,12 @@ class _AiChatInputBarState extends State<AiChatInputBar> {
       ),
       decoration: BoxDecoration(
         color: Colors.white,
+        border: const Border(
+          top: BorderSide(color: AppColors.lightTealBorder, width: 1),
+        ),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: Colors.black.withValues(alpha: 0.04),
             blurRadius: 10,
             offset: const Offset(0, -3),
           ),
@@ -99,20 +102,23 @@ class _AiChatInputBarState extends State<AiChatInputBar> {
                 height: 44,
                 decoration: BoxDecoration(
                   color: _isListening
-                      ? const Color(0xFFFEE2E2)
-                      : const Color(0xFFF1F5F9),
+                      ? AppColors.dangerBg
+                      : AppColors.tealBackgrounds,
                   shape: BoxShape.circle,
-                  border: _isListening
-                      ? Border.all(color: const Color(0xFFEF4444), width: 1.5)
-                      : null,
+                  border: Border.all(
+                    color: _isListening
+                        ? AppColors.destructive
+                        : AppColors.lightTealBorder,
+                    width: 1.2,
+                  ),
                 ),
                 child: Icon(
                   _isListening
                       ? Icons.mic_rounded
                       : Icons.mic_none_rounded,
                   color: _isListening
-                      ? const Color(0xFFEF4444)
-                      : const Color(0xFF475569),
+                      ? AppColors.destructive
+                      : AppColors.primaryTeal,
                   size: 22,
                 ),
               ),
@@ -124,11 +130,11 @@ class _AiChatInputBarState extends State<AiChatInputBar> {
               child: Container(
                 padding: const EdgeInsets.symmetric(horizontal: 16),
                 decoration: BoxDecoration(
-                  color: const Color(0xFFF8FAFC),
+                  color: AppColors.tealBackgrounds,
                   borderRadius: BorderRadius.circular(24),
                   border: Border.all(
-                    color: const Color(0xFFCBD5E1),
-                    width: 1,
+                    color: AppColors.lightTealBorder,
+                    width: 1.2,
                   ),
                 ),
                 child: TextField(
@@ -140,10 +146,10 @@ class _AiChatInputBarState extends State<AiChatInputBar> {
                     color: AppColors.darkText,
                   ),
                   decoration: InputDecoration(
-                    hintText: 'Ask AIsistenku anything...',
+                    hintText: 'Tanya apa saja ke AIsistenku...',
                     hintStyle: GoogleFonts.inter(
                       fontSize: 13,
-                      color: const Color(0xFF94A3B8),
+                      color: AppColors.mutedText,
                     ),
                     border: InputBorder.none,
                     isDense: true,
@@ -154,15 +160,22 @@ class _AiChatInputBarState extends State<AiChatInputBar> {
             ),
             const SizedBox(width: 10),
 
-            // Send Button (Dark Teal Circle)
+            // Send Button (Brand Primary Teal Circle)
             GestureDetector(
               onTap: _handleSend,
               child: Container(
                 width: 44,
                 height: 44,
-                decoration: const BoxDecoration(
-                  color: Color(0xFF0F766E),
+                decoration: BoxDecoration(
+                  color: AppColors.primaryTeal,
                   shape: BoxShape.circle,
+                  boxShadow: [
+                    BoxShadow(
+                      color: AppColors.primaryTeal.withValues(alpha: 0.25),
+                      blurRadius: 8,
+                      offset: const Offset(0, 2),
+                    ),
+                  ],
                 ),
                 child: widget.isTyping
                     ? const Center(

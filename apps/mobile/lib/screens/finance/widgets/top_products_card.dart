@@ -20,10 +20,10 @@ class TopProductsCard extends StatelessWidget {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: const Color(0xFFE2E8F0), width: 1.2),
+        border: Border.all(color: AppColors.lightTealBorder, width: 1.2),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.02),
+            color: AppColors.primaryTeal.withValues(alpha: 0.04),
             blurRadius: 10,
             offset: const Offset(0, 4),
           ),
@@ -40,8 +40,12 @@ class TopProductsCard extends StatelessWidget {
                   Container(
                     padding: const EdgeInsets.all(6),
                     decoration: BoxDecoration(
-                      color: AppColors.primaryTeal.withOpacity(0.1),
+                      color: AppColors.tealBackgrounds,
                       borderRadius: BorderRadius.circular(8),
+                      border: Border.all(
+                        color: AppColors.lightTealBorder,
+                        width: 1,
+                      ),
                     ),
                     child: const Icon(
                       Icons.star_rounded,
@@ -60,12 +64,23 @@ class TopProductsCard extends StatelessWidget {
                   ),
                 ],
               ),
-              Text(
-                'Top 3 Menu',
-                style: GoogleFonts.inter(
-                  fontSize: 11,
-                  fontWeight: FontWeight.w600,
-                  color: AppColors.mutedText,
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                decoration: BoxDecoration(
+                  color: AppColors.tealBackgrounds,
+                  borderRadius: BorderRadius.circular(10),
+                  border: Border.all(
+                    color: AppColors.lightTealBorder,
+                    width: 1,
+                  ),
+                ),
+                child: Text(
+                  'Top 3 Menu',
+                  style: GoogleFonts.inter(
+                    fontSize: 10,
+                    fontWeight: FontWeight.w600,
+                    color: AppColors.primaryTeal,
+                  ),
                 ),
               ),
             ],
@@ -90,10 +105,10 @@ class TopProductsCard extends StatelessWidget {
                           child: Row(
                             children: [
                               Container(
-                                width: 18,
-                                height: 18,
+                                width: 20,
+                                height: 20,
                                 decoration: BoxDecoration(
-                                  color: item.badgeColor.withOpacity(0.15),
+                                  color: item.badgeColor.withValues(alpha: 0.15),
                                   shape: BoxShape.circle,
                                 ),
                                 alignment: Alignment.center,
@@ -128,7 +143,7 @@ class TopProductsCard extends StatelessWidget {
                           style: GoogleFonts.inter(
                             fontSize: 11,
                             fontWeight: FontWeight.w500,
-                            color: const Color(0xFF64748B),
+                            color: AppColors.mutedText,
                           ),
                         ),
                       ],
@@ -139,7 +154,7 @@ class TopProductsCard extends StatelessWidget {
                       child: LinearProgressIndicator(
                         value: (item.contributionPercent / 100).clamp(0.0, 1.0),
                         minHeight: 6,
-                        backgroundColor: const Color(0xFFF1F5F9),
+                        backgroundColor: AppColors.tealBackgrounds,
                         valueColor:
                             AlwaysStoppedAnimation<Color>(item.badgeColor),
                       ),

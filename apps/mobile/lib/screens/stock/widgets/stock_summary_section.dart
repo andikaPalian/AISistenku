@@ -33,9 +33,9 @@ class StockSummarySection extends StatelessWidget {
             countColor: AppColors.darkText,
             borderColor: activeFilter == null
                 ? AppColors.primaryTeal
-                : AppColors.border,
+                : AppColors.lightTealBorder,
             bgColor: activeFilter == null
-                ? AppColors.cardBackground
+                ? AppColors.tealBackgrounds
                 : AppColors.cardBackground,
             icon: Icons.inventory_2_outlined,
             iconColor: AppColors.primaryTeal,
@@ -55,7 +55,7 @@ class StockSummarySection extends StatelessWidget {
                 ? AppColors.warningOrange
                 : const Color(0xFFFDE68A),
             bgColor: activeFilter == StockStatus.rendah
-                ? AppColors.warningBg.withOpacity(0.6)
+                ? AppColors.warningBg.withValues(alpha: 0.6)
                 : AppColors.cardBackground,
             icon: Icons.warning_amber_rounded,
             iconColor: AppColors.warningOrange,
@@ -82,7 +82,7 @@ class StockSummarySection extends StatelessWidget {
                 ? AppColors.destructive
                 : const Color(0xFFFECACA),
             bgColor: activeFilter == StockStatus.kritis
-                ? AppColors.dangerBg.withOpacity(0.6)
+                ? AppColors.dangerBg.withValues(alpha: 0.6)
                 : AppColors.cardBackground,
             icon: Icons.error_outline_rounded,
             iconColor: AppColors.destructive,
@@ -128,14 +128,14 @@ class StockSummarySection extends StatelessWidget {
           boxShadow: isSelected
               ? [
                   BoxShadow(
-                    color: borderColor.withOpacity(0.2),
+                    color: borderColor.withValues(alpha: 0.2),
                     blurRadius: 8,
                     offset: const Offset(0, 2),
                   ),
                 ]
               : [
                   BoxShadow(
-                    color: Colors.black.withOpacity(0.02),
+                    color: Colors.black.withValues(alpha: 0.02),
                     blurRadius: 4,
                     offset: const Offset(0, 1),
                   ),

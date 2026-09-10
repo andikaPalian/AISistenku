@@ -57,11 +57,12 @@ class _NotificationSheetState extends State<NotificationSheet> {
                   width: 44,
                   height: 4.5,
                   decoration: BoxDecoration(
-                    color: const Color(0xFFE2E8F0),
+                    color: AppColors.lightTealBorder,
                     borderRadius: BorderRadius.circular(3),
                   ),
                 ),
               ),
+
 
               // ── Header Bar ──────────────────────────────────────────
               Padding(
@@ -226,17 +227,17 @@ class _NotificationSheetState extends State<NotificationSheet> {
         duration: const Duration(milliseconds: 200),
         padding: const EdgeInsets.all(14),
         decoration: BoxDecoration(
-          color: notif.isRead ? Colors.white : notif.type.bgColor.withOpacity(0.35),
+          color: notif.isRead ? Colors.white : notif.type.bgColor.withValues(alpha: 0.35),
           borderRadius: BorderRadius.circular(16),
           border: Border.all(
             color: notif.isRead
-                ? AppColors.border
-                : notif.type.color.withOpacity(0.35),
+                ? AppColors.lightTealBorder
+                : notif.type.color.withValues(alpha: 0.35),
             width: notif.isRead ? 1 : 1.2,
           ),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.02),
+              color: Colors.black.withValues(alpha: 0.02),
               blurRadius: 6,
               offset: const Offset(0, 2),
             ),
@@ -304,7 +305,7 @@ class _NotificationSheetState extends State<NotificationSheet> {
                     Container(
                       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                       decoration: BoxDecoration(
-                        color: notif.type.color.withOpacity(0.1),
+                        color: notif.type.color.withValues(alpha: 0.1),
                         borderRadius: BorderRadius.circular(8),
                       ),
                       child: Text(

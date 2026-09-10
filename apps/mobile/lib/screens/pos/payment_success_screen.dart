@@ -57,7 +57,7 @@ class PaymentSuccessScreen extends StatelessWidget {
                         width: 80,
                         height: 80,
                         decoration: BoxDecoration(
-                          color: AppColors.primaryTeal.withOpacity(0.12),
+                          color: AppColors.primaryTeal.withValues(alpha: 0.12),
                           shape: BoxShape.circle,
                         ),
                         child: const Center(
@@ -113,7 +113,7 @@ class PaymentSuccessScreen extends StatelessWidget {
         border: Border.all(color: AppColors.lightTealBorder, width: 1.2),
         boxShadow: [
           BoxShadow(
-            color: AppColors.primaryTeal.withOpacity(0.06),
+            color: AppColors.primaryTeal.withValues(alpha: 0.06),
             blurRadius: 16,
             offset: const Offset(0, 4),
           ),
@@ -147,7 +147,7 @@ class PaymentSuccessScreen extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 16),
-          const Divider(color: AppColors.border, thickness: 1),
+          const Divider(color: AppColors.lightTealBorder, thickness: 1),
           const SizedBox(height: 12),
 
           // Order Meta Info
@@ -168,7 +168,7 @@ class PaymentSuccessScreen extends StatelessWidget {
           _buildInfoRow('Metode Bayar', order.paymentMethod.label),
 
           const SizedBox(height: 12),
-          const Divider(color: AppColors.border, thickness: 1),
+          const Divider(color: AppColors.lightTealBorder, thickness: 1),
           const SizedBox(height: 12),
 
           // Items List
@@ -227,7 +227,7 @@ class PaymentSuccessScreen extends StatelessWidget {
           }),
 
           const SizedBox(height: 8),
-          const Divider(color: AppColors.border, thickness: 1),
+          const Divider(color: AppColors.lightTealBorder, thickness: 1),
           const SizedBox(height: 10),
 
           // Summary amounts
@@ -261,7 +261,7 @@ class PaymentSuccessScreen extends StatelessWidget {
 
           if (order.paymentMethod == PaymentMethodType.cash && order.cashGiven > 0) ...[
             const SizedBox(height: 10),
-            const Divider(color: AppColors.border, thickness: 1),
+            const Divider(color: AppColors.lightTealBorder, thickness: 1),
             const SizedBox(height: 8),
             _buildAmountRow('Tunai Diterima', Product.formatRupiah(order.cashGiven)),
             const SizedBox(height: 4),
@@ -340,7 +340,7 @@ class PaymentSuccessScreen extends StatelessWidget {
         borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: Colors.black.withValues(alpha: 0.05),
             blurRadius: 12,
             offset: const Offset(0, -3),
           ),
@@ -356,7 +356,7 @@ class PaymentSuccessScreen extends StatelessWidget {
                   onPressed: () {
                     ScaffoldMessenger.of(context).showSnackBar(
                       const SnackBar(
-                        content: Text('🖨️ Mengirim perintah cetak struk Bluetooth...'),
+                        content: Text('Mengirim perintah cetak struk Bluetooth...'),
                         backgroundColor: AppColors.primaryTeal,
                         duration: Duration(seconds: 2),
                       ),
@@ -369,7 +369,7 @@ class PaymentSuccessScreen extends StatelessWidget {
                   ),
                   style: OutlinedButton.styleFrom(
                     foregroundColor: AppColors.darkText,
-                    side: const BorderSide(color: AppColors.border, width: 1.5),
+                    side: const BorderSide(color: AppColors.lightTealBorder, width: 1.5),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(14),
                     ),
@@ -383,7 +383,7 @@ class PaymentSuccessScreen extends StatelessWidget {
                   onPressed: () {
                     ScaffoldMessenger.of(context).showSnackBar(
                       const SnackBar(
-                        content: Text('📱 Membuka format struk WhatsApp...'),
+                        content: Text('Membuka format struk WhatsApp...'),
                         backgroundColor: AppColors.primaryTeal,
                         duration: Duration(seconds: 2),
                       ),
@@ -396,7 +396,7 @@ class PaymentSuccessScreen extends StatelessWidget {
                   ),
                   style: OutlinedButton.styleFrom(
                     foregroundColor: AppColors.darkText,
-                    side: const BorderSide(color: AppColors.border, width: 1.5),
+                    side: const BorderSide(color: AppColors.lightTealBorder, width: 1.5),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(14),
                     ),

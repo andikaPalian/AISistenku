@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../../core/theme/app_colors.dart';
-import '../../../models/product.dart';
 import 'add_edit_product_modal.dart';
 
-/// POS screen header with title, subtitle, and history button.
+/// POS screen header with title, subtitle, "+ Menu Baru" button, and transaction history button.
+/// Strictly uses authentic brand colors (#0D9488, #CCFBF1, #F8FFFE, #0F172A).
 class PosHeader extends StatelessWidget {
   const PosHeader({super.key});
 
@@ -18,9 +18,9 @@ class PosHeader extends StatelessWidget {
       ),
       builder: (ctx) {
         return DraggableScrollableSheet(
-          initialChildSize: 0.65,
+          initialChildSize: 0.7,
           minChildSize: 0.4,
-          maxChildSize: 0.9,
+          maxChildSize: 0.92,
           expand: false,
           builder: (_, scrollController) {
             return Padding(
@@ -30,10 +30,10 @@ class PosHeader extends StatelessWidget {
                 children: [
                   Center(
                     child: Container(
-                      width: 40,
+                      width: 44,
                       height: 4,
                       decoration: BoxDecoration(
-                        color: AppColors.border,
+                        color: AppColors.lightTealBorder,
                         borderRadius: BorderRadius.circular(2),
                       ),
                     ),
@@ -42,26 +42,51 @@ class PosHeader extends StatelessWidget {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Text(
-                        'Riwayat Transaksi Hari Ini',
-                        style: GoogleFonts.poppins(
-                          fontSize: 18,
-                          fontWeight: FontWeight.w700,
-                          color: AppColors.darkText,
-                        ),
+                      Row(
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.all(8),
+                            decoration: const BoxDecoration(
+                              color: AppColors.tealBackgrounds,
+                              shape: BoxShape.circle,
+                            ),
+                            child: const Icon(
+                              Icons.receipt_long_rounded,
+                              color: AppColors.primaryTeal,
+                              size: 20,
+                            ),
+                          ),
+                          const SizedBox(width: 10),
+                          Text(
+                            'Riwayat Transaksi Hari Ini',
+                            style: GoogleFonts.poppins(
+                              fontSize: 17,
+                              fontWeight: FontWeight.w700,
+                              color: AppColors.darkText,
+                            ),
+                          ),
+                        ],
                       ),
                       IconButton(
-                        icon: const Icon(Icons.close_rounded),
+                        icon: const Icon(Icons.close_rounded, color: AppColors.mutedText),
                         onPressed: () => Navigator.pop(ctx),
                       ),
                     ],
                   ),
-                  const SizedBox(height: 12),
+                  const SizedBox(height: 14),
                   Expanded(
                     child: ListView(
                       controller: scrollController,
                       physics: const BouncingScrollPhysics(),
                       children: [
+                        _buildHistoryItem(
+                          trxId: '#TRX-20260901-0032',
+                          time: '14:35 WIB',
+                          items: '2x Kopi Susu Aren (Regular)',
+                          total: 'Rp36.000',
+                          payment: 'Cash',
+                          isSuccess: true,
+                        ),
                         _buildHistoryItem(
                           trxId: '#TRX-20260901-0031',
                           time: '14:15 WIB',
@@ -81,7 +106,7 @@ class PosHeader extends StatelessWidget {
                         _buildHistoryItem(
                           trxId: '#TRX-20260901-0029',
                           time: '13:10 WIB',
-                          items: '3x Matcha Latte, 2x Croissant',
+                          items: '3x Matcha Latte, 2x Croissant Butter',
                           total: 'Rp90.000',
                           payment: 'Debit Card',
                           isSuccess: true,
@@ -121,6 +146,13 @@ class PosHeader extends StatelessWidget {
         color: AppColors.cardBackground,
         borderRadius: BorderRadius.circular(16),
         border: Border.all(color: AppColors.lightTealBorder),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.02),
+            blurRadius: 6,
+            offset: const Offset(0, 2),
+          ),
+        ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -139,7 +171,7 @@ class PosHeader extends StatelessWidget {
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                 decoration: BoxDecoration(
-                  color: AppColors.successGreen.withOpacity(0.12),
+                  color: AppColors.successBg,
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: Text(
@@ -147,7 +179,7 @@ class PosHeader extends StatelessWidget {
                   style: GoogleFonts.inter(
                     fontSize: 11,
                     fontWeight: FontWeight.w700,
-                    color: AppColors.successGreen,
+                    color: AppColors.successText,
                   ),
                 ),
               ),
@@ -191,14 +223,15 @@ class PosHeader extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.fromLTRB(20, 12, 20, 12),
+      padding: const EdgeInsets.fromLTRB(20, 14, 20, 14),
       child: Row(
         children: [
           Container(
-            padding: const EdgeInsets.all(8),
+            padding: const EdgeInsets.all(9),
             decoration: BoxDecoration(
               color: AppColors.tealBackgrounds,
-              borderRadius: BorderRadius.circular(10),
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(color: AppColors.lightTealBorder),
             ),
             child: const Icon(
               Icons.point_of_sale_rounded,
@@ -212,36 +245,38 @@ class PosHeader extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'POS',
+                  'Kasir POS',
                   style: GoogleFonts.poppins(
-                    fontSize: 20,
+                    fontSize: 19,
                     fontWeight: FontWeight.w700,
                     color: AppColors.darkText,
-                    height: 1.2,
+                    height: 1.15,
                   ),
                 ),
+                const SizedBox(height: 2),
                 Text(
-                  'Pesanan Baru',
+                  'Layanan Cepat & Transaksi',
                   style: GoogleFonts.inter(
-                    fontSize: 13,
+                    fontSize: 12,
                     color: AppColors.mutedText,
+                    fontWeight: FontWeight.w500,
                   ),
                 ),
               ],
             ),
           ),
-          // Add Menu Button
+          // Add Menu Button (+ Menu)
           GestureDetector(
             onTap: () => AddEditProductModal.show(context),
             child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
               margin: const EdgeInsets.only(right: 8),
               decoration: BoxDecoration(
                 color: AppColors.primaryTeal,
-                borderRadius: BorderRadius.circular(10),
+                borderRadius: BorderRadius.circular(12),
                 boxShadow: [
                   BoxShadow(
-                    color: AppColors.primaryTeal.withOpacity(0.25),
+                    color: AppColors.primaryTeal.withValues(alpha: 0.25),
                     blurRadius: 6,
                     offset: const Offset(0, 2),
                   ),
@@ -257,9 +292,9 @@ class PosHeader extends StatelessWidget {
                   ),
                   const SizedBox(width: 4),
                   Text(
-                    'Menu',
-                    style: GoogleFonts.poppins(
-                      fontSize: 12,
+                    'Menu Baru',
+                    style: GoogleFonts.inter(
+                      fontSize: 12.5,
                       fontWeight: FontWeight.w600,
                       color: Colors.white,
                     ),
@@ -271,8 +306,9 @@ class PosHeader extends StatelessWidget {
           // History button with interactive bottom sheet
           GestureDetector(
             onTap: () => _showOrderHistory(context),
+            behavior: HitTestBehavior.opaque,
             child: Container(
-              padding: const EdgeInsets.all(8),
+              padding: const EdgeInsets.all(9),
               decoration: BoxDecoration(
                 color: AppColors.tealBackgrounds,
                 shape: BoxShape.circle,
@@ -282,7 +318,7 @@ class PosHeader extends StatelessWidget {
                 ),
               ),
               child: const Icon(
-                Icons.history_rounded,
+                Icons.receipt_long_rounded,
                 color: AppColors.darkText,
                 size: 20,
               ),

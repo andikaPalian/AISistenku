@@ -159,9 +159,15 @@ class _FinanceScreenState extends State<FinanceScreen> {
                   padding: const EdgeInsets.fromLTRB(20, 10, 20, 12),
                   decoration: BoxDecoration(
                     color: Colors.white,
+                    border: Border(
+                      top: BorderSide(
+                        color: AppColors.lightTealBorder,
+                        width: 1,
+                      ),
+                    ),
                     boxShadow: [
                       BoxShadow(
-                        color: Colors.black.withOpacity(0.04),
+                        color: AppColors.primaryTeal.withValues(alpha: 0.05),
                         blurRadius: 10,
                         offset: const Offset(0, -3),
                       ),
@@ -176,7 +182,7 @@ class _FinanceScreenState extends State<FinanceScreen> {
                         backgroundColor: AppColors.primaryTeal,
                         elevation: 0,
                         shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(28),
+                          borderRadius: BorderRadius.circular(16),
                         ),
                       ),
                       child: Text(

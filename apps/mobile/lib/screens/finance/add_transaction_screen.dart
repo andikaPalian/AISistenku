@@ -153,7 +153,7 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
     final isExpense = _selectedType == TransactionType.expense;
 
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: AppColors.pageBackground,
       appBar: AppBar(
         backgroundColor: Colors.white,
         elevation: 0,
@@ -173,6 +173,13 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
           ),
         ),
         centerTitle: true,
+        bottom: PreferredSize(
+          preferredSize: const Size.fromHeight(1),
+          child: Container(
+            color: AppColors.lightTealBorder,
+            height: 1,
+          ),
+        ),
       ),
       body: SafeArea(
         child: Column(
@@ -191,10 +198,10 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
                     Container(
                       padding: const EdgeInsets.all(4),
                       decoration: BoxDecoration(
-                        color: const Color(0xFFF0FDFA),
-                        borderRadius: BorderRadius.circular(12),
+                        color: AppColors.tealBackgrounds,
+                        borderRadius: BorderRadius.circular(14),
                         border: Border.all(
-                          color: const Color(0xFFCCFBF1),
+                          color: AppColors.lightTealBorder,
                           width: 1.2,
                         ),
                       ),
@@ -214,9 +221,9 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
                                     const EdgeInsets.symmetric(vertical: 10),
                                 decoration: BoxDecoration(
                                   color: !isExpense
-                                      ? const Color(0xFF0F766E)
+                                      ? AppColors.primaryTeal
                                       : Colors.transparent,
-                                  borderRadius: BorderRadius.circular(9),
+                                  borderRadius: BorderRadius.circular(10),
                                 ),
                                 alignment: Alignment.center,
                                 child: Text(
@@ -228,7 +235,7 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
                                         : FontWeight.w500,
                                     color: !isExpense
                                         ? Colors.white
-                                        : const Color(0xFF0F766E),
+                                        : AppColors.primaryTeal,
                                   ),
                                 ),
                               ),
@@ -249,9 +256,9 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
                                     const EdgeInsets.symmetric(vertical: 10),
                                 decoration: BoxDecoration(
                                   color: isExpense
-                                      ? const Color(0xFF0F766E)
+                                      ? AppColors.primaryTeal
                                       : Colors.transparent,
-                                  borderRadius: BorderRadius.circular(9),
+                                  borderRadius: BorderRadius.circular(10),
                                 ),
                                 alignment: Alignment.center,
                                 child: Text(
@@ -263,7 +270,7 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
                                         : FontWeight.w500,
                                     color: isExpense
                                         ? Colors.white
-                                        : const Color(0xFF0F766E),
+                                        : AppColors.primaryTeal,
                                   ),
                                 ),
                               ),
@@ -273,22 +280,29 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
                       ),
                     ),
 
-                    const SizedBox(height: 28),
+                    const SizedBox(height: 24),
 
                     // ── Big Nominal Amount Box ────────────────────────
                     Container(
                       width: double.infinity,
                       padding: const EdgeInsets.symmetric(
                         horizontal: 16,
-                        vertical: 14,
+                        vertical: 16,
                       ),
                       decoration: BoxDecoration(
                         color: Colors.white,
-                        borderRadius: BorderRadius.circular(10),
+                        borderRadius: BorderRadius.circular(16),
                         border: Border.all(
-                          color: const Color(0xFF0F766E),
-                          width: 1.2,
+                          color: AppColors.primaryTeal,
+                          width: 1.5,
                         ),
+                        boxShadow: [
+                          BoxShadow(
+                            color: AppColors.primaryTeal.withValues(alpha: 0.06),
+                            blurRadius: 10,
+                            offset: const Offset(0, 4),
+                          ),
+                        ],
                       ),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.center,
@@ -301,16 +315,16 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
                               FilteringTextInputFormatter.digitsOnly,
                             ],
                             style: GoogleFonts.poppins(
-                              fontSize: 26,
+                              fontSize: 28,
                               fontWeight: FontWeight.w700,
                               color: AppColors.darkText,
                             ),
                             decoration: InputDecoration(
                               hintText: 'Rp0',
                               hintStyle: GoogleFonts.poppins(
-                                fontSize: 26,
+                                fontSize: 28,
                                 fontWeight: FontWeight.w700,
-                                color: const Color(0xFF94A3B8),
+                                color: AppColors.mutedText.withValues(alpha: 0.5),
                               ),
                               border: InputBorder.none,
                               isDense: true,
@@ -318,7 +332,7 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
                               prefixText:
                                   _parsedAmount > 0 ? 'Rp' : null,
                               prefixStyle: GoogleFonts.poppins(
-                                fontSize: 26,
+                                fontSize: 28,
                                 fontWeight: FontWeight.w700,
                                 color: AppColors.darkText,
                               ),
@@ -329,7 +343,7 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
                       ),
                     ),
 
-                    const SizedBox(height: 10),
+                    const SizedBox(height: 12),
 
                     // Quick nominal chip suggestions
                     SingleChildScrollView(
@@ -341,7 +355,7 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
                           _buildQuickChip('+50rb', 50000),
                           _buildQuickChip('+100rb', 100000),
                           _buildQuickChip('+250rb', 250000),
-                          _buildQuickChip('+500rb', 50000),
+                          _buildQuickChip('+500rb', 500000),
                         ],
                       ),
                     ),
@@ -361,8 +375,12 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
                     Container(
                       padding: const EdgeInsets.symmetric(horizontal: 14),
                       decoration: BoxDecoration(
-                        color: const Color(0xFFF1F5F9),
-                        borderRadius: BorderRadius.circular(10),
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(
+                          color: AppColors.lightTealBorder,
+                          width: 1.2,
+                        ),
                       ),
                       child: TextField(
                         controller: _titleController,
@@ -372,11 +390,11 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
                         ),
                         decoration: InputDecoration(
                           hintText: isExpense
-                              ? 'e.g., Electricity Bill / Beli Susu Segar'
-                              : 'e.g., Penjualan Event / Catering',
+                              ? 'Contoh: Tagihan Listrik / Beli Susu Segar'
+                              : 'Contoh: Penjualan Event / Catering',
                           hintStyle: GoogleFonts.inter(
                             fontSize: 14,
-                            color: const Color(0xFF94A3B8),
+                            color: AppColors.mutedText.withValues(alpha: 0.6),
                           ),
                           border: InputBorder.none,
                         ),
@@ -414,9 +432,15 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
                             ),
                             decoration: BoxDecoration(
                               color: isCatSelected
-                                  ? const Color(0xFF0F766E)
-                                  : const Color(0xFFF1F5F9),
+                                  ? AppColors.primaryTeal
+                                  : Colors.white,
                               borderRadius: BorderRadius.circular(10),
+                              border: Border.all(
+                                color: isCatSelected
+                                    ? AppColors.primaryTeal
+                                    : AppColors.lightTealBorder,
+                                width: 1.1,
+                              ),
                             ),
                             child: Row(
                               mainAxisSize: MainAxisSize.min,
@@ -426,7 +450,7 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
                                   size: 14,
                                   color: isCatSelected
                                       ? Colors.white
-                                      : const Color(0xFF64748B),
+                                      : AppColors.mutedText,
                                 ),
                                 const SizedBox(width: 6),
                                 Text(
@@ -438,7 +462,7 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
                                         : FontWeight.w500,
                                     color: isCatSelected
                                         ? Colors.white
-                                        : const Color(0xFF334155),
+                                        : AppColors.darkText,
                                   ),
                                 ),
                               ],
@@ -468,14 +492,18 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
                           vertical: 14,
                         ),
                         decoration: BoxDecoration(
-                          color: const Color(0xFFF1F5F9),
-                          borderRadius: BorderRadius.circular(10),
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(12),
+                          border: Border.all(
+                            color: AppColors.lightTealBorder,
+                            width: 1.2,
+                          ),
                         ),
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
                             Text(
-                              '${_selectedDate.month.toString().padLeft(2, '0')}/${_selectedDate.day.toString().padLeft(2, '0')}/${_selectedDate.year}',
+                              '${_selectedDate.day.toString().padLeft(2, '0')}/${_selectedDate.month.toString().padLeft(2, '0')}/${_selectedDate.year}',
                               style: GoogleFonts.inter(
                                 fontSize: 14,
                                 color: AppColors.darkText,
@@ -485,7 +513,7 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
                             const Icon(
                               Icons.calendar_today_outlined,
                               size: 18,
-                              color: Color(0xFF475569),
+                              color: AppColors.primaryTeal,
                             ),
                           ],
                         ),
@@ -494,7 +522,7 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
 
                     const SizedBox(height: 20),
 
-                    // ── Field: Catatan (Optional) ─────────────────────
+                    // ── Field: Catatan (Opsional) ─────────────────────
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
@@ -507,10 +535,10 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
                           ),
                         ),
                         Text(
-                          'Optional',
+                          'Opsional',
                           style: GoogleFonts.inter(
                             fontSize: 12,
-                            color: const Color(0xFF94A3B8),
+                            color: AppColors.mutedText,
                           ),
                         ),
                       ],
@@ -522,8 +550,12 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
                         vertical: 10,
                       ),
                       decoration: BoxDecoration(
-                        color: const Color(0xFFF1F5F9),
-                        borderRadius: BorderRadius.circular(10),
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(
+                          color: AppColors.lightTealBorder,
+                          width: 1.2,
+                        ),
                       ),
                       child: TextField(
                         controller: _notesController,
@@ -534,11 +566,11 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
                         ),
                         decoration: InputDecoration(
                           hintText: isExpense
-                              ? 'e.g., Monthly electricity payment'
-                              : 'e.g., Pembayaran cash langsung',
+                              ? 'Contoh: Pembayaran listrik bulanan toko'
+                              : 'Contoh: Pembayaran kasir tunai',
                           hintStyle: GoogleFonts.inter(
                             fontSize: 14,
-                            color: const Color(0xFF94A3B8),
+                            color: AppColors.mutedText.withValues(alpha: 0.6),
                           ),
                           border: InputBorder.none,
                         ),
@@ -560,10 +592,10 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
                 child: ElevatedButton(
                   onPressed: _submitTransaction,
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF0F766E),
+                    backgroundColor: AppColors.primaryTeal,
                     elevation: 0,
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(28),
+                      borderRadius: BorderRadius.circular(16),
                     ),
                   ),
                   child: Text(
@@ -591,18 +623,18 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
       child: GestureDetector(
         onTap: () => _addQuickAmount(amount),
         child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 7),
           decoration: BoxDecoration(
-            color: const Color(0xFFF1F5F9),
+            color: AppColors.tealBackgrounds,
             borderRadius: BorderRadius.circular(8),
-            border: Border.all(color: const Color(0xFFE2E8F0)),
+            border: Border.all(color: AppColors.lightTealBorder, width: 1),
           ),
           child: Text(
             label,
             style: GoogleFonts.inter(
               fontSize: 11,
               fontWeight: FontWeight.w600,
-              color: const Color(0xFF0F766E),
+              color: AppColors.primaryTeal,
             ),
           ),
         ),

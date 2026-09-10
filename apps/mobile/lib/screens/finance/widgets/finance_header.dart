@@ -35,16 +35,22 @@ class FinanceHeader extends StatelessWidget {
               child: Row(
                 children: [
                   Container(
-                    width: 36,
-                    height: 36,
+                    width: 38,
+                    height: 38,
                     decoration: BoxDecoration(
-                      color: AppColors.primaryTeal.withOpacity(0.12),
+                      color: AppColors.tealBackgrounds,
                       shape: BoxShape.circle,
+                      border: Border.all(color: AppColors.lightTealBorder),
                     ),
-                    child: const Icon(
-                      Icons.person_outline_rounded,
-                      color: AppColors.primaryTeal,
-                      size: 20,
+                    padding: const EdgeInsets.all(6),
+                    child: Image.asset(
+                      'assets/icons/logoAisitenku.png',
+                      fit: BoxFit.contain,
+                      errorBuilder: (context, error, stackTrace) => const Icon(
+                        Icons.auto_awesome,
+                        color: AppColors.primaryTeal,
+                        size: 20,
+                      ),
                     ),
                   ),
                   const SizedBox(width: 10),
@@ -138,23 +144,29 @@ class FinanceHeader extends StatelessWidget {
                     decoration: BoxDecoration(
                       color: isSelected
                           ? AppColors.primaryTeal
-                          : Colors.transparent,
+                          : AppColors.cardBackground,
                       borderRadius: BorderRadius.circular(24),
                       border: Border.all(
                         color: isSelected
                             ? AppColors.primaryTeal
-                            : AppColors.border,
+                            : AppColors.lightTealBorder,
                         width: 1.2,
                       ),
                       boxShadow: isSelected
                           ? [
                               BoxShadow(
-                                color: AppColors.primaryTeal.withOpacity(0.25),
+                                color: AppColors.primaryTeal.withValues(alpha: 0.25),
                                 blurRadius: 8,
                                 offset: const Offset(0, 3),
                               ),
                             ]
-                          : null,
+                          : [
+                              BoxShadow(
+                                color: Colors.black.withValues(alpha: 0.02),
+                                blurRadius: 4,
+                                offset: const Offset(0, 1),
+                              ),
+                            ],
                     ),
                     child: Text(
                       period.label,

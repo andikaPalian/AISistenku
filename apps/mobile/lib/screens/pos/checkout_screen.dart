@@ -173,7 +173,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                 width: 40,
                 height: 4,
                 decoration: BoxDecoration(
-                  color: AppColors.border,
+                  color: AppColors.lightTealBorder,
                   borderRadius: BorderRadius.circular(2),
                 ),
               ),
@@ -205,7 +205,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                   border: Border.all(color: AppColors.lightTealBorder, width: 2),
                   boxShadow: [
                     BoxShadow(
-                      color: AppColors.primaryTeal.withOpacity(0.08),
+                      color: AppColors.primaryTeal.withValues(alpha: 0.08),
                       blurRadius: 16,
                       offset: const Offset(0, 4),
                     ),
@@ -235,9 +235,9 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                       width: 180,
                       height: 180,
                       decoration: BoxDecoration(
-                        color: AppColors.surface,
+                        color: AppColors.tealBackgrounds,
                         borderRadius: BorderRadius.circular(12),
-                        border: Border.all(color: AppColors.border),
+                        border: Border.all(color: AppColors.lightTealBorder),
                       ),
                       child: const Center(
                         child: Icon(
@@ -312,7 +312,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
         centerTitle: true,
         bottom: const PreferredSize(
           preferredSize: Size.fromHeight(1),
-          child: Divider(height: 1, color: AppColors.border),
+          child: Divider(height: 1, color: AppColors.lightTealBorder),
         ),
       ),
       body: Column(
@@ -329,7 +329,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                     child: Column(
                       children: [
                         Text(
-                          'Total Amount',
+                          'Total Tagihan',
                           style: GoogleFonts.inter(
                             fontSize: 14,
                             color: AppColors.mutedText,
@@ -358,7 +358,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
 
                   // ── Payment Method Section ───────────────────────
                   Text(
-                    'Payment Method',
+                    'Metode Pembayaran',
                     style: GoogleFonts.poppins(
                       fontSize: 18,
                       fontWeight: FontWeight.w700,
@@ -423,7 +423,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
         border: Border.all(color: AppColors.lightTealBorder, width: 1.2),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.02),
+            color: Colors.black.withValues(alpha: 0.02),
             blurRadius: 8,
             offset: const Offset(0, 2),
           ),
@@ -457,7 +457,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          'Order Summary',
+                          'Ringkasan Pesanan',
                           style: GoogleFonts.poppins(
                             fontSize: 16,
                             fontWeight: FontWeight.w700,
@@ -466,7 +466,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                         ),
                         const SizedBox(height: 2),
                         Text(
-                          '$_totalItems Items ${widget.tableNumber != null ? "• ${widget.tableNumber}" : ""}',
+                          '$_totalItems Item ${widget.tableNumber != null ? "• ${widget.tableNumber}" : ""}',
                           style: GoogleFonts.inter(
                             fontSize: 13,
                             color: AppColors.mutedText,
@@ -491,7 +491,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
 
           // Collapsible Items List
           if (_isSummaryExpanded) ...[
-            const Divider(height: 1, color: AppColors.border),
+            const Divider(height: 1, color: AppColors.lightTealBorder),
             Padding(
               padding: const EdgeInsets.fromLTRB(16, 12, 16, 16),
               child: Column(
@@ -573,7 +573,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
           boxShadow: isSelected
               ? [
                   BoxShadow(
-                    color: AppColors.primaryTeal.withOpacity(0.06),
+                    color: AppColors.primaryTeal.withValues(alpha: 0.06),
                     blurRadius: 10,
                     offset: const Offset(0, 2),
                   ),
@@ -660,7 +660,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                   decoration: BoxDecoration(
-                    color: AppColors.successGreen.withOpacity(0.15),
+                    color: AppColors.successGreen.withValues(alpha: 0.15),
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: Text(
@@ -751,9 +751,12 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
+        border: const Border(
+          top: BorderSide(color: AppColors.lightTealBorder, width: 1),
+        ),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.06),
+            color: Colors.black.withValues(alpha: 0.06),
             blurRadius: 16,
             offset: const Offset(0, -4),
           ),

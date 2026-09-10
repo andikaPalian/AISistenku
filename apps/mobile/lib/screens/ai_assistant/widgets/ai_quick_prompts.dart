@@ -3,18 +3,18 @@ import 'package:google_fonts/google_fonts.dart';
 import '../../../core/theme/app_colors.dart';
 
 class QuickPromptItem {
-  final String iconEmoji;
+  final IconData icon;
   final String label;
   final String promptQuery;
 
   const QuickPromptItem({
-    required this.iconEmoji,
+    required this.icon,
     required this.label,
     required this.promptQuery,
   });
 }
 
-/// Horizontal scrollable chips for fast one-tap AI prompt generation.
+/// Horizontal scrollable chips for fast one-tap AI prompt generation without emoji slop.
 class AiQuickPrompts extends StatelessWidget {
   final ValueChanged<String> onSelectPrompt;
 
@@ -25,30 +25,30 @@ class AiQuickPrompts extends StatelessWidget {
 
   static const List<QuickPromptItem> prompts = [
     QuickPromptItem(
-      iconEmoji: '🧾',
-      label: 'Catatan Pengeluaran',
+      icon: Icons.receipt_long_rounded,
+      label: 'Catat Belanja Bahan',
       promptQuery:
           'Saya baru saja beli 10kg gula pasir dengan harga total 170rb',
     ),
     QuickPromptItem(
-      iconEmoji: '📦',
-      label: 'Cek Stok',
+      icon: Icons.inventory_2_outlined,
+      label: 'Cek Stok Menipis',
       promptQuery: 'Cek stok bahan baku apa yang perlu di-restock sekarang?',
     ),
     QuickPromptItem(
-      iconEmoji: '💰',
+      icon: Icons.trending_up_rounded,
       label: 'Analisis Omzet',
       promptQuery: 'Bagaimana performa penjualan dan laba saya hari ini?',
     ),
     QuickPromptItem(
-      iconEmoji: '📸',
-      label: 'Buat Caption Sosmed',
+      icon: Icons.campaign_outlined,
+      label: 'Buat Caption Promo',
       promptQuery:
           'Buatkan caption Instagram menarik untuk promo Kopi Susu Gula Aren sore ini',
     ),
     QuickPromptItem(
-      iconEmoji: '💡',
-      label: 'Ide Promo Bisnis',
+      icon: Icons.lightbulb_outline_rounded,
+      label: 'Ide Promo Bundling',
       promptQuery:
           'Berikan rekomendasi ide promo bundling hemat untuk mendongkrak penjualan',
     ),
@@ -63,45 +63,57 @@ class AiQuickPrompts extends StatelessWidget {
         children: prompts.map((item) {
           return Padding(
             padding: const EdgeInsets.only(right: 8),
-            child: GestureDetector(
-              onTap: () => onSelectPrompt(item.promptQuery),
-              child: Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 14,
-                  vertical: 9,
-                ),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(24),
-                  border: Border.all(
-                    color: const Color(0xFFE2E8F0),
-                    width: 1.2,
+            child: Material(
+              color: Colors.transparent,
+              child: InkWell(
+                onTap: () => onSelectPrompt(item.promptQuery),
+                borderRadius: BorderRadius.circular(24),
+                child: Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 12,
+                    vertical: 8,
                   ),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withOpacity(0.02),
-                      blurRadius: 6,
-                      offset: const Offset(0, 2),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(24),
+                    border: Border.all(
+                      color: AppColors.lightTealBorder,
+                      width: 1.2,
                     ),
-                  ],
-                ),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Text(
-                      item.iconEmoji,
-                      style: const TextStyle(fontSize: 14),
-                    ),
-                    const SizedBox(width: 6),
-                    Text(
-                      item.label,
-                      style: GoogleFonts.inter(
-                        fontSize: 12,
-                        fontWeight: FontWeight.w600,
-                        color: AppColors.darkText,
+                    boxShadow: [
+                      BoxShadow(
+                        color: AppColors.primaryTeal.withValues(alpha: 0.04),
+                        blurRadius: 6,
+                        offset: const Offset(0, 2),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.all(4),
+                        decoration: BoxDecoration(
+                          color: AppColors.tealBackgrounds,
+                          shape: BoxShape.circle,
+                        ),
+                        child: Icon(
+                          item.icon,
+                          size: 13,
+                          color: AppColors.primaryTeal,
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      Text(
+                        item.label,
+                        style: GoogleFonts.inter(
+                          fontSize: 12,
+                          fontWeight: FontWeight.w600,
+                          color: AppColors.darkText,
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
               ),
             ),
@@ -111,3 +123,4 @@ class AiQuickPrompts extends StatelessWidget {
     );
   }
 }
+

@@ -137,7 +137,7 @@ class _StockScreenState extends State<StockScreen> {
                               Container(
                                 padding: const EdgeInsets.all(6),
                                 decoration: BoxDecoration(
-                                  color: AppColors.primaryTeal.withOpacity(0.12),
+                                  color: AppColors.primaryTeal.withValues(alpha: 0.12),
                                   borderRadius: BorderRadius.circular(8),
                                 ),
                                 child: const Icon(
@@ -174,7 +174,7 @@ class _StockScreenState extends State<StockScreen> {
                         decoration: BoxDecoration(
                           color: AppColors.cardBackground,
                           borderRadius: BorderRadius.circular(20),
-                          border: Border.all(color: AppColors.cardBorder),
+                          border: Border.all(color: AppColors.lightTealBorder),
                         ),
                         child: Row(
                           mainAxisSize: MainAxisSize.min,
@@ -200,7 +200,7 @@ class _StockScreenState extends State<StockScreen> {
                   ),
                 ),
 
-                const Divider(height: 1, color: AppColors.border),
+                const Divider(height: 1, color: AppColors.lightTealBorder),
 
                 // ── Scrollable Body ─────────────────────────────────────────
                 Expanded(
@@ -232,7 +232,7 @@ class _StockScreenState extends State<StockScreen> {
                               decoration: BoxDecoration(
                                 color: AppColors.cardBackground,
                                 borderRadius: BorderRadius.circular(14),
-                                border: Border.all(color: AppColors.cardBorder),
+                                border: Border.all(color: AppColors.lightTealBorder),
                                 boxShadow: const [
                                   BoxShadow(
                                     color: AppColors.cardShadow,
@@ -293,12 +293,12 @@ class _StockScreenState extends State<StockScreen> {
                                 border: Border.all(
                                   color: _hasActiveFilters
                                       ? AppColors.primaryTeal
-                                      : AppColors.cardBorder,
+                                      : AppColors.lightTealBorder,
                                 ),
                                 boxShadow: [
                                   BoxShadow(
                                     color: _hasActiveFilters
-                                        ? AppColors.primaryTeal.withOpacity(0.25)
+                                        ? AppColors.primaryTeal.withValues(alpha: 0.25)
                                         : AppColors.cardShadow,
                                     blurRadius: 8,
                                     offset: const Offset(0, 2),
@@ -334,7 +334,7 @@ class _StockScreenState extends State<StockScreen> {
                                         vertical: 2,
                                       ),
                                       decoration: BoxDecoration(
-                                        color: Colors.white.withOpacity(0.25),
+                                        color: Colors.white.withValues(alpha: 0.25),
                                         borderRadius: BorderRadius.circular(10),
                                       ),
                                       child: Text(
@@ -440,7 +440,7 @@ class _StockScreenState extends State<StockScreen> {
                           decoration: BoxDecoration(
                             color: AppColors.cardBackground,
                             borderRadius: BorderRadius.circular(18),
-                            border: Border.all(color: AppColors.cardBorder),
+                            border: Border.all(color: AppColors.lightTealBorder),
                           ),
                           child: Column(
                             children: [
@@ -530,7 +530,7 @@ class _StockScreenState extends State<StockScreen> {
                     borderRadius: BorderRadius.circular(26),
                   ),
                   elevation: 4,
-                  shadowColor: AppColors.primaryTeal.withOpacity(0.35),
+                  shadowColor: AppColors.primaryTeal.withValues(alpha: 0.35),
                 ),
               ),
             ),
@@ -548,10 +548,10 @@ class _StockScreenState extends State<StockScreen> {
       margin: const EdgeInsets.only(right: 8),
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
       decoration: BoxDecoration(
-        color: AppColors.primaryTeal.withOpacity(0.1),
+        color: AppColors.primaryTeal.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
-          color: AppColors.primaryTeal.withOpacity(0.3),
+          color: AppColors.primaryTeal.withValues(alpha: 0.3),
         ),
       ),
       child: Row(

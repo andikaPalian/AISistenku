@@ -50,7 +50,7 @@ class StockCard extends StatelessWidget {
       decoration: BoxDecoration(
         color: AppColors.cardBackground,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppColors.cardBorder),
+        border: Border.all(color: AppColors.lightTealBorder),
         boxShadow: const [
           BoxShadow(
             color: AppColors.cardShadow,
@@ -65,8 +65,8 @@ class StockCard extends StatelessWidget {
           color: Colors.transparent,
           child: InkWell(
             onTap: onTap,
-            splashColor: AppColors.primaryTeal.withOpacity(0.08),
-            highlightColor: AppColors.primaryTeal.withOpacity(0.04),
+            splashColor: AppColors.primaryTeal.withValues(alpha: 0.08),
+            highlightColor: AppColors.primaryTeal.withValues(alpha: 0.04),
             child: IntrinsicHeight(
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -93,9 +93,9 @@ class StockCard extends StatelessWidget {
                                 width: 44,
                                 height: 44,
                                 decoration: BoxDecoration(
-                                  color: AppColors.surface,
+                                  color: AppColors.tealBackgrounds,
                                   borderRadius: BorderRadius.circular(12),
-                                  border: Border.all(color: AppColors.border),
+                                  border: Border.all(color: AppColors.lightTealBorder),
                                 ),
                                 child: Icon(
                                   item.icon,
@@ -181,7 +181,7 @@ class StockCard extends StatelessWidget {
                                   child: LinearProgressIndicator(
                                     value: item.healthRatio,
                                     minHeight: 5,
-                                    backgroundColor: AppColors.surface,
+                                    backgroundColor: AppColors.tealBackgrounds,
                                     valueColor: AlwaysStoppedAnimation<Color>(accentColor),
                                   ),
                                 ),
@@ -206,9 +206,9 @@ class StockCard extends StatelessWidget {
                                 child: Container(
                                   padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                                   decoration: BoxDecoration(
-                                    color: AppColors.muted,
+                                    color: AppColors.tealBackgrounds,
                                     borderRadius: BorderRadius.circular(8),
-                                    border: Border.all(color: AppColors.cardBorder),
+                                    border: Border.all(color: AppColors.lightTealBorder),
                                   ),
                                   child: Row(
                                     mainAxisSize: MainAxisSize.min,

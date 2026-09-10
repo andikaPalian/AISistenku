@@ -33,8 +33,8 @@ void main() {
       );
       await tester.pumpAndSettle();
 
-      expect(find.text('POS'), findsOneWidget);
-      expect(find.text('Pesanan Baru'), findsOneWidget);
+      expect(find.textContaining('POS'), findsOneWidget);
+      expect(find.text('Layanan Cepat & Transaksi'), findsOneWidget);
       expect(find.text('All'), findsOneWidget);
       expect(find.text('Kopi'), findsAtLeastNWidgets(1));
       expect(find.text('Iced Latte'), findsOneWidget);

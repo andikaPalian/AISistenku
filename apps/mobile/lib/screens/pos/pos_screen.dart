@@ -109,7 +109,7 @@ class _PosScreenState extends State<PosScreen> {
               children: [
                 // ── Fixed header area ───────────────────────────
                 const PosHeader(),
-                const Divider(height: 1, color: AppColors.border),
+                const Divider(height: 1, color: AppColors.lightTealBorder),
 
                 // ── Scrollable content ──────────────────────────
                 Expanded(

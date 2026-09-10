@@ -36,7 +36,7 @@ class StockActionSheet extends StatelessWidget {
                 width: 44,
                 height: 4,
                 decoration: BoxDecoration(
-                  color: AppColors.border,
+                  color: AppColors.lightTealBorder,
                   borderRadius: BorderRadius.circular(2),
                 ),
               ),
@@ -65,7 +65,7 @@ class StockActionSheet extends StatelessWidget {
             _buildActionItem(
               context: context,
               icon: Icons.add_shopping_cart_rounded,
-              iconBg: AppColors.primaryTeal.withOpacity(0.12),
+              iconBg: AppColors.primaryTeal.withValues(alpha: 0.12),
               iconColor: AppColors.primaryTeal,
               title: 'Catat Stok Masuk (Restock)',
               subtitle: 'Tambah stok bahan yang sudah ada dari supplier',
@@ -110,9 +110,9 @@ class StockActionSheet extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          color: AppColors.surface,
+          color: AppColors.cardBackground,
           borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: AppColors.border),
+          border: Border.all(color: AppColors.lightTealBorder),
         ),
         child: Row(
           children: [

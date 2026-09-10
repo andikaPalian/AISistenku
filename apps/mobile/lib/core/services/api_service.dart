@@ -9,9 +9,7 @@ class ApiConfig {
 
   /// Candidate URLs to probe in order of priority:
   static const List<String> candidateUrls = [
-    'http://localhost:3000/api',     // USB with adb reverse, iOS, Desktop, Web
-    'http://192.168.62.21:3000/api', // Physical Android phone on PC Wi-Fi LAN
-    'http://10.0.2.2:3000/api',      // Android Emulator
+    'http://localhost:3000/api', // USB with adb reverse, iOS, Desktop, Web
   ];
 
   /// Get current effective API base URL
@@ -32,7 +30,7 @@ class ApiConfig {
     try {
       if (Platform.isAndroid) {
         // Default to Wi-Fi LAN IP or localhost
-        return 'http://192.168.62.21:3000/api';
+        return 'http://10.11.4.61:3000/api';
       }
     } catch (_) {}
 
@@ -40,7 +38,8 @@ class ApiConfig {
   }
 
   static void setBaseUrl(String url) {
-    _customBaseUrl = url.trim().endsWith('/api') ? url.trim() : '${url.trim()}/api';
+    _customBaseUrl =
+        url.trim().endsWith('/api') ? url.trim() : '${url.trim()}/api';
   }
 
   /// Automatically probe candidate endpoints and pick the fastest responsive one
@@ -50,7 +49,9 @@ class ApiConfig {
     for (final candidate in candidateUrls) {
       try {
         final healthUrl = candidate.replaceAll('/api', '/health');
-        final res = await http.get(Uri.parse(healthUrl)).timeout(const Duration(milliseconds: 1200));
+        final res = await http
+            .get(Uri.parse(healthUrl))
+            .timeout(const Duration(milliseconds: 1200));
         if (res.statusCode == 200) {
           debugPrint('✅ Found working backend server: $candidate');
           _customBaseUrl = candidate;
@@ -71,10 +72,17 @@ class ApiService {
   ApiService._internal();
 
   String? _authToken;
+  String? _businessId;
 
   void setAuthToken(String? token) {
     _authToken = token;
   }
+
+  void setBusinessId(String? id) {
+    _businessId = id;
+  }
+
+  String? get businessId => _businessId;
 
   Map<String, String> get _headers {
     final headers = <String, String>{
@@ -84,6 +92,9 @@ class ApiService {
     if (_authToken != null) {
       headers['Authorization'] = 'Bearer $_authToken';
     }
+    if (_businessId != null && _businessId!.isNotEmpty) {
+      headers['X-Business-Id'] = _businessId!;
+    }
     return headers;
   }
 
@@ -92,12 +103,15 @@ class ApiService {
     try {
       final fullUrl = '${ApiConfig.baseUrl}$path';
       final uri = Uri.parse(fullUrl);
-      final res = await http.get(uri, headers: _headers).timeout(const Duration(seconds: 8));
+      final res = await http
+          .get(uri, headers: _headers)
+          .timeout(const Duration(seconds: 8));
 
       if (res.statusCode >= 200 && res.statusCode < 300) {
         return jsonDecode(res.body);
       }
-      debugPrint('⚠️ ApiService.get($path) status: ${res.statusCode} body: ${res.body}');
+      debugPrint(
+          '⚠️ ApiService.get($path) status: ${res.statusCode} body: ${res.body}');
       return null;
     } catch (e) {
       debugPrint('⚠️ ApiService.get($path) error: $e');
@@ -124,7 +138,9 @@ class ApiService {
         return data;
       }
 
-      final errorMsg = data is Map ? (data['error'] ?? data['message'] ?? 'Status ${res.statusCode}') : 'Error ${res.statusCode}';
+      final errorMsg = data is Map
+          ? (data['error'] ?? data['message'] ?? 'Status ${res.statusCode}')
+          : 'Error ${res.statusCode}';
       throw Exception(errorMsg);
     } catch (e) {
       debugPrint('⚠️ ApiService.post($path) error on $fullUrl: $e');
@@ -146,7 +162,9 @@ class ApiService {
         return data;
       }
 
-      final errorMsg = data is Map ? (data['error'] ?? data['message'] ?? 'Status ${res.statusCode}') : 'Error ${res.statusCode}';
+      final errorMsg = data is Map
+          ? (data['error'] ?? data['message'] ?? 'Status ${res.statusCode}')
+          : 'Error ${res.statusCode}';
       throw Exception(errorMsg);
     } catch (e) {
       debugPrint('⚠️ ApiService.put($path) error: $e');
@@ -154,19 +172,48 @@ class ApiService {
     }
   }
 
-  /// Perform a DELETE request.
-  Future<dynamic> delete(String path) async {
+  /// Perform a PATCH request.
+  Future<dynamic> patch(String path, dynamic body) async {
     final fullUrl = '${ApiConfig.baseUrl}$path';
     try {
       final uri = Uri.parse(fullUrl);
-      final res = await http.delete(uri, headers: _headers).timeout(const Duration(seconds: 8));
+      final res = await http
+          .patch(uri, headers: _headers, body: jsonEncode(body))
+          .timeout(const Duration(seconds: 8));
 
       final data = jsonDecode(res.body);
       if (res.statusCode >= 200 && res.statusCode < 300) {
         return data;
       }
 
-      final errorMsg = data is Map ? (data['error'] ?? data['message'] ?? 'Status ${res.statusCode}') : 'Error ${res.statusCode}';
+      final errorMsg = data is Map
+          ? (data['error'] ?? data['message'] ?? 'Status ${res.statusCode}')
+          : 'Error ${res.statusCode}';
+      throw Exception(errorMsg);
+    } catch (e) {
+      debugPrint('⚠️ ApiService.patch($path) error: $e');
+      rethrow;
+    }
+  }
+
+
+  /// Perform a DELETE request.
+  Future<dynamic> delete(String path) async {
+    final fullUrl = '${ApiConfig.baseUrl}$path';
+    try {
+      final uri = Uri.parse(fullUrl);
+      final res = await http
+          .delete(uri, headers: _headers)
+          .timeout(const Duration(seconds: 8));
+
+      final data = jsonDecode(res.body);
+      if (res.statusCode >= 200 && res.statusCode < 300) {
+        return data;
+      }
+
+      final errorMsg = data is Map
+          ? (data['error'] ?? data['message'] ?? 'Status ${res.statusCode}')
+          : 'Error ${res.statusCode}';
       throw Exception(errorMsg);
     } catch (e) {
       debugPrint('⚠️ ApiService.delete($path) error: $e');

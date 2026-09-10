@@ -53,7 +53,7 @@ class TransactionDetailModal extends StatelessWidget {
             width: 40,
             height: 4,
             decoration: BoxDecoration(
-              color: const Color(0xFFCBD5E1),
+              color: AppColors.lightTealBorder,
               borderRadius: BorderRadius.circular(2),
             ),
           ),
@@ -93,7 +93,7 @@ class TransactionDetailModal extends StatelessWidget {
             style: GoogleFonts.poppins(
               fontSize: 24,
               fontWeight: FontWeight.w800,
-              color: isIncome ? AppColors.successText : const Color(0xFFEF4444),
+              color: isIncome ? AppColors.successText : AppColors.destructive,
             ),
           ),
           const SizedBox(height: 20),
@@ -102,22 +102,34 @@ class TransactionDetailModal extends StatelessWidget {
           Container(
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
-              color: const Color(0xFFF8FAFC),
+              color: AppColors.tealBackgrounds,
               borderRadius: BorderRadius.circular(16),
-              border: Border.all(color: const Color(0xFFE2E8F0)),
+              border: Border.all(color: AppColors.lightTealBorder, width: 1.1),
             ),
             child: Column(
               children: [
                 _buildInfoRow('Tipe Transaksi',
                     isIncome ? 'Pemasukan (+)' : 'Pengeluaran (-)'),
-                const Divider(height: 20, color: Color(0xFFE2E8F0)),
+                Divider(
+                  height: 20,
+                  color: AppColors.lightTealBorder.withValues(alpha: 0.8),
+                ),
                 _buildInfoRow('Kategori', transaction.category.label),
-                const Divider(height: 20, color: Color(0xFFE2E8F0)),
+                Divider(
+                  height: 20,
+                  color: AppColors.lightTealBorder.withValues(alpha: 0.8),
+                ),
                 _buildInfoRow('Sumber', transaction.source.label),
-                const Divider(height: 20, color: Color(0xFFE2E8F0)),
+                Divider(
+                  height: 20,
+                  color: AppColors.lightTealBorder.withValues(alpha: 0.8),
+                ),
                 _buildInfoRow('Waktu Transaksi', transaction.formattedDateString),
                 if (transaction.notes != null) ...[
-                  const Divider(height: 20, color: Color(0xFFE2E8F0)),
+                  Divider(
+                    height: 20,
+                    color: AppColors.lightTealBorder.withValues(alpha: 0.8),
+                  ),
                   _buildInfoRow('Catatan', transaction.notes!),
                 ],
               ],
@@ -151,7 +163,9 @@ class TransactionDetailModal extends StatelessWidget {
                     ),
                     style: OutlinedButton.styleFrom(
                       padding: const EdgeInsets.symmetric(vertical: 14),
-                      side: const BorderSide(color: Color(0xFFFECACA)),
+                      side: BorderSide(
+                        color: AppColors.destructive.withValues(alpha: 0.3),
+                      ),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(14),
                       ),
@@ -166,6 +180,7 @@ class TransactionDetailModal extends StatelessWidget {
                   onPressed: () => Navigator.pop(context),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: AppColors.primaryTeal,
+                    elevation: 0,
                     padding: const EdgeInsets.symmetric(vertical: 14),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(14),
@@ -197,7 +212,7 @@ class TransactionDetailModal extends StatelessWidget {
           label,
           style: GoogleFonts.inter(
             fontSize: 13,
-            color: const Color(0xFF64748B),
+            color: AppColors.mutedText,
           ),
         ),
         const SizedBox(width: 12),

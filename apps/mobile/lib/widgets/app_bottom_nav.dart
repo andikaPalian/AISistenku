@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import '../core/theme/app_colors.dart';
+import '../core/widgets/bouncing_press.dart';
 
-/// Custom bottom navigation bar with a center elevated FAB for AIsisten.
-///
-/// Matches the reference design with 5 tabs: Home, POS, AIsisten (center),
-/// Stock, and Finance. The center AIsisten button has a breathing glow
-/// animation to emphasize it as the hero feature.
+/// Custom bottom navigation bar matching the reference design:
+/// - 5 destinations: Beranda, POS, AIsistenku (center hero FAB), Stok, Keuangan.
+/// - Center hero button with tactile spring feedback and ambient glow aura.
 class AppBottomNav extends StatefulWidget {
   final int currentIndex;
   final Function(int) onTap;
@@ -30,7 +30,7 @@ class _AppBottomNavState extends State<AppBottomNav>
     super.initState();
     _pulseController = AnimationController(
       vsync: this,
-      duration: const Duration(milliseconds: 2000),
+      duration: const Duration(milliseconds: 2400),
     )..repeat(reverse: true);
     _pulseAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
       CurvedAnimation(parent: _pulseController, curve: Curves.easeInOut),
@@ -50,28 +50,31 @@ class _AppBottomNavState extends State<AppBottomNav>
         color: Colors.white,
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.06),
+            color: Colors.black.withValues(alpha: 0.04),
             blurRadius: 16,
             offset: const Offset(0, -4),
           ),
         ],
         borderRadius: const BorderRadius.only(
-          topLeft: Radius.circular(20),
-          topRight: Radius.circular(20),
+          topLeft: Radius.circular(24),
+          topRight: Radius.circular(24),
+        ),
+        border: const Border(
+          top: BorderSide(color: AppColors.lightTealBorder, width: 1),
         ),
       ),
       child: SafeArea(
         child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
+            crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              _buildNavItem(Icons.home_rounded, 'Home', 0),
-              _buildNavItem(Icons.point_of_sale_rounded, 'POS', 1),
-              _buildFabItem(),
-              _buildNavItem(Icons.inventory_2_rounded, 'Stock', 3),
-              _buildNavItem(
-                  Icons.account_balance_wallet_rounded, 'Finance', 4),
+              _buildNavItem(Icons.grid_view_rounded, 'Beranda', 0),
+              _buildNavItem(Icons.storefront_outlined, 'POS', 1),
+              _buildCenterFabItem(),
+              _buildNavItem(Icons.archive_outlined, 'Stok', 3),
+              _buildNavItem(Icons.account_balance_wallet_outlined, 'Keuangan', 4),
             ],
           ),
         ),
@@ -81,37 +84,35 @@ class _AppBottomNavState extends State<AppBottomNav>
 
   Widget _buildNavItem(IconData icon, String label, int index) {
     final isSelected = widget.currentIndex == index;
-    return GestureDetector(
+    return BouncingPress(
+      scaleFactor: 0.93,
       onTap: () => widget.onTap(index),
-      behavior: HitTestBehavior.opaque,
       child: SizedBox(
-        width: 56,
+        width: 58,
+        height: 52,
         child: Column(
-          mainAxisSize: MainAxisSize.min,
+          mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            AnimatedContainer(
+            AnimatedScale(
+              scale: isSelected ? 1.08 : 1.0,
               duration: const Duration(milliseconds: 200),
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-              decoration: BoxDecoration(
-                color: isSelected
-                    ? AppColors.primary.withOpacity(0.1)
-                    : Colors.transparent,
-                borderRadius: BorderRadius.circular(16),
-              ),
+              curve: Curves.easeOutCubic,
               child: Icon(
                 icon,
-                color: isSelected ? AppColors.primary : AppColors.mutedText,
-                size: 24,
+                color: isSelected ? AppColors.primaryTeal : const Color(0xFF64748B),
+                size: 23,
               ),
             ),
             const SizedBox(height: 4),
-            Text(
-              label,
-              style: TextStyle(
-                fontSize: 10,
-                color: isSelected ? AppColors.primary : AppColors.mutedText,
-                fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
+            AnimatedDefaultTextStyle(
+              duration: const Duration(milliseconds: 200),
+              curve: Curves.easeOutCubic,
+              style: GoogleFonts.inter(
+                fontSize: 10.5,
+                color: isSelected ? AppColors.primaryTeal : const Color(0xFF64748B),
+                fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
               ),
+              child: Text(label),
             ),
           ],
         ),
@@ -119,77 +120,56 @@ class _AppBottomNavState extends State<AppBottomNav>
     );
   }
 
-  Widget _buildFabItem() {
-    return GestureDetector(
+  Widget _buildCenterFabItem() {
+    return BouncingPress(
+      scaleFactor: 0.88,
       onTap: () => widget.onTap(2),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Transform.translate(
-            offset: const Offset(0, -12),
-            child: AnimatedBuilder(
-              animation: _pulseAnimation,
-              builder: (context, child) {
-                final glowOpacity = 0.15 + (_pulseAnimation.value * 0.2);
-                final glowSpread = 2.0 + (_pulseAnimation.value * 6.0);
-                final glowBlur = 12.0 + (_pulseAnimation.value * 10.0);
-                return Container(
-                  padding: const EdgeInsets.all(3),
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    boxShadow: [
-                      BoxShadow(
-                        color: AppColors.primary.withOpacity(glowOpacity),
-                        blurRadius: glowBlur,
-                        spreadRadius: glowSpread,
-                      ),
-                    ],
-                  ),
-                  child: child,
-                );
-              },
-              child: Container(
-                padding: const EdgeInsets.all(10),
+      child: SizedBox(
+        width: 60,
+        height: 54,
+        child: Center(
+          child: AnimatedBuilder(
+            animation: _pulseAnimation,
+            builder: (context, child) {
+              final glowOpacity = 0.16 + (_pulseAnimation.value * 0.22);
+              final glowSpread = 1.0 + (_pulseAnimation.value * 4.0);
+              final glowBlur = 8.0 + (_pulseAnimation.value * 10.0);
+              return Container(
+                width: 50,
+                height: 50,
                 decoration: BoxDecoration(
                   gradient: const LinearGradient(
-                    colors: [AppColors.primary, AppColors.accent],
+                    colors: [
+                      Color(0xFF042F2E),
+                      Color(0xFF0D9488),
+                      Color(0xFF14B8A6),
+                    ],
                     begin: Alignment.topLeft,
                     end: Alignment.bottomRight,
                   ),
                   shape: BoxShape.circle,
                   boxShadow: [
                     BoxShadow(
-                      color: AppColors.primary.withOpacity(0.3),
-                      blurRadius: 12,
-                      offset: const Offset(0, 4),
+                      color: AppColors.primaryTeal.withValues(alpha: glowOpacity),
+                      blurRadius: glowBlur,
+                      spreadRadius: glowSpread,
+                      offset: const Offset(0, 3),
                     ),
                   ],
                 ),
-                child: Image.asset(
-                  'assets/icons/logoAisitenku.png',
-                  width: 32,
-                  height: 32,
-                  fit: BoxFit.contain,
-                  color: Colors.white,
+                child: const Center(
+                  child: Icon(
+                    Icons.auto_awesome,
+                    color: AppColors.mintAccent,
+                    size: 24,
+                  ),
                 ),
-              ),
-            ),
+              );
+            },
           ),
-          Transform.translate(
-            offset: const Offset(0, -8),
-            child: Text(
-              'AIsisten',
-              style: TextStyle(
-                fontSize: 10,
-                color: widget.currentIndex == 2
-                    ? AppColors.primary
-                    : AppColors.mutedText,
-                fontWeight: FontWeight.w600,
-              ),
-            ),
-          ),
-        ],
+        ),
       ),
     );
   }
 }
+

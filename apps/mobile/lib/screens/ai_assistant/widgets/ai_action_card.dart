@@ -26,17 +26,17 @@ class AiActionCard extends StatelessWidget {
       margin: const EdgeInsets.only(top: 8),
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: isConfirmed ? const Color(0xFFF0FDF4) : Colors.white,
+        color: isConfirmed ? AppColors.successBg.withValues(alpha: 0.5) : Colors.white,
         borderRadius: BorderRadius.circular(18),
         border: Border.all(
           color: isConfirmed
-              ? const Color(0xFF86EFAC)
-              : const Color(0xFF99F6E4),
+              ? AppColors.successGreen.withValues(alpha: 0.4)
+              : AppColors.lightTealBorder,
           width: 1.2,
         ),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.03),
+            color: Colors.black.withValues(alpha: 0.03),
             blurRadius: 10,
             offset: const Offset(0, 3),
           ),
@@ -54,12 +54,12 @@ class AiActionCard extends StatelessWidget {
                     : Icons.receipt_long_rounded,
                 color: isConfirmed
                     ? AppColors.successText
-                    : AppColors.darkText,
+                    : AppColors.primaryTeal,
                 size: 20,
               ),
               const SizedBox(width: 8),
               Text(
-                isConfirmed ? 'Aksi Berhasil' : 'Pembelian dideteksi',
+                isConfirmed ? 'Aksi Berhasil Tercatat' : 'Pembelian Dideteksi',
                 style: GoogleFonts.poppins(
                   fontSize: 15,
                   fontWeight: FontWeight.w700,
@@ -77,12 +77,12 @@ class AiActionCard extends StatelessWidget {
           Container(
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
-              color: isConfirmed ? Colors.white : const Color(0xFFF8FAFC),
+              color: isConfirmed ? Colors.white : AppColors.tealBackgrounds,
               borderRadius: BorderRadius.circular(12),
               border: Border.all(
                 color: isConfirmed
-                    ? const Color(0xFFDCFCE7)
-                    : const Color(0xFFE2E8F0),
+                    ? AppColors.successGreen.withValues(alpha: 0.25)
+                    : AppColors.lightTealBorder,
               ),
             ),
             child: Column(
@@ -92,10 +92,10 @@ class AiActionCard extends StatelessWidget {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Text(
-                        'Item',
+                        'Bahan / Item',
                         style: GoogleFonts.inter(
                           fontSize: 13,
-                          color: const Color(0xFF64748B),
+                          color: AppColors.mutedText,
                         ),
                       ),
                       Text(
@@ -110,15 +110,15 @@ class AiActionCard extends StatelessWidget {
                   ),
                 ],
                 if (payload.expenseAmount != null) ...[
-                  const Divider(height: 14, color: Color(0xFFE2E8F0)),
+                  const Divider(height: 14, color: AppColors.lightTealBorder),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Text(
-                        'Expense',
+                        'Estimasi Biaya',
                         style: GoogleFonts.inter(
                           fontSize: 13,
-                          color: const Color(0xFF64748B),
+                          color: AppColors.mutedText,
                         ),
                       ),
                       Text(
@@ -128,7 +128,7 @@ class AiActionCard extends StatelessWidget {
                         style: GoogleFonts.poppins(
                           fontSize: 14,
                           fontWeight: FontWeight.w700,
-                          color: const Color(0xFFEF4444),
+                          color: AppColors.destructive,
                         ),
                       ),
                     ],
@@ -145,21 +145,22 @@ class AiActionCard extends StatelessWidget {
             SizedBox(
               width: double.infinity,
               height: 44,
-              child: ElevatedButton(
+              child: ElevatedButton.icon(
                 onPressed: onConfirm,
+                icon: const Icon(Icons.check_circle_outline_rounded, size: 18),
+                label: Text(
+                  'Konfirmasi & Catat Transaksi',
+                  style: GoogleFonts.inter(
+                    fontSize: 13.5,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF0F766E),
+                  backgroundColor: AppColors.primaryTeal,
+                  foregroundColor: Colors.white,
                   elevation: 0,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(12),
-                  ),
-                ),
-                child: Text(
-                  'Confirm Record',
-                  style: GoogleFonts.inter(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w600,
-                    color: Colors.white,
                   ),
                 ),
               ),

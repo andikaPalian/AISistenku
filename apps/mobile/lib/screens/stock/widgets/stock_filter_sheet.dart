@@ -64,7 +64,7 @@ class StockFilterSheet extends StatefulWidget {
       context: context,
       barrierDismissible: true,
       barrierLabel: 'Filter',
-      barrierColor: Colors.black.withOpacity(0.35),
+      barrierColor: Colors.black.withValues(alpha: 0.35),
       transitionDuration: const Duration(milliseconds: 300),
       transitionBuilder: (context, animation, secondaryAnimation, child) {
         final curve = CurvedAnimation(
@@ -188,15 +188,16 @@ class _StockFilterSheetState extends State<StockFilterSheet>
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(24),
+          border: Border.all(color: AppColors.lightTealBorder),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.12),
+              color: Colors.black.withValues(alpha: 0.12),
               blurRadius: 32,
               offset: const Offset(0, 8),
               spreadRadius: 2,
             ),
             BoxShadow(
-              color: AppColors.primaryTeal.withOpacity(0.06),
+              color: AppColors.primaryTeal.withValues(alpha: 0.06),
               blurRadius: 48,
               offset: const Offset(0, 16),
             ),
@@ -257,8 +258,8 @@ class _StockFilterSheetState extends State<StockFilterSheet>
             decoration: BoxDecoration(
               gradient: LinearGradient(
                 colors: [
-                  AppColors.primaryTeal.withOpacity(0.15),
-                  AppColors.primaryTeal.withOpacity(0.05),
+                  AppColors.primaryTeal.withValues(alpha: 0.15),
+                  AppColors.primaryTeal.withValues(alpha: 0.05),
                 ],
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
@@ -355,7 +356,7 @@ class _StockFilterSheetState extends State<StockFilterSheet>
           borderRadius: BorderRadius.circular(11),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.06),
+              color: Colors.black.withValues(alpha: 0.06),
               blurRadius: 6,
               offset: const Offset(0, 1),
             ),
@@ -504,13 +505,13 @@ class _StockFilterSheetState extends State<StockFilterSheet>
                 border: Border.all(
                   color: isSelected
                       ? AppColors.primaryTeal
-                      : AppColors.border,
+                      : AppColors.lightTealBorder,
                   width: isSelected ? 1.5 : 1,
                 ),
                 boxShadow: isSelected
                     ? [
                         BoxShadow(
-                          color: AppColors.primaryTeal.withOpacity(0.2),
+                          color: AppColors.primaryTeal.withValues(alpha: 0.2),
                           blurRadius: 8,
                           offset: const Offset(0, 2),
                         ),
@@ -578,13 +579,13 @@ class _StockFilterSheetState extends State<StockFilterSheet>
       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
       decoration: BoxDecoration(
         color: _lowStockOnly
-            ? AppColors.warningOrange.withOpacity(0.08)
+            ? AppColors.warningOrange.withValues(alpha: 0.08)
             : AppColors.surface,
         borderRadius: BorderRadius.circular(14),
         border: Border.all(
           color: _lowStockOnly
-              ? AppColors.warningOrange.withOpacity(0.3)
-              : AppColors.border,
+              ? AppColors.warningOrange.withValues(alpha: 0.3)
+              : AppColors.lightTealBorder,
         ),
       ),
       child: Row(
@@ -610,7 +611,7 @@ class _StockFilterSheetState extends State<StockFilterSheet>
                   ),
                 ),
                 Text(
-                  ' bahan perlu perhatian',
+                  '$alertCount bahan perlu perhatian',
                   style: GoogleFonts.inter(
                     fontSize: 10,
                     color: AppColors.mutedText,
@@ -627,7 +628,8 @@ class _StockFilterSheetState extends State<StockFilterSheet>
                 HapticFeedback.selectionClick();
                 setState(() => _lowStockOnly = val);
               },
-              activeColor: AppColors.warningOrange,
+              activeTrackColor: AppColors.warningOrange,
+              activeThumbColor: Colors.white,
             ),
           ),
         ],
@@ -649,7 +651,7 @@ class _StockFilterSheetState extends State<StockFilterSheet>
               onPressed: () => Navigator.pop(context),
               style: OutlinedButton.styleFrom(
                 padding: const EdgeInsets.symmetric(vertical: 13),
-                side: const BorderSide(color: AppColors.border),
+                side: const BorderSide(color: AppColors.lightTealBorder),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(14),
                 ),
@@ -721,11 +723,11 @@ class _StockFilterSheetState extends State<StockFilterSheet>
         padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
         decoration: BoxDecoration(
           color: isSelected
-              ? accentColor.withOpacity(0.08)
+              ? accentColor.withValues(alpha: 0.08)
               : Colors.white,
           borderRadius: BorderRadius.circular(14),
           border: Border.all(
-            color: isSelected ? accentColor.withOpacity(0.4) : AppColors.border,
+            color: isSelected ? accentColor.withValues(alpha: 0.4) : AppColors.lightTealBorder,
             width: isSelected ? 1.5 : 1,
           ),
         ),
@@ -736,7 +738,7 @@ class _StockFilterSheetState extends State<StockFilterSheet>
               padding: const EdgeInsets.all(8),
               decoration: BoxDecoration(
                 color: isSelected
-                    ? accentColor.withOpacity(0.15)
+                    ? accentColor.withValues(alpha: 0.15)
                     : AppColors.surface,
                 borderRadius: BorderRadius.circular(10),
               ),
@@ -780,7 +782,7 @@ class _StockFilterSheetState extends State<StockFilterSheet>
                 color: isSelected ? accentColor : Colors.transparent,
                 borderRadius: BorderRadius.circular(7),
                 border: Border.all(
-                  color: isSelected ? accentColor : AppColors.border,
+                  color: isSelected ? accentColor : AppColors.lightTealBorder,
                   width: isSelected ? 0 : 1.5,
                 ),
               ),

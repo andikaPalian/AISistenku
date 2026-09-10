@@ -1,102 +1,242 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import '../../../core/theme/app_colors.dart';
 import '../../ai_assistant/ai_assistant_screen.dart';
+import '../../../core/widgets/ai_portal_route.dart';
+import '../../../core/widgets/bouncing_press.dart';
 
-/// AI Insight card with left teal accent border and subtle watermark.
+/// Hero dark emerald card for proactive business intelligence.
+///
+/// Matches the reference UI with:
+/// - Dark forest teal gradient background (`#064E3B` to `#065F46`)
+/// - Mint header with sparkle icon: "AI BUSINESS INSIGHT • Live Suggestion"
+/// - Rich formatted text with product highlights
+/// - Two distinct tactile buttons:
+///   1. `[ 💬 Tanya AIsistenku ]` (White button)
+///   2. `[ ⚡ Buat Promo Sore ]` (Terracotta button)
 class AiInsightCard extends StatelessWidget {
-  const AiInsightCard({super.key});
+  final String? customMessage;
+
+  const AiInsightCard({
+    super.key,
+    this.customMessage,
+  });
 
   @override
   Widget build(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
-        color: AppColors.cardBackground,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppColors.lightTealBorder),
+        gradient: const LinearGradient(
+          colors: [
+            Color(0xFF064E3B), // Deep forest emerald
+            Color(0xFF065F46), // Muted dark teal
+          ],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(
+          color: const Color(0xFF047857).withValues(alpha: 0.6),
+          width: 1,
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: const Color(0xFF064E3B).withValues(alpha: 0.25),
+            blurRadius: 16,
+            offset: const Offset(0, 6),
+          ),
+        ],
       ),
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(15),
-        child: Stack(
-          children: [
-            // Subtle watermark decoration (top-right)
-            Positioned(
-              top: -10,
-              right: -10,
-              child: Icon(
-                Icons.auto_awesome,
-                size: 100,
-                color: AppColors.primaryTeal.withOpacity(0.04),
-              ),
-            ),
-            // Left accent border
-            Positioned(
-              left: 0,
-              top: 0,
-              bottom: 0,
-              child: Container(
-                width: 4,
-                decoration: BoxDecoration(
-                  color: AppColors.primaryTeal,
-                  borderRadius: const BorderRadius.only(
-                    topLeft: Radius.circular(16),
-                    bottomLeft: Radius.circular(16),
-                  ),
-                ),
-              ),
-            ),
-            // Content
-            Padding(
-              padding: const EdgeInsets.fromLTRB(20, 20, 20, 20),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+      padding: const EdgeInsets.all(18),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // ── Header: Sparkle Icon + Title + Live Suggestion Badge ──────
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Row(
                 children: [
-                  Text(
-                    'Penjualan hari ini berjalan lancar. Kopi Aren saat ini '
-                    'menjadi produk terlaris, namun stok gula mulai menipis.',
-                    style: GoogleFonts.inter(
-                      fontSize: 14,
-                      color: AppColors.darkText,
-                      height: 1.6,
+                  Container(
+                    padding: const EdgeInsets.all(5),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFF10B981).withValues(alpha: 0.2),
+                      shape: BoxShape.circle,
+                    ),
+                    child: const Icon(
+                      Icons.auto_awesome,
+                      color: Color(0xFF34D399),
+                      size: 14,
                     ),
                   ),
-                  const SizedBox(height: 18),
-                  SizedBox(
-                    height: 44, // minimum touch target
-                    child: ElevatedButton.icon(
-                      onPressed: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => const AiAssistantScreen(),
-                          ),
-                        );
-                      },
-                      icon: const Icon(Icons.auto_awesome, size: 18),
-                      label: Text(
-                        'Tanya AIsisten',
-                        style: GoogleFonts.inter(
-                          fontWeight: FontWeight.w600,
-                          fontSize: 14,
-                        ),
-                      ),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: AppColors.primaryTeal,
-                        foregroundColor: Colors.white,
-                        elevation: 0,
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 20, vertical: 12),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                      ),
+                  const SizedBox(width: 8),
+                  Text(
+                    'AI BUSINESS INSIGHT',
+                    style: GoogleFonts.inter(
+                      fontSize: 12,
+                      fontWeight: FontWeight.w700,
+                      letterSpacing: 0.8,
+                      color: const Color(0xFF34D399),
                     ),
                   ),
                 ],
               ),
+              Text(
+                'Live Suggestion',
+                style: GoogleFonts.inter(
+                  fontSize: 11,
+                  color: const Color(0xFFA7F3D0),
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+            ],
+          ),
+
+          const SizedBox(height: 14),
+
+          // ── Formatted Insight Copy ────────────────────────────────────
+          RichText(
+            text: TextSpan(
+              style: GoogleFonts.inter(
+                fontSize: 13.5,
+                color: const Color(0xFFECFDF5),
+                height: 1.55,
+              ),
+              children: const [
+                TextSpan(text: 'Penjualan pagi ini sangat lancar! '),
+                TextSpan(
+                  text: 'Kopi Susu Gula Aren',
+                  style: TextStyle(
+                    fontWeight: FontWeight.w700,
+                    color: Colors.white,
+                  ),
+                ),
+                TextSpan(text: ' memimpin dengan '),
+                TextSpan(
+                  text: '42 cup',
+                  style: TextStyle(
+                    fontWeight: FontWeight.w700,
+                    color: Colors.white,
+                  ),
+                ),
+                TextSpan(text: '. Perhatian: stok '),
+                TextSpan(
+                  text: 'Gula Pasir & Susu Segar',
+                  style: TextStyle(
+                    fontWeight: FontWeight.w600,
+                    color: Colors.white,
+                    decoration: TextDecoration.underline,
+                    decorationColor: Color(0xFF34D399),
+                  ),
+                ),
+                TextSpan(
+                  text:
+                      ' mendekati batas aman, rekomendasikan restock sebelum jam ramai sore pukul 15:30.',
+                ),
+              ],
             ),
-          ],
-        ),
+          ),
+
+          const SizedBox(height: 18),
+
+          // ── Two Action Buttons Row ────────────────────────────────────
+          Row(
+            children: [
+              // Button 1: Tanya AIsistenku (White Pill Button)
+              Expanded(
+                child: SizedBox(
+                  height: 44, // WCAG minimum touch target
+                  child: BouncingPress(
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        AiAssistantPortalRoute(
+                          builder: (context) => const AiAssistantScreen(),
+                        ),
+                      );
+                    },
+                    child: Container(
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          const Icon(
+                            Icons.chat_bubble_outline_rounded,
+                            size: 16,
+                            color: Color(0xFF0D9488),
+                          ),
+                          const SizedBox(width: 6),
+                          Flexible(
+                            child: Text(
+                              'Tanya AIsistenku',
+                              style: GoogleFonts.inter(
+                                fontSize: 12.5,
+                                fontWeight: FontWeight.w600,
+                                color: const Color(0xFF0F172A),
+                              ),
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+
+              const SizedBox(width: 10),
+
+              // Button 2: Buat Promo Sore (Terracotta Pill Button)
+              Expanded(
+                child: SizedBox(
+                  height: 44,
+                  child: BouncingPress(
+                    onTap: () {
+                      // Navigate to AI screen with pre-filled promo theme
+                      Navigator.push(
+                        context,
+                        AiAssistantPortalRoute(
+                          builder: (context) => const AiAssistantScreen(),
+                        ),
+                      );
+                    },
+                    child: Container(
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFC2410C), // Terracotta
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          const Icon(
+                            Icons.bolt_rounded,
+                            size: 17,
+                            color: Colors.white,
+                          ),
+                          const SizedBox(width: 6),
+                          Flexible(
+                            child: Text(
+                              'Buat Promo Sore',
+                              style: GoogleFonts.inter(
+                                fontSize: 12.5,
+                                fontWeight: FontWeight.w600,
+                                color: Colors.white,
+                              ),
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+
+            ],
+          ),
+        ],
       ),
     );
   }

@@ -43,10 +43,10 @@ class _SalesAnalyticsChartState extends State<SalesAnalyticsChart> {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: const Color(0xFFE2E8F0), width: 1.2),
+        border: Border.all(color: AppColors.lightTealBorder, width: 1.2),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.03),
+            color: Colors.black.withValues(alpha: 0.03),
             blurRadius: 14,
             offset: const Offset(0, 4),
           ),
@@ -134,7 +134,7 @@ class _SalesAnalyticsChartState extends State<SalesAnalyticsChart> {
           Container(
             padding: const EdgeInsets.all(3),
             decoration: BoxDecoration(
-              color: const Color(0xFFF1F5F9),
+              color: AppColors.tealBackgrounds,
               borderRadius: BorderRadius.circular(10),
             ),
             child: Row(
@@ -152,7 +152,7 @@ class _SalesAnalyticsChartState extends State<SalesAnalyticsChart> {
                         boxShadow: _selectedChartMode == 0
                             ? [
                                 BoxShadow(
-                                  color: Colors.black.withOpacity(0.06),
+                                  color: Colors.black.withValues(alpha: 0.06),
                                   blurRadius: 4,
                                   offset: const Offset(0, 2),
                                 ),
@@ -163,7 +163,7 @@ class _SalesAnalyticsChartState extends State<SalesAnalyticsChart> {
                       child: Text(
                         'Tren Omzet (Line)',
                         style: GoogleFonts.inter(
-                          fontSize: 12,
+                           fontSize: 12,
                           fontWeight: _selectedChartMode == 0
                               ? FontWeight.w600
                               : FontWeight.w500,
@@ -188,7 +188,7 @@ class _SalesAnalyticsChartState extends State<SalesAnalyticsChart> {
                         boxShadow: _selectedChartMode == 1
                             ? [
                                 BoxShadow(
-                                  color: Colors.black.withOpacity(0.06),
+                                  color: Colors.black.withValues(alpha: 0.06),
                                   blurRadius: 4,
                                   offset: const Offset(0, 2),
                                 ),
@@ -231,7 +231,7 @@ class _SalesAnalyticsChartState extends State<SalesAnalyticsChart> {
                   borderRadius: BorderRadius.circular(12),
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.black.withOpacity(0.1),
+                      color: Colors.black.withValues(alpha: 0.1),
                       blurRadius: 8,
                       offset: const Offset(0, 2),
                     ),
@@ -339,7 +339,7 @@ class _SalesAnalyticsChartState extends State<SalesAnalyticsChart> {
               ),
               const SizedBox(width: 20),
               _buildLegendDot(
-                color: const Color(0xFFEF4444),
+                color: AppColors.destructive,
                 label: 'Pengeluaran (Cost)',
               ),
             ],
@@ -432,7 +432,7 @@ class _SalesAnalyticsChartState extends State<SalesAnalyticsChart> {
                         decoration: BoxDecoration(
                           color: isSelected
                               ? const Color(0xFFB91C1C)
-                              : const Color(0xFFEF4444).withOpacity(0.85),
+                              : AppColors.destructive.withValues(alpha: 0.85),
                           borderRadius: const BorderRadius.vertical(
                             top: Radius.circular(4),
                           ),
@@ -448,7 +448,7 @@ class _SalesAnalyticsChartState extends State<SalesAnalyticsChart> {
                       fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
                       color: isSelected
                           ? AppColors.primaryTeal
-                          : const Color(0xFF64748B),
+                          : AppColors.mutedText,
                     ),
                   ),
                 ],
@@ -478,7 +478,7 @@ class _SalesAnalyticsChartState extends State<SalesAnalyticsChart> {
           style: GoogleFonts.inter(
             fontSize: 11,
             fontWeight: FontWeight.w500,
-            color: const Color(0xFF64748B),
+            color: AppColors.mutedText,
           ),
         ),
       ],
@@ -504,9 +504,9 @@ class _LineChartPainter extends CustomPainter {
     final chartHeight = size.height - 24; // room for x-axis labels
     final pointSpacing = size.width / (points.length - 1);
 
-    // Draw horizontal grid lines
+    // Draw horizontal grid lines with soft teal border tint
     final gridPaint = Paint()
-      ..color = const Color(0xFFF1F5F9)
+      ..color = AppColors.lightTealBorder.withValues(alpha: 0.6)
       ..strokeWidth = 1;
 
     for (int i = 0; i <= 3; i++) {
@@ -547,8 +547,8 @@ class _LineChartPainter extends CustomPainter {
         begin: Alignment.topCenter,
         end: Alignment.bottomCenter,
         colors: [
-          AppColors.primaryTeal.withOpacity(0.35),
-          AppColors.primaryTeal.withOpacity(0.0),
+          AppColors.primaryTeal.withValues(alpha: 0.35),
+          AppColors.primaryTeal.withValues(alpha: 0.0),
         ],
       ).createShader(Rect.fromLTWH(0, 0, size.width, chartHeight))
       ..style = PaintingStyle.fill;
@@ -606,7 +606,7 @@ class _LineChartPainter extends CustomPainter {
             fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
             color: isSelected
                 ? AppColors.primaryTeal
-                : const Color(0xFF64748B),
+                : AppColors.mutedText,
           ),
         ),
         textDirection: TextDirection.ltr,

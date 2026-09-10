@@ -260,7 +260,7 @@ class _OrderReviewScreenState extends State<OrderReviewScreen> {
         ],
         bottom: const PreferredSize(
           preferredSize: Size.fromHeight(1),
-          child: Divider(height: 1, color: AppColors.border),
+          child: Divider(height: 1, color: AppColors.lightTealBorder),
         ),
       ),
       body: _cart.isEmpty
@@ -275,13 +275,34 @@ class _OrderReviewScreenState extends State<OrderReviewScreen> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         // ── Header Section ─────────────────────────────
-                        Text(
-                          'Pesanan',
-                          style: GoogleFonts.poppins(
-                            fontSize: 28,
-                            fontWeight: FontWeight.w700,
-                            color: AppColors.darkText,
-                          ),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(
+                              'Pesanan',
+                              style: GoogleFonts.poppins(
+                                fontSize: 28,
+                                fontWeight: FontWeight.w700,
+                                color: AppColors.darkText,
+                              ),
+                            ),
+                            Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                              decoration: BoxDecoration(
+                                color: AppColors.tealBackgrounds,
+                                borderRadius: BorderRadius.circular(20),
+                                border: Border.all(color: AppColors.lightTealBorder),
+                              ),
+                              child: Text(
+                                '$_totalItems Item',
+                                style: GoogleFonts.inter(
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w600,
+                                  color: AppColors.primaryTeal,
+                                ),
+                              ),
+                            ),
+                          ],
                         ),
                         const SizedBox(height: 16),
 
@@ -333,7 +354,7 @@ class _OrderReviewScreenState extends State<OrderReviewScreen> {
       decoration: BoxDecoration(
         color: AppColors.surface,
         borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: AppColors.border),
+        border: Border.all(color: AppColors.lightTealBorder),
       ),
       child: Row(
         children: [
@@ -351,7 +372,7 @@ class _OrderReviewScreenState extends State<OrderReviewScreen> {
                   boxShadow: _orderType == OrderType.dineIn
                       ? [
                           BoxShadow(
-                            color: Colors.black.withOpacity(0.06),
+                            color: Colors.black.withValues(alpha: 0.06),
                             blurRadius: 6,
                             offset: const Offset(0, 2),
                           ),
@@ -398,7 +419,7 @@ class _OrderReviewScreenState extends State<OrderReviewScreen> {
                   boxShadow: _orderType == OrderType.takeAway
                       ? [
                           BoxShadow(
-                            color: Colors.black.withOpacity(0.06),
+                            color: Colors.black.withValues(alpha: 0.06),
                             blurRadius: 6,
                             offset: const Offset(0, 2),
                           ),
@@ -475,7 +496,7 @@ class _OrderReviewScreenState extends State<OrderReviewScreen> {
         border: Border.all(color: AppColors.lightTealBorder, width: 1.2),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.02),
+            color: Colors.black.withValues(alpha: 0.02),
             blurRadius: 8,
             offset: const Offset(0, 2),
           ),
@@ -671,9 +692,12 @@ class _OrderReviewScreenState extends State<OrderReviewScreen> {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
+        border: const Border(
+          top: BorderSide(color: AppColors.lightTealBorder, width: 1),
+        ),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.06),
+            color: Colors.black.withValues(alpha: 0.06),
             blurRadius: 16,
             offset: const Offset(0, -4),
           ),

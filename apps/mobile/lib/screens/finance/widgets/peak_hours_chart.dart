@@ -26,10 +26,10 @@ class PeakHoursChart extends StatelessWidget {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: const Color(0xFFE2E8F0), width: 1.2),
+        border: Border.all(color: AppColors.lightTealBorder, width: 1.2),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.02),
+            color: AppColors.primaryTeal.withValues(alpha: 0.04),
             blurRadius: 10,
             offset: const Offset(0, 4),
           ),
@@ -76,8 +76,12 @@ class PeakHoursChart extends StatelessWidget {
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                 decoration: BoxDecoration(
-                  color: AppColors.primaryTeal.withOpacity(0.1),
+                  color: AppColors.tealBackgrounds,
                   borderRadius: BorderRadius.circular(10),
+                  border: Border.all(
+                    color: AppColors.lightTealBorder,
+                    width: 1,
+                  ),
                 ),
                 child: Text(
                   'Shift Insight',
@@ -110,7 +114,7 @@ class PeakHoursChart extends StatelessWidget {
                               item.isPeak ? FontWeight.w700 : FontWeight.w500,
                           color: item.isPeak
                               ? AppColors.primaryTeal
-                              : const Color(0xFF64748B),
+                              : AppColors.mutedText,
                         ),
                       ),
                     ),
@@ -121,7 +125,7 @@ class PeakHoursChart extends StatelessWidget {
                           Container(
                             height: 18,
                             decoration: BoxDecoration(
-                              color: const Color(0xFFF1F5F9),
+                              color: AppColors.tealBackgrounds,
                               borderRadius: BorderRadius.circular(6),
                             ),
                           ),
@@ -137,8 +141,8 @@ class PeakHoursChart extends StatelessWidget {
                                           AppColors.secondary
                                         ]
                                       : [
-                                          const Color(0xFF94A3B8),
-                                          const Color(0xFFCBD5E1)
+                                          AppColors.mutedText.withValues(alpha: 0.35),
+                                          AppColors.mutedText.withValues(alpha: 0.2),
                                         ],
                                 ),
                                 borderRadius: BorderRadius.circular(6),
@@ -170,7 +174,7 @@ class PeakHoursChart extends StatelessWidget {
                               item.isPeak ? FontWeight.w700 : FontWeight.w500,
                           color: item.isPeak
                               ? AppColors.darkText
-                              : const Color(0xFF64748B),
+                              : AppColors.mutedText,
                         ),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
@@ -182,30 +186,43 @@ class PeakHoursChart extends StatelessWidget {
             }).toList(),
           ),
 
-          const Divider(height: 16, color: Color(0xFFF1F5F9)),
+          Divider(
+            height: 16,
+            color: AppColors.lightTealBorder.withValues(alpha: 0.8),
+          ),
 
           // ── Actionable Recommendation Tip ────────────────────────
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const Icon(
-                Icons.lightbulb_outline_rounded,
-                size: 15,
-                color: Color(0xFFD97706),
+          Container(
+            padding: const EdgeInsets.all(10),
+            decoration: BoxDecoration(
+              color: AppColors.tealBackgrounds,
+              borderRadius: BorderRadius.circular(10),
+              border: Border.all(
+                color: AppColors.lightTealBorder.withValues(alpha: 0.6),
               ),
-              const SizedBox(width: 6),
-              Expanded(
-                child: Text(
-                  'Jam 12:00-14:00 & 18:00-21:00 merupakan puncak keramaian. Pastikan 2 barista aktif dan stok cup/susu siap.',
-                  style: GoogleFonts.inter(
-                    fontSize: 11,
-                    fontWeight: FontWeight.w400,
-                    color: const Color(0xFF64748B),
-                    height: 1.35,
+            ),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Icon(
+                  Icons.lightbulb_outline_rounded,
+                  size: 16,
+                  color: Color(0xFFD97706),
+                ),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: Text(
+                    'Jam 12:00-14:00 & 18:00-21:00 merupakan puncak keramaian. Pastikan barista aktif dan stok cup/susu siap sedia.',
+                    style: GoogleFonts.inter(
+                      fontSize: 11,
+                      fontWeight: FontWeight.w400,
+                      color: AppColors.darkText,
+                      height: 1.35,
+                    ),
                   ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ],
       ),

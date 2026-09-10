@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../../core/theme/app_colors.dart';
-import '../../../models/finance_model.dart';
 
 /// Card providing AI-driven business and financial advisory for UMKM owners.
 class AiFinanceInsightCard extends StatelessWidget {
@@ -30,12 +29,12 @@ class AiFinanceInsightCard extends StatelessWidget {
         ),
         borderRadius: BorderRadius.circular(20),
         border: Border.all(
-          color: const Color(0xFF99F6E4),
-          width: 1.2,
+          color: AppColors.lightTealBorder,
+          width: 1.5,
         ),
         boxShadow: [
           BoxShadow(
-            color: AppColors.primaryTeal.withOpacity(0.06),
+            color: AppColors.primaryTeal.withValues(alpha: 0.06),
             blurRadius: 12,
             offset: const Offset(0, 4),
           ),
@@ -47,15 +46,22 @@ class AiFinanceInsightCard extends StatelessWidget {
           Row(
             children: [
               Container(
-                padding: const EdgeInsets.all(6),
+                width: 30,
+                height: 30,
+                padding: const EdgeInsets.all(5),
                 decoration: BoxDecoration(
-                  color: AppColors.primaryTeal.withOpacity(0.15),
+                  color: AppColors.tealBackgrounds,
                   shape: BoxShape.circle,
+                  border: Border.all(color: AppColors.lightTealBorder),
                 ),
-                child: const Icon(
-                  Icons.auto_awesome_rounded,
-                  color: AppColors.primaryTeal,
-                  size: 16,
+                child: Image.asset(
+                  'assets/icons/logoAisitenku.png',
+                  fit: BoxFit.contain,
+                  errorBuilder: (context, error, stackTrace) => const Icon(
+                    Icons.auto_awesome_rounded,
+                    color: AppColors.primaryTeal,
+                    size: 16,
+                  ),
                 ),
               ),
               const SizedBox(width: 8),
@@ -91,7 +97,7 @@ class AiFinanceInsightCard extends StatelessWidget {
             style: GoogleFonts.inter(
               fontSize: 12,
               fontWeight: FontWeight.w400,
-              color: const Color(0xFF334155),
+              color: AppColors.darkText,
               height: 1.45,
             ),
           ),

@@ -3,7 +3,6 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:tiga_angkatan/models/finance_model.dart';
 import 'package:tiga_angkatan/screens/finance/finance_screen.dart';
 import 'package:tiga_angkatan/screens/finance/add_transaction_screen.dart';
-import 'package:tiga_angkatan/screens/finance/all_transactions_screen.dart';
 
 void main() {
   group('Finance Model & Repository Tests', () {
@@ -76,9 +75,9 @@ void main() {
       expect(find.text('Bulan Ini'), findsOneWidget);
 
       // Verify Stat Cards
-      expect(find.text('CURRENT BALANCE'), findsOneWidget);
-      expect(find.text('INCOME'), findsOneWidget);
-      expect(find.text('EXPENSE'), findsOneWidget);
+      expect(find.text('SALDO KAS UTAMA'), findsOneWidget);
+      expect(find.text('PEMASUKAN'), findsOneWidget);
+      expect(find.text('PENGELUARAN'), findsOneWidget);
 
       // Verify Analytics & Decisions
       expect(find.text('Grafik Penjualan & Arus Kas'), findsOneWidget);
@@ -87,7 +86,7 @@ void main() {
       expect(find.text('AIsisten Rekomendasi Bisnis'), findsOneWidget);
 
       // Verify Recent Transactions
-      expect(find.textContaining('Recent'), findsOneWidget);
+      expect(find.textContaining('Transaksi'), findsWidgets);
       expect(find.text('Tambah Transaksi +'), findsOneWidget);
     });
 

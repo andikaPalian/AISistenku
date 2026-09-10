@@ -65,38 +65,81 @@ class _AiAssistantScreenState extends State<AiAssistantScreen> {
                 color: AppColors.darkText,
               ),
               onPressed: () {
-                // If nested or back requested
                 if (Navigator.canPop(context)) {
                   Navigator.pop(context);
                 }
               },
             ),
-            title: Text(
-              'AIsistenku',
-              style: GoogleFonts.poppins(
-                fontSize: 18,
-                fontWeight: FontWeight.w700,
-                color: AppColors.darkText,
-              ),
+            title: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Container(
+                  width: 30,
+                  height: 30,
+                  padding: const EdgeInsets.all(4),
+                  decoration: BoxDecoration(
+                    color: AppColors.tealBackgrounds,
+                    shape: BoxShape.circle,
+                    border: Border.all(color: AppColors.lightTealBorder, width: 1.2),
+                  ),
+                  child: Image.asset(
+                    'assets/icons/logoAisitenku.png',
+                    fit: BoxFit.contain,
+                  ),
+                ),
+                const SizedBox(width: 8),
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      'AIsistenku',
+                      style: GoogleFonts.poppins(
+                        fontSize: 15,
+                        fontWeight: FontWeight.w700,
+                        color: AppColors.darkText,
+                      ),
+                    ),
+                    Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Container(
+                          width: 6,
+                          height: 6,
+                          decoration: const BoxDecoration(
+                            color: AppColors.successGreen,
+                            shape: BoxShape.circle,
+                          ),
+                        ),
+                        const SizedBox(width: 4),
+                        Text(
+                          'Copilot Aktif',
+                          style: GoogleFonts.inter(
+                            fontSize: 10,
+                            fontWeight: FontWeight.w500,
+                            color: AppColors.mutedText,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ],
             ),
             centerTitle: true,
+            bottom: const PreferredSize(
+              preferredSize: Size.fromHeight(1),
+              child: Divider(height: 1, color: AppColors.lightTealBorder),
+            ),
             actions: [
               IconButton(
                 icon: const Icon(
-                  Icons.cleaning_services_outlined,
-                  color: Color(0xFF64748B),
-                  size: 20,
+                  Icons.refresh_rounded,
+                  color: AppColors.mutedText,
+                  size: 22,
                 ),
                 tooltip: 'Reset Chat',
-                onPressed: () {
-                  repo.clearChat();
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text('Percakapan telah direset'),
-                      duration: Duration(seconds: 1),
-                    ),
-                  );
-                },
+                onPressed: () => _showResetDialog(context, repo),
               ),
             ],
           ),
@@ -133,17 +176,17 @@ class _AiAssistantScreenState extends State<AiAssistantScreen> {
                                     content: Row(
                                       children: [
                                         Icon(
-                                          Icons.check_circle,
+                                          Icons.check_circle_rounded,
                                           color: Colors.white,
                                           size: 18,
                                         ),
                                         SizedBox(width: 8),
                                         Text(
-                                          'Aksi Berhasil! Stok & Keuangan telah diperbarui 🎉',
+                                          'Aksi berhasil! Stok & Keuangan telah sinkron.',
                                         ),
                                       ],
                                     ),
-                                    backgroundColor: AppColors.successGreen,
+                                    backgroundColor: AppColors.primaryTeal,
                                     duration: Duration(seconds: 3),
                                   ),
                                 );
@@ -172,22 +215,79 @@ class _AiAssistantScreenState extends State<AiAssistantScreen> {
     );
   }
 
+  void _showResetDialog(BuildContext context, AiChatRepository repo) {
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        title: Text(
+          'Mulai Sesi Baru?',
+          style: GoogleFonts.poppins(fontWeight: FontWeight.w700, fontSize: 17),
+        ),
+        content: Text(
+          'Riwayat percakapan sebelumnya akan direset. Anda dapat memulai konsultasi baru dengan AIsistenku.',
+          style: GoogleFonts.inter(fontSize: 13, color: AppColors.mutedText),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: Text(
+              'Batal',
+              style: GoogleFonts.inter(fontWeight: FontWeight.w600, color: AppColors.mutedText),
+            ),
+          ),
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(
+              backgroundColor: AppColors.primaryTeal,
+              foregroundColor: Colors.white,
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+            ),
+            onPressed: () {
+              Navigator.pop(ctx);
+              repo.clearChat();
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(
+                  content: Text('Percakapan telah direset ke sesi baru'),
+                  backgroundColor: AppColors.primaryTeal,
+                  duration: Duration(seconds: 2),
+                ),
+              );
+            },
+            child: const Text('Reset Chat'),
+          ),
+        ],
+      ),
+    );
+  }
+
   Widget _buildTypingIndicator() {
     return Container(
       margin: const EdgeInsets.only(bottom: 16),
       child: Row(
         children: [
+          // Official Logo in typing indicator
           Container(
             width: 36,
             height: 36,
-            decoration: const BoxDecoration(
-              color: Color(0xFFFFEDD5),
+            padding: const EdgeInsets.all(5),
+            decoration: BoxDecoration(
+              color: Colors.white,
               shape: BoxShape.circle,
+              border: Border.all(
+                color: AppColors.lightTealBorder,
+                width: 1.2,
+              ),
+              boxShadow: [
+                BoxShadow(
+                  color: AppColors.primaryTeal.withValues(alpha: 0.08),
+                  blurRadius: 6,
+                  offset: const Offset(0, 2),
+                ),
+              ],
             ),
-            child: const Icon(
-              Icons.storefront_rounded,
-              color: Color(0xFFC2410C),
-              size: 18,
+            child: Image.asset(
+              'assets/icons/logoAisitenku.png',
+              fit: BoxFit.contain,
             ),
           ),
           const SizedBox(width: 10),
@@ -197,19 +297,26 @@ class _AiAssistantScreenState extends State<AiAssistantScreen> {
               color: Colors.white,
               borderRadius: BorderRadius.circular(16),
               border: Border.all(
-                color: const Color(0xFF99F6E4),
+                color: AppColors.lightTealBorder,
                 width: 1.2,
               ),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withValues(alpha: 0.02),
+                  blurRadius: 8,
+                  offset: const Offset(0, 2),
+                ),
+              ],
             ),
             child: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
                 Text(
-                  'AIsisten sedang berpikir...',
+                  'AIsistenku sedang menganalisis...',
                   style: GoogleFonts.inter(
                     fontSize: 12,
                     fontStyle: FontStyle.italic,
-                    color: const Color(0xFF64748B),
+                    color: AppColors.mutedText,
                   ),
                 ),
                 const SizedBox(width: 8),

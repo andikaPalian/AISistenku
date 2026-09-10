@@ -88,10 +88,10 @@ void main() {
       );
 
       expect(find.text('AIsistenku'), findsOneWidget);
-      expect(find.textContaining('Hi, Budi'), findsOneWidget);
-      expect(find.text('Catatan Pengeluaran'), findsOneWidget);
-      expect(find.text('Cek Stok'), findsOneWidget);
-      expect(find.text('Ask AIsistenku anything...'), findsOneWidget);
+      expect(find.textContaining('Halo, Budi'), findsOneWidget);
+      expect(find.text('Catat Belanja Bahan'), findsOneWidget);
+      expect(find.text('Cek Stok Menipis'), findsOneWidget);
+      expect(find.text('Tanya apa saja ke AIsistenku...'), findsOneWidget);
       expect(find.byIcon(Icons.mic_none_rounded), findsOneWidget);
       expect(find.byIcon(Icons.send_rounded), findsOneWidget);
     });

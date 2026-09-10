@@ -35,16 +35,16 @@ class AiMessageBubble extends StatelessWidget {
         margin: const EdgeInsets.only(bottom: 16, left: 48),
         padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 12),
         decoration: BoxDecoration(
-          color: const Color(0xFF0F766E),
+          color: AppColors.primaryTeal,
           borderRadius: const BorderRadius.only(
             topLeft: Radius.circular(18),
-            topRight: Radius.circular(6),
+            topRight: Radius.circular(4),
             bottomLeft: Radius.circular(18),
             bottomRight: Radius.circular(18),
           ),
           boxShadow: [
             BoxShadow(
-              color: const Color(0xFF0F766E).withOpacity(0.18),
+              color: AppColors.primaryTeal.withValues(alpha: 0.18),
               blurRadius: 8,
               offset: const Offset(0, 3),
             ),
@@ -53,7 +53,7 @@ class AiMessageBubble extends StatelessWidget {
         child: Text(
           message.text,
           style: GoogleFonts.inter(
-            fontSize: 14,
+            fontSize: 13.5,
             fontWeight: FontWeight.w400,
             color: Colors.white,
             height: 1.4,
@@ -69,18 +69,29 @@ class AiMessageBubble extends StatelessWidget {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Bot Avatar Chip (matches mockup)
+          // Official AIsistenku Avatar Logo
           Container(
             width: 36,
             height: 36,
-            decoration: const BoxDecoration(
-              color: Color(0xFFFFEDD5),
+            padding: const EdgeInsets.all(5),
+            decoration: BoxDecoration(
+              color: Colors.white,
               shape: BoxShape.circle,
+              border: Border.all(
+                color: AppColors.lightTealBorder,
+                width: 1.2,
+              ),
+              boxShadow: [
+                BoxShadow(
+                  color: AppColors.primaryTeal.withValues(alpha: 0.08),
+                  blurRadius: 6,
+                  offset: const Offset(0, 2),
+                ),
+              ],
             ),
-            child: const Icon(
-              Icons.storefront_rounded,
-              color: Color(0xFFC2410C),
-              size: 18,
+            child: Image.asset(
+              'assets/icons/logoAisitenku.png',
+              fit: BoxFit.contain,
             ),
           ),
           const SizedBox(width: 10),
@@ -92,18 +103,18 @@ class AiMessageBubble extends StatelessWidget {
               decoration: BoxDecoration(
                 color: Colors.white,
                 borderRadius: const BorderRadius.only(
-                  topLeft: Radius.circular(6),
+                  topLeft: Radius.circular(4),
                   topRight: Radius.circular(20),
                   bottomLeft: Radius.circular(20),
                   bottomRight: Radius.circular(20),
                 ),
                 border: Border.all(
-                  color: const Color(0xFF99F6E4).withOpacity(0.8),
+                  color: AppColors.lightTealBorder,
                   width: 1.2,
                 ),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withOpacity(0.02),
+                    color: Colors.black.withValues(alpha: 0.02),
                     blurRadius: 10,
                     offset: const Offset(0, 4),
                   ),
@@ -119,7 +130,7 @@ class AiMessageBubble extends StatelessWidget {
                     style: GoogleFonts.inter(
                       fontSize: 13,
                       fontWeight: FontWeight.w400,
-                      color: const Color(0xFF1E293B),
+                      color: AppColors.darkText,
                       height: 1.45,
                     ),
                   ),
@@ -178,9 +189,11 @@ class AiMessageBubble extends StatelessWidget {
       margin: const EdgeInsets.only(top: 10),
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: const Color(0xFFFEF3C7).withOpacity(0.4),
+        color: AppColors.warningBg.withValues(alpha: 0.5),
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: const Color(0xFFFDE68A)),
+        border: Border.all(
+          color: AppColors.warningOrange.withValues(alpha: 0.3),
+        ),
       ),
       child: Column(
         children: items.map<Widget>((item) {
@@ -193,8 +206,8 @@ class AiMessageBubble extends StatelessWidget {
                   children: [
                     const Icon(
                       Icons.warning_amber_rounded,
-                      size: 14,
-                      color: Color(0xFFD97706),
+                      size: 15,
+                      color: AppColors.warningOrange,
                     ),
                     const SizedBox(width: 6),
                     Text(
@@ -207,12 +220,19 @@ class AiMessageBubble extends StatelessWidget {
                     ),
                   ],
                 ),
-                Text(
-                  'Sisa ${item['qty']} ${item['unit']}',
-                  style: GoogleFonts.inter(
-                    fontSize: 12,
-                    fontWeight: FontWeight.w700,
-                    color: const Color(0xFFDC2626),
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                  decoration: BoxDecoration(
+                    color: AppColors.dangerBg,
+                    borderRadius: BorderRadius.circular(6),
+                  ),
+                  child: Text(
+                    'Sisa ${item['qty']} ${item['unit']}',
+                    style: GoogleFonts.inter(
+                      fontSize: 11,
+                      fontWeight: FontWeight.w700,
+                      color: AppColors.dangerText,
+                    ),
                   ),
                 ),
               ],

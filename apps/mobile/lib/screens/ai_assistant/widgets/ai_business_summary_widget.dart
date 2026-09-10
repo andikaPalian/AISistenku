@@ -23,27 +23,27 @@ class AiBusinessSummaryWidget extends StatelessWidget {
       margin: const EdgeInsets.only(top: 10),
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
       decoration: BoxDecoration(
-        color: const Color(0xFFF8FAFC),
+        color: AppColors.tealBackgrounds,
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
-          color: const Color(0xFFE2E8F0),
-          width: 1,
+          color: AppColors.lightTealBorder,
+          width: 1.2,
         ),
       ),
       child: Column(
         children: [
-          _buildRow('REVENUE', FinanceRepository.formatRupiah(revenue),
+          _buildRow('PENDAPATAN KOTOR', FinanceRepository.formatRupiah(revenue),
               isBold: true, color: AppColors.darkText),
-          const Divider(height: 16, color: Color(0xFFE2E8F0)),
+          const Divider(height: 16, color: AppColors.lightTealBorder),
           _buildRow(
-            'PROFIT',
+            'ESTIMASI LABA',
             '+ ${FinanceRepository.formatRupiah(profit)}',
             isBold: true,
-            color: const Color(0xFF10B981),
+            color: AppColors.successGreen,
           ),
-          const Divider(height: 16, color: Color(0xFFE2E8F0)),
+          const Divider(height: 16, color: AppColors.lightTealBorder),
           _buildRow(
-            'BEST SELLER',
+            'MENU TERLARIS',
             bestSeller,
             isBold: true,
             color: AppColors.darkText,

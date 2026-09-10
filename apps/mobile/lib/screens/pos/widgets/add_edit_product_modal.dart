@@ -415,7 +415,7 @@ class _AddEditProductModalState extends State<AddEditProductModal> {
               width: 40,
               height: 4,
               decoration: BoxDecoration(
-                color: AppColors.border,
+                color: AppColors.lightTealBorder,
                 borderRadius: BorderRadius.circular(2),
               ),
             ),
@@ -446,7 +446,7 @@ class _AddEditProductModalState extends State<AddEditProductModal> {
                 ),
             ],
           ),
-          const Divider(height: 1, color: AppColors.border),
+          const Divider(height: 1, color: AppColors.lightTealBorder),
           const SizedBox(height: 16),
 
           // Form fields scrollable
@@ -479,9 +479,9 @@ class _AddEditProductModalState extends State<AddEditProductModal> {
                             width: 88,
                             height: 88,
                             decoration: BoxDecoration(
-                              color: AppColors.surface,
+                              color: AppColors.tealBackgrounds,
                               borderRadius: BorderRadius.circular(14),
-                              border: Border.all(color: AppColors.primaryTeal.withOpacity(0.4), width: 1.5),
+                              border: Border.all(color: AppColors.lightTealBorder, width: 1.5),
                             ),
                             child: ClipRRect(
                               borderRadius: BorderRadius.circular(12),
@@ -520,12 +520,20 @@ class _AddEditProductModalState extends State<AddEditProductModal> {
                                   hintText: 'Atau tempel link URL...',
                                   hintStyle: GoogleFonts.inter(fontSize: 11, color: AppColors.mutedText),
                                   filled: true,
-                                  fillColor: AppColors.surface,
+                                  fillColor: AppColors.tealBackgrounds,
                                   isDense: true,
                                   contentPadding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
                                   border: OutlineInputBorder(
                                     borderRadius: BorderRadius.circular(8),
-                                    borderSide: const BorderSide(color: AppColors.border),
+                                    borderSide: const BorderSide(color: AppColors.lightTealBorder),
+                                  ),
+                                  enabledBorder: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(8),
+                                    borderSide: const BorderSide(color: AppColors.lightTealBorder),
+                                  ),
+                                  focusedBorder: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(8),
+                                    borderSide: const BorderSide(color: AppColors.primaryTeal, width: 1.5),
                                   ),
                                 ),
                               ),
@@ -555,11 +563,11 @@ class _AddEditProductModalState extends State<AddEditProductModal> {
                                 ),
                               ),
                               avatar: const Icon(Icons.image_outlined, size: 14),
-                              backgroundColor: isSelected ? AppColors.primaryTeal : AppColors.surface,
+                              backgroundColor: isSelected ? AppColors.primaryTeal : AppColors.tealBackgrounds,
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(8),
                                 side: BorderSide(
-                                  color: isSelected ? AppColors.primaryTeal : AppColors.border,
+                                  color: isSelected ? AppColors.primaryTeal : AppColors.lightTealBorder,
                                 ),
                               ),
                               onPressed: () => _onSelectPresetImage(p['url']!),
@@ -602,7 +610,10 @@ class _AddEditProductModalState extends State<AddEditProductModal> {
                           ),
                           selected: isSel,
                           selectedColor: AppColors.primaryTeal,
-                          backgroundColor: AppColors.surface,
+                          backgroundColor: AppColors.tealBackgrounds,
+                          side: BorderSide(
+                            color: isSel ? AppColors.primaryTeal : AppColors.lightTealBorder,
+                          ),
                           onSelected: (_) => setState(() => _selectedCategory = cat),
                         );
                       }).toList(),
@@ -684,7 +695,7 @@ class _AddEditProductModalState extends State<AddEditProductModal> {
                             children: [
                               _buildFieldLabel('Satuan'),
                               DropdownButtonFormField<String>(
-                                value: _selectedUnit,
+                                initialValue: _selectedUnit,
                                 items: ['cup', 'pcs', 'porsi', 'btl', 'box']
                                     .map((u) => DropdownMenuItem(value: u, child: Text(u)))
                                     .toList(),
@@ -747,18 +758,18 @@ class _AddEditProductModalState extends State<AddEditProductModal> {
     return InputDecoration(
       hintText: hint,
       prefixText: prefix,
-      hintStyle: GoogleFonts.inter(fontSize: 13, color: AppColors.mutedText.withOpacity(0.6)),
+      hintStyle: GoogleFonts.inter(fontSize: 13, color: AppColors.mutedText.withValues(alpha: 0.6)),
       filled: true,
-      fillColor: AppColors.surface,
+      fillColor: AppColors.tealBackgrounds,
       isDense: true,
       contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
       border: OutlineInputBorder(
         borderRadius: BorderRadius.circular(10),
-        borderSide: const BorderSide(color: AppColors.border),
+        borderSide: const BorderSide(color: AppColors.lightTealBorder),
       ),
       enabledBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(10),
-        borderSide: const BorderSide(color: AppColors.border),
+        borderSide: const BorderSide(color: AppColors.lightTealBorder),
       ),
       focusedBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(10),
