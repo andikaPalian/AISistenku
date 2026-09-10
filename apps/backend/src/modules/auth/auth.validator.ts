@@ -67,6 +67,19 @@ export const refreshTokenSchema = z.object({
     .optional(),
 });
 
+export const updateMeSchema = z.object({
+  body: z.object({
+    name: z
+      .string()
+      .trim()
+      .min(2, 'Name must be at least 2 characters')
+      .max(60, 'Name too long')
+      .regex(NAME_REGEX, 'Name contains invalid characters')
+      .optional(),
+  }),
+});
+
 export type RegisterBody = z.infer<typeof registerSchema>['body'];
 export type LoginBody = z.infer<typeof loginSchema>['body'];
+export type UpdateMeBody = z.infer<typeof updateMeSchema>['body'];
 

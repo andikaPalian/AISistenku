@@ -146,3 +146,10 @@ export const getMe = async (userId: string) => {
   const { password: _, ...safeUser } = user;
   return safeUser;
 };
+
+export const updateMe = async (userId: string, data: { name?: string }) => {
+  const user = await userRepository.updateUser(userId, data);
+  const { password: _, ...safeUser } = user;
+  return safeUser;
+};
+

@@ -81,3 +81,17 @@ export const findUserById = withPrismaErrorHandling(
     });
   }
 );
+
+export const updateUser = withPrismaErrorHandling(
+  async (userId: string, data: { name?: string }): Promise<UserWithMemberships> => {
+    return await prisma.user.update({
+      where: { id: userId },
+      data: {
+        ...(data.name ? { name: data.name } : {}),
+      },
+      select: userWithMembershipsSelect,
+    });
+  },
+  'User'
+);
+

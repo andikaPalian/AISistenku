@@ -58,3 +58,12 @@ export const getMe = async (req: Request, res: Response): Promise<void> => {
   sendSuccess(res, user, 'User profile retrieved');
 };
 
+export const updateMe = async (req: Request, res: Response): Promise<void> => {
+  if (!req.user) {
+    throw new UnauthorizedError('Unauthorized', 'UNAUTHORIZED');
+  }
+  const user = await authService.updateMe(req.user.id, req.body);
+  sendSuccess(res, user, 'User profile updated successfully');
+};
+
+

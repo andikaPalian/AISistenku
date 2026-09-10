@@ -18,4 +18,11 @@ authRouter.post('/refresh', validate(authValidator.refreshTokenSchema), authCont
 authRouter.post('/refresh-token', validate(authValidator.refreshTokenSchema), authController.refreshToken);
 authRouter.post('/logout', validate(authValidator.logoutSchema), authController.logout);
 authRouter.get('/me', requireAuth, authController.getMe);
+authRouter.patch(
+  '/me',
+  requireAuth,
+  validate(authValidator.updateMeSchema),
+  authController.updateMe
+);
+
 
