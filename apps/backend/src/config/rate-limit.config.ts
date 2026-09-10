@@ -7,11 +7,13 @@ import { logger } from '@/utils/logger.js';
 export const RATE_LIMIT = {
   KEY_PREFIX: 'rl_',
   AUTH_LIMIT_WINDOW_MINS: 15,
-  AUTH_LIMIT_MAX_ATTEMPTS: 10,
+  AUTH_LIMIT_MAX_ATTEMPTS: 30,
   EMAIL_LIMIT_WINDOW_MINS: 5,
-  EMAIL_LIMIT_MAX_ATTEMPTS: 3,
+  EMAIL_LIMIT_MAX_ATTEMPTS: 5,
+  AI_LIMIT_WINDOW_MINS: 1,
+  AI_LIMIT_MAX_ATTEMPTS: 30,
   GLOBAL_LIMIT_WINDOW_MINS: 1,
-  GLOBAL_LIMIT_MAX_ATTEMPTS: 100,
+  GLOBAL_LIMIT_MAX_ATTEMPTS: 200,
 } as const;
 
 interface CreateLimiterOptions {
@@ -60,8 +62,10 @@ export const createLimiter = ({
         });
         res.status(429).json({
           success: false,
-          statusCode: 429,
-          error: 'TOO_MANY_REQUESTS',
+          error: {
+            code: 'TOO_MANY_REQUESTS',
+            message,
+          },
           message,
           retryAfter: retryAfterSecs,
         });

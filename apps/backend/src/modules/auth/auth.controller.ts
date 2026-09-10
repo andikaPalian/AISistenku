@@ -3,43 +3,58 @@ import * as authService from './auth.service.js';
 import { LoginBody, RegisterBody } from './auth.validator.js';
 import { sendCreated, sendEmptySuccess, sendSuccess } from '@/http/response.js';
 import { clearAuthCookies, setAuthCookies } from '@/http/cookie.js';
+import { UnauthorizedError } from '@/errors/http.error.js';
 
 export const register = async (
   req: Request<any, any, RegisterBody>,
   res: Response
 ): Promise<void> => {
-  const user = await authService.register(req.body);
-  sendCreated(res, user, 'User registered successfully');
+  const result = await authService.register(req.body);
+  setAuthCookies(res, result.accessToken, result.refreshToken);
+  sendCreated(res, result, 'User registered successfully');
 };
 
 export const login = async (req: Request<any, any, LoginBody>, res: Response): Promise<void> => {
   const { user, accessToken, refreshToken } = await authService.login(req.body);
 
   setAuthCookies(res, accessToken, refreshToken);
-  sendSuccess(res, user, 'Login successful');
+  sendSuccess(
+    res,
+    {
+      accessToken,
+      refreshToken,
+      user,
+    },
+    'Login successful'
+  );
 };
 
 export const refreshToken = async (req: Request, res: Response): Promise<void> => {
-  const oldRefreshToken = req.cookies.refreshToken;
+  const token = req.body?.refreshToken || req.cookies?.refreshToken;
 
-  if (!oldRefreshToken) {
-    res.status(401).json({
-      success: false,
-      message: 'Refresh token missing.',
-    });
-    return;
+  if (!token) {
+    throw new UnauthorizedError('Refresh token missing.', 'REFRESH_TOKEN_REQUIRED');
   }
 
-  const { accessToken, refreshToken } = await authService.refreshSession(oldRefreshToken);
+  const { accessToken, refreshToken } = await authService.refreshSession(token);
 
   setAuthCookies(res, accessToken, refreshToken);
-  sendEmptySuccess(res, 'Session refreshed.');
+  sendSuccess(res, { accessToken, refreshToken }, 'Session refreshed.');
 };
 
 export const logout = async (req: Request, res: Response): Promise<void> => {
-  const { refreshToken } = req.cookies;
-  if (refreshToken) await authService.logout(refreshToken);
+  const token = req.body?.refreshToken || req.cookies?.refreshToken;
+  if (token) await authService.logout(token);
 
   clearAuthCookies(res);
   sendEmptySuccess(res, 'Logout successful.');
 };
+
+export const getMe = async (req: Request, res: Response): Promise<void> => {
+  if (!req.user) {
+    throw new UnauthorizedError('Unauthorized', 'UNAUTHORIZED');
+  }
+  const user = await authService.getMe(req.user.id);
+  sendSuccess(res, user, 'User profile retrieved');
+};
+

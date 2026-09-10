@@ -3,11 +3,10 @@ import * as userRepository from '../user/user.repository.js';
 import * as authRepository from './auth.repository.js';
 import { LoginDTO, RegisterDTO } from './dto/auth.request.dto.js';
 import {
-  AuthenticatedUserResponseDTO,
   LoginResponseDTO,
   TokenResponseDTO,
 } from './dto/auth.response.dto.js';
-import { ConflictError, UnauthorizedError } from '@/errors/http.error.js';
+import { ConflictError, NotFoundError, UnauthorizedError } from '@/errors/http.error.js';
 import { logger } from '@/utils/logger.js';
 import { DuplicateEntryError } from '@/errors/persistence.error.js';
 import {
@@ -31,7 +30,7 @@ const generateUserSession = async (userId: string, username: string): Promise<To
   return { accessToken, refreshToken };
 };
 
-export const register = async (input: RegisterDTO): Promise<AuthenticatedUserResponseDTO> => {
+export const register = async (input: RegisterDTO): Promise<LoginResponseDTO> => {
   const userExists = await userRepository.findUserByEmail(input.email);
   if (userExists) throw new ConflictError('User already exists', 'email');
 
@@ -48,8 +47,14 @@ export const register = async (input: RegisterDTO): Promise<AuthenticatedUserRes
     });
 
     const { password: _, ...safeUserData } = newUser;
+    const { accessToken, refreshToken } = await generateUserSession(newUser.id, newUser.name);
+
     logger.info(`[AUTH SERVICE] New user registered with email: ${input.email}`);
-    return safeUserData;
+    return {
+      user: safeUserData,
+      accessToken,
+      refreshToken,
+    };
   } catch (error) {
     if (error instanceof DuplicateEntryError) {
       throw new ConflictError('User already exists', 'email');
@@ -125,10 +130,19 @@ export const logout = async (refreshToken: string): Promise<void> => {
   try {
     const decoded = await verifyToken(refreshToken, env.JWT_REFRESH_SECRET);
     if (decoded && decoded.jti) {
-      await authRepository.revokeAllSessionsForUser(decoded.jti);
+      await authRepository.revokeRefreshToken(decoded.jti);
       logger.info('[AUTH SERVICE] Refresh token revoked successfully during logout.');
     }
-  } catch (error) {
+  } catch (_error) {
     logger.warn('[AUTH SERVICE] Logout warning: Token not found or already missing');
   }
+};
+
+export const getMe = async (userId: string) => {
+  const user = await userRepository.findUserById(userId);
+  if (!user) {
+    throw new NotFoundError('User', 'USER_NOT_FOUND');
+  }
+  const { password: _, ...safeUser } = user;
+  return safeUser;
 };

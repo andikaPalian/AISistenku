@@ -1,63 +1,72 @@
 import { z } from 'zod';
 
-const PASSWORD_REGEX = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
-const NAME_REGEX = /^[a-zA-Z]+$/;
-const PHONE_REGEX = /^(\+62|62|0)[0-9]{9,12}$/;
+const NAME_REGEX = /^[a-zA-Z0-9\s'.-]+$/;
+const PHONE_REGEX = /^(\+62|62|0)[0-9]{8,15}$/;
 
 export const registerSchema = z.object({
   body: z.object({
     name: z
       .string()
       .trim()
-      .min(1, 'Name is required')
-      .max(50, 'Name too long')
-      .regex(NAME_REGEX, 'Name must only contain letters'),
+      .min(2, 'Name must be at least 2 characters')
+      .max(60, 'Name too long')
+      .regex(NAME_REGEX, 'Name contains invalid characters'),
     email: z.string().trim().email('Invalid email').toLowerCase(),
     password: z
       .string()
       .trim()
-      .regex(
-        PASSWORD_REGEX,
-        'Password must be at least 8 characters long and contain at least one uppercase letter, one lowercase letter, one number, and one special character'
-      ),
+      .min(6, 'Password must be at least 6 characters long'),
     businessName: z
       .string()
       .trim()
       .min(1, 'Business name is required')
-      .max(50, 'Business name too long'),
+      .max(60, 'Business name too long')
+      .optional(),
     businessAddress: z
       .string()
       .trim()
-      .min(1, 'Business address is required')
-      .max(100, 'Business address too long'),
-    businessPhone: z.coerce.string().regex(PHONE_REGEX, 'Invalid phone number'),
+      .max(150, 'Business address too long')
+      .optional(),
+    businessPhone: z
+      .string()
+      .regex(PHONE_REGEX, 'Invalid phone number format')
+      .optional(),
   }),
 });
 
 export const loginSchema = z.object({
   body: z.object({
     email: z.string().trim().email('Invalid email').toLowerCase(),
-    password: z
-      .string()
-      .trim()
-      .regex(
-        PASSWORD_REGEX,
-        'Password must be at least 8 characters long and contain at least one uppercase letter, one lowercase letter, one number, and one special character'
-      ),
+    password: z.string().min(1, 'Password is required'),
   }),
 });
 
 export const logoutSchema = z.object({
-  cookies: z.object({
-    refreshToken: z.string().trim().min(1, 'Refresh Token is not found in cookies'),
-  }),
+  body: z
+    .object({
+      refreshToken: z.string().trim().min(1).optional(),
+    })
+    .optional(),
+  cookies: z
+    .object({
+      refreshToken: z.string().trim().min(1).optional(),
+    })
+    .optional(),
 });
 
 export const refreshTokenSchema = z.object({
-  cookies: z.object({
-    refreshToken: z.string().trim().min(1, 'Refresh Token is not found in cookies'),
-  }),
+  body: z
+    .object({
+      refreshToken: z.string().trim().min(1).optional(),
+    })
+    .optional(),
+  cookies: z
+    .object({
+      refreshToken: z.string().trim().min(1).optional(),
+    })
+    .optional(),
 });
 
 export type RegisterBody = z.infer<typeof registerSchema>['body'];
 export type LoginBody = z.infer<typeof loginSchema>['body'];
+

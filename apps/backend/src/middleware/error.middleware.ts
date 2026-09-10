@@ -14,7 +14,10 @@ export const globalErrorHandler = (
     res.status(err.statusCode).json({
       success: false,
       statusCode: err.statusCode,
-      error: err.code,
+      error: {
+        code: err.code || 'VALIDATION_ERROR',
+        message: err.message,
+      },
       message: err.message,
       errors: err.errors,
     });
@@ -25,7 +28,10 @@ export const globalErrorHandler = (
     res.status(err.statusCode).json({
       success: false,
       statusCode: err.statusCode,
-      error: err.code,
+      error: {
+        code: err.code || 'APP_ERROR',
+        message: err.message,
+      },
       message: err.message,
     });
     return;
@@ -36,7 +42,10 @@ export const globalErrorHandler = (
   res.status(500).json({
     success: false,
     statusCode: 500,
-    error: 'INTERNAL_SERVER_ERROR',
+    error: {
+      code: 'INTERNAL_SERVER_ERROR',
+      message: env.NODE_ENV === 'production' ? 'Internal server error' : err.message,
+    },
     message: env.NODE_ENV === 'production' ? 'Internal server error' : err.message,
   });
 };

@@ -25,6 +25,12 @@ export const findRefreshToken = async (jti: string): Promise<RefreshToken | null
   });
 };
 
+export const revokeRefreshToken = async (jti: string): Promise<Prisma.BatchPayload> => {
+  return await prisma.refreshToken.deleteMany({
+    where: { id: jti },
+  });
+};
+
 export const revokeAllSessionsForUser = async (userId: string): Promise<Prisma.BatchPayload> => {
   return await prisma.refreshToken.deleteMany({
     where: { userId },

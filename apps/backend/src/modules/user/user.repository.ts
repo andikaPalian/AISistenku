@@ -1,6 +1,6 @@
 import { prisma } from '@/config/database.config.js';
 import { withPrismaErrorHandling } from '@/utils/prisma-error.util.js';
-import { BusinessRole, Prisma, User } from '@prisma/client';
+import { BusinessRole, Prisma } from '@prisma/client';
 
 const userWithMembershipsSelect = Prisma.validator<Prisma.UserSelect>()({
   id: true,
@@ -23,19 +23,20 @@ const userWithMembershipsSelect = Prisma.validator<Prisma.UserSelect>()({
   },
 });
 
-type UserWithMemberships = Prisma.UserGetPayload<{ select: typeof userWithMembershipsSelect }>;
+export type UserWithMemberships = Prisma.UserGetPayload<{ select: typeof userWithMembershipsSelect }>;
 
-interface CreateUserAndBusinessInput {
+export interface CreateUserAndBusinessInput {
   name: string;
   email: string;
   password: string;
-  businessName: string;
-  businessAddress: string;
-  businessPhone: string;
+  businessName?: string;
+  businessAddress?: string;
+  businessPhone?: string;
 }
 
 export const createUser = withPrismaErrorHandling(
   async (input: CreateUserAndBusinessInput): Promise<UserWithMemberships> => {
+    const businessName = input.businessName || `${input.name}'s Coffee`;
     return await prisma.user.create({
       data: {
         name: input.name,
@@ -46,9 +47,9 @@ export const createUser = withPrismaErrorHandling(
             role: BusinessRole.OWNER,
             business: {
               create: {
-                name: input.businessName,
-                address: input.businessAddress,
-                phone: input.businessPhone,
+                name: businessName,
+                address: input.businessAddress || null,
+                phone: input.businessPhone || null,
               },
             },
           },

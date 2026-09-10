@@ -12,10 +12,9 @@ const startServer = async () => {
 
     const server = app.listen(env.PORT, () => {
       logger.info(`=======================================================`);
-      logger.info(`🚀 Retentio Server active on http://localhost:${env.PORT}`);
-      logger.info(`🧠 Spaced Repetition Engine: FSRS (DSR Memory Model)`);
-      logger.info(`🏛️ Architecture: Enterprise Modular Layered Architecture`);
-      // logger.info(`🌐 Allowed Client Origin: ${env.CLIENT_ORIGIN}`);
+      logger.info(`🚀 AIsistenku Backend Server active on http://localhost:${env.PORT}`);
+      logger.info(`☕ System: POS & AI Business Assistant for Coffee Shop UMKM`);
+      logger.info(`🏛️ Architecture: Multi-Tenant REST API + Gemini AI Agent`);
       logger.info(`=======================================================`);
     });
 

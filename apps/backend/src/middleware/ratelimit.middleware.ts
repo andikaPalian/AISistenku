@@ -20,3 +20,10 @@ export const globalLimiter = createLimiter({
   message: 'Rate limit exceeded. Please slow down your requests.',
   limiterName: 'global',
 });
+
+export const aiLimiter = createLimiter({
+  windowMins: RATE_LIMIT.AI_LIMIT_WINDOW_MINS,
+  maxAttempts: RATE_LIMIT.AI_LIMIT_MAX_ATTEMPTS,
+  message: 'Batas pemanggilan AI tercapai. Silakan coba sesaat lagi.',
+  limiterName: 'ai',
+});

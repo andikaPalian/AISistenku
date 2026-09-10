@@ -10,13 +10,16 @@ cloudinary.config({
 });
 
 export const connectCloudinary = async (): Promise<void> => {
+  if (!env.CLOUDINARY_API_KEYS || !env.CLOUDINARY_CLOUD_NAMES) {
+    logger.warn('[CLOUDINARY] Cloudinary credentials not fully provided. Image uploads will be disabled.');
+    return;
+  }
   try {
     await cloudinary.api.ping();
     logger.info('[CLOUDINARY] Connected to cloudinary successfully.');
   } catch (error) {
     const err = error as Error;
-    logger.error(`[CLOUDINARY] Failed to connect to cloudinary: ${err.message}`);
-    throw new Error(`Cloudinary connection failed: ${err.message}`);
+    logger.warn(`[CLOUDINARY] Failed to connect to cloudinary (${err.message}). Continuing without Cloudinary.`);
   }
 };
 
