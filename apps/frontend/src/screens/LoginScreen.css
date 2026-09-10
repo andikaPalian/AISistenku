@@ -149,3 +149,30 @@
   padding: 0;
   font-size: inherit;
 }
+
+.btn-outline {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  width: 100%;
+  padding: 0.7rem;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #0D9488;
+  background: transparent;
+  border: 1.5px solid #0D9488;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s;
+  margin-top: 1rem;
+}
+
+.btn-outline:hover {
+  background: #F0FDFA;
+}
+
+.btn-outline:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}

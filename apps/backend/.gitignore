@@ -9,6 +9,7 @@ node_modules/
 
 # Logs
 *.log
+logs/
 
 # Editor
 .vscode/
@@ -25,3 +26,6 @@ coverage/
 # Build outputs
 dist/
 build/
+/src/generated/prisma
+
+/src/generated/prisma

@@ -8,6 +8,7 @@ import { StockScreen } from '../../screens/StockScreen';
 import { FinanceScreen } from '../../screens/FinanceScreen';
 import { AiAssistantScreen } from '../../screens/AiAssistantScreen';
 import { useProducts, useStocks, useTransactions, useDashboard, useAiMessages, useStockAlerts } from '../../hooks/useData';
+import { logout } from '../../lib/auth';
 
 export const ShellLayout: React.FC = () => {
   const [activeTab, setActiveTab] = useState<TabType>('home');
@@ -128,6 +129,7 @@ export const ShellLayout: React.FC = () => {
         stockAlertCount={alertsHook.data.length}
         isCollapsed={isSidebarCollapsed}
         onToggleCollapse={toggleSidebar}
+        onLogout={logout}
       />
 
       <main className={`main-content ${isSidebarCollapsed ? 'collapsed-sidebar' : ''}`}>

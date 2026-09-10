@@ -1,0 +1,386 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Get a free hosted Postgres database in seconds: `npx create-db`
+
+generator client {
+  provider = "prisma-client-js"
+  // output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum BusinessRole {
+  OWNER
+  CASHIER
+}
+
+enum ProductCategory {
+  COFFEE
+  NON_COFFEE
+  FOOD
+  SNACK
+  OTHER
+}
+
+enum OrderType {
+  DineIn
+  TakeAway
+}
+
+enum OrderStatus {
+  PENDING
+  PAID
+  CANCELLED
+  REFUNDED
+}
+
+enum PaymentMethod {
+  Cash
+  QRIS_EWallet
+  DebitCreditCard
+}
+
+enum StockLogType {
+  IN
+  OUT
+}
+
+enum StockLogSource {
+  MANUAL
+  AI_AGENT
+  ORDER_DEDUCTION
+  RESTOCK
+}
+
+enum FinanceType {
+  INCOME
+  EXPENSE
+}
+
+enum FinanceSource {
+  POS_AUTOMATIC
+  MANUAL
+  AI_AGENT
+}
+
+enum MessageSender {
+  USER
+  AI
+}
+
+enum ActionStatus {
+  PENDING
+  CONFIRMED
+  CANCELLED
+}
+
+enum MarketingContentType {
+  CAPTION
+  PROMO_IDEA
+  SOCIAL_POST
+}
+
+enum MarketingContentStatus {
+  DRAFT
+  SAVED
+  ARCHIVED
+}
+
+model Business {
+  id        String   @id @default(uuid())
+  name      String
+  address   String?
+  phone     String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  members             BusinessMember[]
+  products            Product[]
+  stockItems          StockItem[]
+  orders              Order[]
+  financeTransactions FinanceTransaction[]
+  aiMessages          AiMessage[]
+  marketingContents   MarketingContent[]
+
+  @@map("businesses")
+}
+
+model BusinessMember {
+  id         String       @id @default(uuid())
+  businessId String
+  userId     String
+  role       BusinessRole @default(OWNER)
+  createdAt  DateTime     @default(now())
+
+  business Business @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  user     User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([businessId, userId])
+  @@index([userId])
+  @@map("business_members")
+}
+
+model User {
+  id        String   @id @default(uuid())
+  name      String
+  email     String   @unique
+  password  String
+  createdAt DateTime @default(now())
+
+  refreshTokens       RefreshToken[]
+  memberships         BusinessMember[]
+  orders              Order[]
+  stockLogs           StockLog[]
+  financeTransactions FinanceTransaction[]
+  aiMessages          AiMessage[]
+
+  @@map("users")
+}
+
+model RefreshToken {
+  id        String   @id
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  browser   String?
+  os        String?
+  ipAddress String?
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+
+  @@index([userId])
+  @@index([expiresAt])
+}
+
+// PRODUK & STOK
+
+model Product {
+  id             String          @id @default(uuid())
+  businessId     String
+  name           String
+  price          Decimal         @db.Decimal(12, 2)
+  category       ProductCategory
+  imageUrl       String?
+  defaultVariant String?         @default("Regular")
+  isActive       Boolean         @default(true)
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime        @updatedAt
+
+  business          Business           @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  recipes           ProductRecipe[]
+  orderItems        OrderItem[]
+  marketingContents MarketingContent[]
+
+  @@index([businessId])
+  @@map("products")
+}
+
+model StockItem {
+  id           String   @id @default(uuid())
+  businessId   String
+  name         String
+  category     String   @default("Topping & Lainnya")
+  currentStock Decimal  @default(0) @db.Decimal(10, 2)
+  minStock     Decimal  @default(0) @db.Decimal(10, 2)
+  unit         String   @default("kg")
+  costPerUnit  Decimal  @default(0) @db.Decimal(12, 2)
+  supplier     String?  @default("Supplier Utama")
+  note         String?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @default(now()) @updatedAt
+
+  business  Business        @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  recipes   ProductRecipe[]
+  stockLogs StockLog[]
+
+  @@index([businessId])
+  @@map("stock_items")
+}
+
+model ProductRecipe {
+  id               String   @id @default(uuid())
+  productId        String
+  stockId          String
+  quantityRequired Decimal  @db.Decimal(10, 2)
+  createdAt        DateTime @default(now())
+
+  product Product   @relation(fields: [productId], references: [id], onDelete: Cascade)
+  stock   StockItem @relation(fields: [stockId], references: [id], onDelete: Cascade)
+
+  @@unique([productId, stockId])
+  @@index([stockId])
+  @@map("product_recipes")
+}
+
+// TRANSAKSI (POS)
+
+model Order {
+  id            String         @id @default(uuid())
+  businessId    String
+  orderCode     String
+  userId        String?
+  orderType     OrderType      @default(DineIn)
+  tableNumber   String?
+  customerName  String?
+  subtotal      Decimal        @default(0) @db.Decimal(12, 2)
+  tax           Decimal        @default(0) @db.Decimal(12, 2)
+  totalAmount   Decimal        @db.Decimal(12, 2)
+  paymentMethod PaymentMethod?
+  cashGiven     Decimal?       @default(0) @db.Decimal(12, 2)
+  changeAmount  Decimal?       @default(0) @db.Decimal(12, 2)
+  status        OrderStatus    @default(PAID)
+  createdAt     DateTime       @default(now())
+
+  business            Business             @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  user                User?                @relation(fields: [userId], references: [id], onDelete: SetNull)
+  items               OrderItem[]
+  financeTransactions FinanceTransaction[]
+
+  @@unique([businessId, orderCode])
+  @@index([businessId, createdAt])
+  @@index([businessId, status])
+  @@index([userId])
+  @@map("orders")
+}
+
+model OrderItem {
+  id          String  @id @default(uuid())
+  orderId     String
+  productId   String?
+  productName String?
+  variant     String?
+  quantity    Int
+  priceAtSale Decimal @db.Decimal(12, 2)
+  subtotal    Decimal @db.Decimal(12, 2)
+  note        String?
+
+  order   Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  product Product? @relation(fields: [productId], references: [id], onDelete: SetNull)
+
+  @@index([orderId])
+  @@index([productId])
+  @@map("order_items")
+}
+
+model StockLog {
+  id            String         @id @default(uuid())
+  stockId       String
+  stockName     String?
+  type          StockLogType
+  quantity      Decimal        @db.Decimal(10, 2)
+  unit          String?
+  source        StockLogSource
+  referenceCode String?
+  userId        String?
+  operatorName  String?        @default("Kasir")
+  note          String?
+  createdAt     DateTime       @default(now())
+
+  stock StockItem @relation(fields: [stockId], references: [id], onDelete: Cascade)
+  user  User?     @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@index([stockId])
+  @@index([userId])
+  @@map("stock_logs")
+}
+
+// KEUANGAN
+
+model FinanceTransaction {
+  id         String        @id @default(uuid())
+  businessId String
+  userId     String?
+  orderId    String?
+  title      String
+  type       FinanceType
+  category   String
+  amount     Decimal       @db.Decimal(12, 2)
+  source     FinanceSource
+  notes      String?
+  timestamp  DateTime      @default(now())
+
+  business Business @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  user     User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+  order    Order?   @relation(fields: [orderId], references: [id], onDelete: SetNull)
+
+  @@index([businessId, timestamp])
+  @@index([userId])
+  @@index([orderId])
+  @@map("finance_transactions")
+}
+
+// AI AGENT
+
+model AiMessage {
+  id         String        @id @default(uuid())
+  businessId String?
+  // Perbaikan: sebelumnya userId ditandai @db.Uuid sementara User.id
+  // adalah String biasa (tanpa @db.Uuid) — mismatch tipe kolom ini bikin
+  // `prisma migrate` gagal membuat foreign key constraint-nya.
+  userId     String?
+  sender     MessageSender
+  text       String
+  type       String        @default("text")
+  extraData  Json?
+  timestamp  DateTime      @default(now())
+
+  business Business? @relation(fields: [businessId], references: [id], onDelete: SetNull)
+  user     User?     @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  actions           AiAction[]
+  marketingContents MarketingContent[]
+
+  @@index([userId])
+  @@index([businessId])
+  @@map("ai_messages")
+}
+
+model AiAction {
+  id        String       @id @default(uuid())
+  messageId String?
+  intent    String
+  payload   Json         @default("{}")
+  status    ActionStatus @default(PENDING)
+  createdAt DateTime     @default(now())
+
+  message AiMessage? @relation(fields: [messageId], references: [id], onDelete: Cascade)
+
+  @@index([messageId])
+  @@map("ai_actions")
+}
+
+// ============================================================
+// KONTEN PROMOSI (fitur tambahan: caption / ide promosi dari AI)
+// ============================================================
+
+model MarketingContent {
+  id              String                 @id @default(uuid())
+  businessId      String
+  productId       String?
+  sourceMessageId String?
+  type            MarketingContentType
+  platform        String?
+  prompt          String?
+  content         String
+  status          MarketingContentStatus @default(DRAFT)
+  createdAt       DateTime               @default(now())
+  updatedAt       DateTime               @updatedAt
+
+  business      Business   @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  product       Product?   @relation(fields: [productId], references: [id], onDelete: SetNull)
+  sourceMessage AiMessage? @relation(fields: [sourceMessageId], references: [id], onDelete: SetNull)
+
+  @@index([businessId])
+  @@index([productId])
+  @@map("marketing_contents")
+}
+
+model RateLimiterFlexible {
+  key    String    @id
+  points Int
+  expire DateTime?
+
+  @@map("rate_limiter_flexible")
+}
