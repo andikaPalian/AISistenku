@@ -176,7 +176,7 @@ class _RestockModalState extends State<RestockModal> {
                     width: 44,
                     height: 4,
                     decoration: BoxDecoration(
-                      color: AppColors.lightTealBorder,
+                      color: Color(0xFFE2E8F0),
                       borderRadius: BorderRadius.circular(2),
                     ),
                   ),
@@ -242,9 +242,9 @@ class _RestockModalState extends State<RestockModal> {
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 4),
                   decoration: BoxDecoration(
-                    color: AppColors.tealBackgrounds,
+                    color: Color(0xFFF1F5F9),
                     borderRadius: BorderRadius.circular(12),
-                    border: Border.all(color: AppColors.lightTealBorder),
+
                   ),
                   child: DropdownButtonHideUnderline(
                     child: DropdownButton<StockItem>(
@@ -331,7 +331,7 @@ class _RestockModalState extends State<RestockModal> {
                   decoration: InputDecoration(
                     hintText: '0',
                     filled: true,
-                    fillColor: AppColors.tealBackgrounds,
+                    fillColor: Color(0xFFF1F5F9),
                     suffixText: item?.unit ?? '',
                     suffixStyle: GoogleFonts.inter(
                       fontSize: 14,
@@ -341,11 +341,11 @@ class _RestockModalState extends State<RestockModal> {
                     contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
-                      borderSide: const BorderSide(color: AppColors.lightTealBorder),
+                      borderSide: BorderSide.none,
                     ),
                     enabledBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
-                      borderSide: const BorderSide(color: AppColors.lightTealBorder),
+                      borderSide: BorderSide.none,
                     ),
                     focusedBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
@@ -376,9 +376,9 @@ class _RestockModalState extends State<RestockModal> {
                       child: Container(
                         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                         decoration: BoxDecoration(
-                          color: AppColors.tealBackgrounds,
+                          color: Color(0xFFF1F5F9),
                           borderRadius: BorderRadius.circular(20),
-                          border: Border.all(color: AppColors.lightTealBorder),
+
                         ),
                         child: Text(
                           '+$label ${item?.unit ?? ''}',
@@ -497,15 +497,15 @@ class _RestockModalState extends State<RestockModal> {
                             decoration: InputDecoration(
                               prefixText: 'Rp ',
                               filled: true,
-                              fillColor: AppColors.tealBackgrounds,
+                              fillColor: Color(0xFFF1F5F9),
                               contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
                               border: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(12),
-                                borderSide: const BorderSide(color: AppColors.lightTealBorder),
+                                borderSide: BorderSide.none,
                               ),
                               enabledBorder: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(12),
-                                borderSide: const BorderSide(color: AppColors.lightTealBorder),
+                                borderSide: BorderSide.none,
                               ),
                               focusedBorder: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(12),
@@ -535,9 +535,9 @@ class _RestockModalState extends State<RestockModal> {
                             height: 48,
                             padding: const EdgeInsets.symmetric(horizontal: 12),
                             decoration: BoxDecoration(
-                              color: AppColors.tealBackgrounds,
+                              color: Color(0xFFF1F5F9),
                               borderRadius: BorderRadius.circular(12),
-                              border: Border.all(color: AppColors.lightTealBorder),
+
                             ),
                             alignment: Alignment.centerLeft,
                             child: Text(
@@ -572,15 +572,15 @@ class _RestockModalState extends State<RestockModal> {
                   decoration: InputDecoration(
                     hintText: 'Nama toko atau supplier',
                     filled: true,
-                    fillColor: AppColors.tealBackgrounds,
+                    fillColor: const Color(0xFFF1F5F9), // Slate
                     contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
-                      borderSide: const BorderSide(color: AppColors.lightTealBorder),
+                      borderSide: BorderSide.none,
                     ),
                     enabledBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
-                      borderSide: const BorderSide(color: AppColors.lightTealBorder),
+                      borderSide: BorderSide.none,
                     ),
                     focusedBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
@@ -636,7 +636,8 @@ class _RestockModalState extends State<RestockModal> {
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(14),
                       ),
-                      elevation: 0,
+                      elevation: 6,
+                      shadowColor: AppColors.primaryTeal.withValues(alpha: 0.4),
                     ),
                     child: Text(
                       'Simpan Stok Masuk',

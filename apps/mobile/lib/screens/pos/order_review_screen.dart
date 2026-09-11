@@ -327,8 +327,8 @@ class _OrderReviewScreenState extends State<OrderReviewScreen> {
                             ),
                           ),
                           style: OutlinedButton.styleFrom(
-                            foregroundColor: AppColors.primaryTeal,
-                            side: const BorderSide(color: AppColors.primaryTeal, width: 1.5),
+                            foregroundColor: const Color(0xFF0F172A), // Dark slate
+                            side: const BorderSide(color: Color(0xFFE2E8F0), width: 1.5),
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(14),
                             ),
@@ -352,9 +352,9 @@ class _OrderReviewScreenState extends State<OrderReviewScreen> {
     return Container(
       padding: const EdgeInsets.all(4),
       decoration: BoxDecoration(
-        color: AppColors.surface,
+        color: const Color(0xFFF1F5F9), // Clean slate background
         borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: AppColors.lightTealBorder),
+        // No border
       ),
       child: Row(
         children: [
@@ -491,14 +491,14 @@ class _OrderReviewScreenState extends State<OrderReviewScreen> {
       margin: const EdgeInsets.only(bottom: 14),
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
-        color: AppColors.cardBackground,
+        color: Colors.white,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppColors.lightTealBorder, width: 1.2),
+        // No hard border
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.02),
-            blurRadius: 8,
-            offset: const Offset(0, 2),
+            color: Colors.black.withValues(alpha: 0.04),
+            blurRadius: 14,
+            offset: const Offset(0, 4),
           ),
         ],
       ),
@@ -596,7 +596,7 @@ class _OrderReviewScreenState extends State<OrderReviewScreen> {
                       '+ Tambah catatan',
                       style: GoogleFonts.inter(
                         fontSize: 11,
-                        color: AppColors.primaryTeal,
+                        color: const Color(0xFF64748B), // Subtle slate
                         fontWeight: FontWeight.w500,
                       ),
                     ),
@@ -626,9 +626,9 @@ class _OrderReviewScreenState extends State<OrderReviewScreen> {
                 height: 36,
                 padding: const EdgeInsets.symmetric(horizontal: 4),
                 decoration: BoxDecoration(
-                  color: Colors.white,
+                  color: const Color(0xFFF1F5F9), // Clean light slate
                   borderRadius: BorderRadius.circular(20),
-                  border: Border.all(color: AppColors.lightTealBorder, width: 1.5),
+                  // No hard border
                 ),
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
@@ -692,9 +692,7 @@ class _OrderReviewScreenState extends State<OrderReviewScreen> {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
-        border: const Border(
-          top: BorderSide(color: AppColors.lightTealBorder, width: 1),
-        ),
+        // No top border, rely on shadow for elevation
         boxShadow: [
           BoxShadow(
             color: Colors.black.withValues(alpha: 0.06),

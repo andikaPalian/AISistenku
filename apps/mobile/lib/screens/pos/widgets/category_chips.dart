@@ -38,14 +38,8 @@ class CategoryChips extends StatelessWidget {
               curve: Curves.easeInOut,
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
               decoration: BoxDecoration(
-                color: isSelected ? AppColors.primaryTeal : Colors.white,
+                color: isSelected ? AppColors.primaryTeal : const Color(0xFFF1F5F9),
                 borderRadius: BorderRadius.circular(20),
-                border: Border.all(
-                  color: isSelected
-                      ? AppColors.primaryTeal
-                      : AppColors.lightTealBorder,
-                  width: 1.2,
-                ),
                 boxShadow: isSelected
                     ? [
                         BoxShadow(
@@ -60,9 +54,9 @@ class CategoryChips extends StatelessWidget {
                 child: Text(
                   category.label,
                   style: GoogleFonts.inter(
-                    fontSize: 12.5,
-                    fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
-                    color: isSelected ? Colors.white : AppColors.darkText,
+                    fontSize: 13,
+                    fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
+                    color: isSelected ? Colors.white : const Color(0xFF64748B),
                   ),
                 ),
               ),

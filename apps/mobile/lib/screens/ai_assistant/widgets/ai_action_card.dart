@@ -31,12 +31,12 @@ class AiActionCard extends StatelessWidget {
         border: Border.all(
           color: isConfirmed
               ? AppColors.successGreen.withValues(alpha: 0.4)
-              : AppColors.lightTealBorder,
+              : Colors.transparent, // No border for unconfirmed
           width: 1.2,
         ),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.03),
+            color: Colors.black.withValues(alpha: 0.04), // Clean shadow
             blurRadius: 10,
             offset: const Offset(0, 3),
           ),
@@ -77,12 +77,12 @@ class AiActionCard extends StatelessWidget {
           Container(
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
-              color: isConfirmed ? Colors.white : AppColors.tealBackgrounds,
+              color: isConfirmed ? Colors.white : const Color(0xFFF1F5F9), // Clean slate
               borderRadius: BorderRadius.circular(12),
               border: Border.all(
                 color: isConfirmed
                     ? AppColors.successGreen.withValues(alpha: 0.25)
-                    : AppColors.lightTealBorder,
+                    : Colors.transparent, // No border
               ),
             ),
             child: Column(
@@ -110,7 +110,7 @@ class AiActionCard extends StatelessWidget {
                   ),
                 ],
                 if (payload.expenseAmount != null) ...[
-                  const Divider(height: 14, color: AppColors.lightTealBorder),
+                  Divider(height: 14, color: isConfirmed ? AppColors.successGreen.withValues(alpha: 0.25) : Colors.white), // Use white divider on slate
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [

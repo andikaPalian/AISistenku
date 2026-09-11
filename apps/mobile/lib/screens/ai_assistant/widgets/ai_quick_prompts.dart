@@ -76,15 +76,11 @@ class AiQuickPrompts extends StatelessWidget {
                   decoration: BoxDecoration(
                     color: Colors.white,
                     borderRadius: BorderRadius.circular(24),
-                    border: Border.all(
-                      color: AppColors.lightTealBorder,
-                      width: 1.2,
-                    ),
                     boxShadow: [
                       BoxShadow(
-                        color: AppColors.primaryTeal.withValues(alpha: 0.04),
-                        blurRadius: 6,
-                        offset: const Offset(0, 2),
+                        color: Colors.black.withValues(alpha: 0.06), // Premium neutral shadow
+                        blurRadius: 12,
+                        offset: const Offset(0, 4),
                       ),
                     ],
                   ),
@@ -93,8 +89,8 @@ class AiQuickPrompts extends StatelessWidget {
                     children: [
                       Container(
                         padding: const EdgeInsets.all(4),
-                        decoration: BoxDecoration(
-                          color: AppColors.tealBackgrounds,
+                        decoration: const BoxDecoration(
+                          color: Color(0xFFF1F5F9), // Clean slate
                           shape: BoxShape.circle,
                         ),
                         child: Icon(

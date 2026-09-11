@@ -134,7 +134,7 @@ class _AdjustStockModalState extends State<AdjustStockModal> {
                     width: 44,
                     height: 4,
                     decoration: BoxDecoration(
-                      color: AppColors.lightTealBorder,
+                      color: Color(0xFFE2E8F0),
                       borderRadius: BorderRadius.circular(2),
                     ),
                   ),
@@ -191,9 +191,9 @@ class _AdjustStockModalState extends State<AdjustStockModal> {
                 Container(
                   padding: const EdgeInsets.all(16),
                   decoration: BoxDecoration(
-                    color: AppColors.tealBackgrounds,
+                    color: const Color(0xFFF8FAFC),
                     borderRadius: BorderRadius.circular(16),
-                    border: Border.all(color: AppColors.lightTealBorder),
+                    // No border
                   ),
                   child: Row(
                     children: [
@@ -223,7 +223,7 @@ class _AdjustStockModalState extends State<AdjustStockModal> {
                       Container(
                         width: 1,
                         height: 40,
-                        color: AppColors.lightTealBorder,
+                        color: Color(0xFFE2E8F0),
                       ),
                       Expanded(
                         child: Padding(
@@ -281,11 +281,11 @@ class _AdjustStockModalState extends State<AdjustStockModal> {
                   style: GoogleFonts.poppins(
                     fontSize: 22,
                     fontWeight: FontWeight.w700,
-                    color: AppColors.primaryTeal,
+                    color: const Color(0xFF0F172A),
                   ),
                   decoration: InputDecoration(
                     filled: true,
-                    fillColor: AppColors.tealBackgrounds,
+                    fillColor: const Color(0xFFF1F5F9),
                     suffixText: item.unit,
                     suffixStyle: GoogleFonts.inter(
                       fontSize: 15,
@@ -295,15 +295,15 @@ class _AdjustStockModalState extends State<AdjustStockModal> {
                     contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
-                      borderSide: const BorderSide(color: AppColors.lightTealBorder),
+                      borderSide: BorderSide.none,
                     ),
                     enabledBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
-                      borderSide: const BorderSide(color: AppColors.lightTealBorder),
+                      borderSide: BorderSide.none,
                     ),
                     focusedBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
-                      borderSide: const BorderSide(color: AppColors.primaryTeal, width: 1.5),
+                      borderSide: const BorderSide(color: Color(0xFF0F172A), width: 1.5),
                     ),
                   ),
                   validator: (val) {
@@ -327,15 +327,15 @@ class _AdjustStockModalState extends State<AdjustStockModal> {
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 4),
                   decoration: BoxDecoration(
-                    color: AppColors.tealBackgrounds,
+                    color: const Color(0xFFF1F5F9),
                     borderRadius: BorderRadius.circular(12),
-                    border: Border.all(color: AppColors.lightTealBorder),
+                    // No border
                   ),
                   child: DropdownButtonHideUnderline(
                     child: DropdownButton<String>(
                       isExpanded: true,
                       value: _selectedReason,
-                      icon: const Icon(Icons.keyboard_arrow_down_rounded, color: AppColors.primaryTeal),
+                      icon: const Icon(Icons.keyboard_arrow_down_rounded, color: Color(0xFF0F172A)),
                       items: _reasons.map((r) {
                         return DropdownMenuItem<String>(
                           value: r,
@@ -374,19 +374,19 @@ class _AdjustStockModalState extends State<AdjustStockModal> {
                   decoration: InputDecoration(
                     hintText: 'Contoh: Kemasan bocor saat penyimpanan',
                     filled: true,
-                    fillColor: AppColors.tealBackgrounds,
+                    fillColor: const Color(0xFFF1F5F9),
                     contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
-                      borderSide: const BorderSide(color: AppColors.lightTealBorder),
+                      borderSide: BorderSide.none,
                     ),
                     enabledBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
-                      borderSide: const BorderSide(color: AppColors.lightTealBorder),
+                      borderSide: BorderSide.none,
                     ),
                     focusedBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
-                      borderSide: const BorderSide(color: AppColors.primaryTeal, width: 1.5),
+                      borderSide: const BorderSide(color: Color(0xFF0F172A), width: 1.5),
                     ),
                   ),
                 ),
@@ -404,7 +404,8 @@ class _AdjustStockModalState extends State<AdjustStockModal> {
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(14),
                       ),
-                      elevation: 0,
+                      elevation: 6,
+                      shadowColor: AppColors.primaryTeal.withValues(alpha: 0.4),
                     ),
                     child: Text(
                       'Simpan Hasil Penyesuaian',

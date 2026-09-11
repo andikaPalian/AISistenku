@@ -117,7 +117,7 @@ class _StockScreenState extends State<StockScreen> {
         }
 
         return Scaffold(
-          backgroundColor: AppColors.pageBackground,
+          backgroundColor: const Color(0xFFF8FAFC), // Slate 50
           body: SafeArea(
             bottom: false,
             child: Column(
@@ -172,9 +172,9 @@ class _StockScreenState extends State<StockScreen> {
                       Container(
                         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
                         decoration: BoxDecoration(
-                          color: AppColors.cardBackground,
+                          color: const Color(0xFFF1F5F9), // Slate
                           borderRadius: BorderRadius.circular(20),
-                          border: Border.all(color: AppColors.lightTealBorder),
+                          // No border
                         ),
                         child: Row(
                           mainAxisSize: MainAxisSize.min,
@@ -200,7 +200,7 @@ class _StockScreenState extends State<StockScreen> {
                   ),
                 ),
 
-                const Divider(height: 1, color: AppColors.lightTealBorder),
+                const Divider(height: 1, color: Color(0xFFE2E8F0)), // Slate divider
 
                 // ── Scrollable Body ─────────────────────────────────────────
                 Expanded(
@@ -230,16 +230,9 @@ class _StockScreenState extends State<StockScreen> {
                             child: Container(
                               height: 48,
                               decoration: BoxDecoration(
-                                color: AppColors.cardBackground,
+                                color: const Color(0xFFF1F5F9), // Slate
                                 borderRadius: BorderRadius.circular(14),
-                                border: Border.all(color: AppColors.lightTealBorder),
-                                boxShadow: const [
-                                  BoxShadow(
-                                    color: AppColors.cardShadow,
-                                    blurRadius: 8,
-                                    offset: Offset(0, 2),
-                                  ),
-                                ],
+                                // No border
                               ),
                               child: TextField(
                                 controller: _searchController,
@@ -288,22 +281,18 @@ class _StockScreenState extends State<StockScreen> {
                               decoration: BoxDecoration(
                                 color: _hasActiveFilters
                                     ? AppColors.primaryTeal
-                                    : AppColors.cardBackground,
+                                    : const Color(0xFFF1F5F9), // Slate
                                 borderRadius: BorderRadius.circular(14),
-                                border: Border.all(
-                                  color: _hasActiveFilters
-                                      ? AppColors.primaryTeal
-                                      : AppColors.lightTealBorder,
-                                ),
-                                boxShadow: [
-                                  BoxShadow(
-                                    color: _hasActiveFilters
-                                        ? AppColors.primaryTeal.withValues(alpha: 0.25)
-                                        : AppColors.cardShadow,
-                                    blurRadius: 8,
-                                    offset: const Offset(0, 2),
-                                  ),
-                                ],
+                                // No border
+                                boxShadow: _hasActiveFilters
+                                    ? [
+                                        BoxShadow(
+                                          color: AppColors.primaryTeal.withValues(alpha: 0.25),
+                                          blurRadius: 8,
+                                          offset: const Offset(0, 2),
+                                        ),
+                                      ]
+                                    : null, // Flat when inactive
                               ),
                               child: Row(
                                 mainAxisSize: MainAxisSize.min,
@@ -440,7 +429,7 @@ class _StockScreenState extends State<StockScreen> {
                           decoration: BoxDecoration(
                             color: AppColors.cardBackground,
                             borderRadius: BorderRadius.circular(18),
-                            border: Border.all(color: AppColors.lightTealBorder),
+                            border: Border.all(color: Color(0xFFE2E8F0)),
                           ),
                           child: Column(
                             children: [
@@ -506,32 +495,22 @@ class _StockScreenState extends State<StockScreen> {
           ),
 
           // ── Sticky Floating Action Button ──────────────────────────────
-          floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
-          floatingActionButton: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 20),
-            child: SizedBox(
-              width: double.infinity,
-              height: 52,
-              child: ElevatedButton.icon(
-                onPressed: () => StockActionSheet.show(context),
-                icon: const Icon(Icons.add_rounded, size: 22, color: Colors.white),
-                label: Text(
-                  'Tambah Stok +',
-                  style: GoogleFonts.poppins(
-                    fontSize: 15,
-                    fontWeight: FontWeight.w700,
-                    color: Colors.white,
-                  ),
-                ),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: AppColors.primaryTeal,
-                  foregroundColor: Colors.white,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(26),
-                  ),
-                  elevation: 4,
-                  shadowColor: AppColors.primaryTeal.withValues(alpha: 0.35),
-                ),
+          floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
+          floatingActionButton: FloatingActionButton.extended(
+            onPressed: () => StockActionSheet.show(context),
+            backgroundColor: const Color(0xFF0F172A), // Dark Slate
+            foregroundColor: Colors.white,
+            elevation: 6,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(20), // slightly less rounded than 26 for FAB
+            ),
+            icon: const Icon(Icons.add_rounded, size: 22, color: Colors.white),
+            label: Text(
+              'Tambah Stok',
+              style: GoogleFonts.poppins(
+                fontSize: 14,
+                fontWeight: FontWeight.w600,
+                color: Colors.white,
               ),
             ),
           ),
@@ -548,11 +527,9 @@ class _StockScreenState extends State<StockScreen> {
       margin: const EdgeInsets.only(right: 8),
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
       decoration: BoxDecoration(
-        color: AppColors.primaryTeal.withValues(alpha: 0.1),
+        color: const Color(0xFFF1F5F9), // Slate
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(
-          color: AppColors.primaryTeal.withValues(alpha: 0.3),
-        ),
+        // No border
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
@@ -562,7 +539,7 @@ class _StockScreenState extends State<StockScreen> {
             style: GoogleFonts.inter(
               fontSize: 12,
               fontWeight: FontWeight.w600,
-              color: AppColors.primaryTeal,
+              color: AppColors.darkText, // Dark text
             ),
           ),
           const SizedBox(width: 4),
@@ -572,7 +549,7 @@ class _StockScreenState extends State<StockScreen> {
             child: const Icon(
               Icons.close_rounded,
               size: 14,
-              color: AppColors.primaryTeal,
+              color: AppColors.mutedText, // Muted icon
             ),
           ),
         ],

@@ -55,7 +55,7 @@ class _AiAssistantScreenState extends State<AiAssistantScreen> {
         final isTyping = repo.isTyping;
 
         return Scaffold(
-          backgroundColor: AppColors.pageBackground,
+          backgroundColor: const Color(0xFFF8FAFC), // Slate 50 background to make white cards pop
           appBar: AppBar(
             backgroundColor: Colors.white,
             elevation: 0,
@@ -77,10 +77,9 @@ class _AiAssistantScreenState extends State<AiAssistantScreen> {
                   width: 30,
                   height: 30,
                   padding: const EdgeInsets.all(4),
-                  decoration: BoxDecoration(
-                    color: AppColors.tealBackgrounds,
+                  decoration: const BoxDecoration(
+                    color: AppColors.primaryTeal, // Solid background so the logo pops out
                     shape: BoxShape.circle,
-                    border: Border.all(color: AppColors.lightTealBorder, width: 1.2),
                   ),
                   child: Image.asset(
                     'assets/icons/logoAisitenku.png',
@@ -129,7 +128,7 @@ class _AiAssistantScreenState extends State<AiAssistantScreen> {
             centerTitle: true,
             bottom: const PreferredSize(
               preferredSize: Size.fromHeight(1),
-              child: Divider(height: 1, color: AppColors.lightTealBorder),
+              child: Divider(height: 1, color: Color(0xFFE2E8F0)),
             ),
             actions: [
               IconButton(
@@ -271,15 +270,11 @@ class _AiAssistantScreenState extends State<AiAssistantScreen> {
             height: 36,
             padding: const EdgeInsets.all(5),
             decoration: BoxDecoration(
-              color: Colors.white,
+              color: AppColors.primaryTeal, // Solid background
               shape: BoxShape.circle,
-              border: Border.all(
-                color: AppColors.lightTealBorder,
-                width: 1.2,
-              ),
               boxShadow: [
                 BoxShadow(
-                  color: AppColors.primaryTeal.withValues(alpha: 0.08),
+                  color: AppColors.primaryTeal.withValues(alpha: 0.15),
                   blurRadius: 6,
                   offset: const Offset(0, 2),
                 ),
@@ -294,12 +289,8 @@ class _AiAssistantScreenState extends State<AiAssistantScreen> {
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
             decoration: BoxDecoration(
-              color: Colors.white,
+              color: const Color(0xFFF1F5F9), // Clean slate
               borderRadius: BorderRadius.circular(16),
-              border: Border.all(
-                color: AppColors.lightTealBorder,
-                width: 1.2,
-              ),
               boxShadow: [
                 BoxShadow(
                   color: Colors.black.withValues(alpha: 0.02),

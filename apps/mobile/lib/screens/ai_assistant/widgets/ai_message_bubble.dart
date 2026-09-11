@@ -35,7 +35,7 @@ class AiMessageBubble extends StatelessWidget {
         margin: const EdgeInsets.only(bottom: 16, left: 48),
         padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 12),
         decoration: BoxDecoration(
-          color: AppColors.primaryTeal,
+          color: const Color(0xFF0F172A), // Premium dark slate for user bubble
           borderRadius: const BorderRadius.only(
             topLeft: Radius.circular(18),
             topRight: Radius.circular(4),
@@ -44,7 +44,7 @@ class AiMessageBubble extends StatelessWidget {
           ),
           boxShadow: [
             BoxShadow(
-              color: AppColors.primaryTeal.withValues(alpha: 0.18),
+              color: Colors.black.withValues(alpha: 0.1),
               blurRadius: 8,
               offset: const Offset(0, 3),
             ),
@@ -75,15 +75,11 @@ class AiMessageBubble extends StatelessWidget {
             height: 36,
             padding: const EdgeInsets.all(5),
             decoration: BoxDecoration(
-              color: Colors.white,
+              color: AppColors.primaryTeal, // Solid background
               shape: BoxShape.circle,
-              border: Border.all(
-                color: AppColors.lightTealBorder,
-                width: 1.2,
-              ),
               boxShadow: [
                 BoxShadow(
-                  color: AppColors.primaryTeal.withValues(alpha: 0.08),
+                  color: AppColors.primaryTeal.withValues(alpha: 0.15),
                   blurRadius: 6,
                   offset: const Offset(0, 2),
                 ),
@@ -101,24 +97,14 @@ class AiMessageBubble extends StatelessWidget {
             child: Container(
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
-                color: Colors.white,
+                color: const Color(0xFFF1F5F9), // Clean slate background for AI message
                 borderRadius: const BorderRadius.only(
                   topLeft: Radius.circular(4),
                   topRight: Radius.circular(20),
                   bottomLeft: Radius.circular(20),
                   bottomRight: Radius.circular(20),
                 ),
-                border: Border.all(
-                  color: AppColors.lightTealBorder,
-                  width: 1.2,
-                ),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withValues(alpha: 0.02),
-                    blurRadius: 10,
-                    offset: const Offset(0, 4),
-                  ),
-                ],
+                // No border
               ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -189,11 +175,9 @@ class AiMessageBubble extends StatelessWidget {
       margin: const EdgeInsets.only(top: 10),
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: AppColors.warningBg.withValues(alpha: 0.5),
+        color: AppColors.warningBg, // Use pure warning color
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(
-          color: AppColors.warningOrange.withValues(alpha: 0.3),
-        ),
+        // No border
       ),
       child: Column(
         children: items.map<Widget>((item) {

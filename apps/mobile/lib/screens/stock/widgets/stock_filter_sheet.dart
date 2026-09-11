@@ -188,7 +188,7 @@ class _StockFilterSheetState extends State<StockFilterSheet>
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(24),
-          border: Border.all(color: AppColors.lightTealBorder),
+          // No border
           boxShadow: [
             BoxShadow(
               color: Colors.black.withValues(alpha: 0.12),
@@ -505,7 +505,7 @@ class _StockFilterSheetState extends State<StockFilterSheet>
                 border: Border.all(
                   color: isSelected
                       ? AppColors.primaryTeal
-                      : AppColors.lightTealBorder,
+                      : Color(0xFFE2E8F0),
                   width: isSelected ? 1.5 : 1,
                 ),
                 boxShadow: isSelected
@@ -580,13 +580,9 @@ class _StockFilterSheetState extends State<StockFilterSheet>
       decoration: BoxDecoration(
         color: _lowStockOnly
             ? AppColors.warningOrange.withValues(alpha: 0.08)
-            : AppColors.surface,
+            : const Color(0xFFF8FAFC),
         borderRadius: BorderRadius.circular(14),
-        border: Border.all(
-          color: _lowStockOnly
-              ? AppColors.warningOrange.withValues(alpha: 0.3)
-              : AppColors.lightTealBorder,
-        ),
+        // No border
       ),
       child: Row(
         children: [
@@ -647,11 +643,12 @@ class _StockFilterSheetState extends State<StockFilterSheet>
         children: [
           // Cancel
           Expanded(
-            child: OutlinedButton(
+            child: TextButton(
               onPressed: () => Navigator.pop(context),
-              style: OutlinedButton.styleFrom(
+              style: TextButton.styleFrom(
+                backgroundColor: const Color(0xFFF1F5F9), // Slate
+                foregroundColor: AppColors.darkText,
                 padding: const EdgeInsets.symmetric(vertical: 13),
-                side: const BorderSide(color: AppColors.lightTealBorder),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(14),
                 ),
@@ -679,7 +676,8 @@ class _StockFilterSheetState extends State<StockFilterSheet>
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(14),
                 ),
-                elevation: 0,
+                elevation: 6,
+                shadowColor: AppColors.primaryTeal.withValues(alpha: 0.4),
               ),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
@@ -724,12 +722,9 @@ class _StockFilterSheetState extends State<StockFilterSheet>
         decoration: BoxDecoration(
           color: isSelected
               ? accentColor.withValues(alpha: 0.08)
-              : Colors.white,
+              : const Color(0xFFF8FAFC), // Slight slate tint
           borderRadius: BorderRadius.circular(14),
-          border: Border.all(
-            color: isSelected ? accentColor.withValues(alpha: 0.4) : AppColors.lightTealBorder,
-            width: isSelected ? 1.5 : 1,
-          ),
+          // No border
         ),
         child: Row(
           children: [
@@ -739,7 +734,7 @@ class _StockFilterSheetState extends State<StockFilterSheet>
               decoration: BoxDecoration(
                 color: isSelected
                     ? accentColor.withValues(alpha: 0.15)
-                    : AppColors.surface,
+                    : Colors.white, // White circle
                 borderRadius: BorderRadius.circular(10),
               ),
               child: Icon(
@@ -781,10 +776,7 @@ class _StockFilterSheetState extends State<StockFilterSheet>
               decoration: BoxDecoration(
                 color: isSelected ? accentColor : Colors.transparent,
                 borderRadius: BorderRadius.circular(7),
-                border: Border.all(
-                  color: isSelected ? accentColor : AppColors.lightTealBorder,
-                  width: isSelected ? 0 : 1.5,
-                ),
+                // No border
               ),
               child: isSelected
                   ? const Icon(Icons.check_rounded, size: 14, color: Colors.white)

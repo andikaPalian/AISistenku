@@ -5,6 +5,7 @@ import '../../core/services/api_service.dart';
 import '../../models/product.dart';
 import '../../models/finance_model.dart';
 import '../../models/stock_model.dart';
+import 'package:qr_flutter/qr_flutter.dart';
 import 'payment_success_screen.dart';
 
 /// Checkout and Payment method selection screen.
@@ -173,7 +174,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                 width: 40,
                 height: 4,
                 decoration: BoxDecoration(
-                  color: AppColors.lightTealBorder,
+                  color: const Color(0xFFE2E8F0), // Clean slate handle
                   borderRadius: BorderRadius.circular(2),
                 ),
               ),
@@ -198,16 +199,15 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
               const SizedBox(height: 20),
               // QR Code Card Container
               Container(
-                padding: const EdgeInsets.all(20),
+                padding: const EdgeInsets.all(24),
                 decoration: BoxDecoration(
                   color: Colors.white,
-                  borderRadius: BorderRadius.circular(20),
-                  border: Border.all(color: AppColors.lightTealBorder, width: 2),
+                  borderRadius: BorderRadius.circular(24),
                   boxShadow: [
                     BoxShadow(
-                      color: AppColors.primaryTeal.withValues(alpha: 0.08),
-                      blurRadius: 16,
-                      offset: const Offset(0, 4),
+                      color: Colors.black.withValues(alpha: 0.08), // Increased shadow to pop
+                      blurRadius: 24,
+                      offset: const Offset(0, 8),
                     ),
                   ],
                 ),
@@ -216,7 +216,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        const Icon(Icons.qr_code_2_rounded, color: AppColors.primaryTeal, size: 24),
+                        const Icon(Icons.qr_code_2_rounded, color: AppColors.darkText, size: 24),
                         const SizedBox(width: 8),
                         Text(
                           'QRIS STATIS / DINAMIS',
@@ -224,36 +224,42 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                             fontSize: 13,
                             fontWeight: FontWeight.w700,
                             letterSpacing: 1.1,
-                            color: AppColors.primaryTeal,
+                            color: AppColors.darkText,
                           ),
                         ),
                       ],
                     ),
-                    const SizedBox(height: 16),
-                    // Mock QR Box
+                    const SizedBox(height: 20),
+                    // Real QR Box
                     Container(
-                      width: 180,
-                      height: 180,
+                      width: 200,
+                      height: 200,
                       decoration: BoxDecoration(
-                        color: AppColors.tealBackgrounds,
-                        borderRadius: BorderRadius.circular(12),
-                        border: Border.all(color: AppColors.lightTealBorder),
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(16),
                       ),
-                      child: const Center(
-                        child: Icon(
-                          Icons.qr_code_rounded,
-                          size: 140,
-                          color: AppColors.darkText,
+                      child: QrImageView(
+                        data: 'https://qris.id/tiga-angkatan-coffee/$_total',
+                        version: QrVersions.auto,
+                        size: 200.0,
+                        backgroundColor: Colors.white,
+                        eyeStyle: const QrEyeStyle(
+                          eyeShape: QrEyeShape.square,
+                          color: Color(0xFF0F172A),
+                        ),
+                        dataModuleStyle: const QrDataModuleStyle(
+                          dataModuleShape: QrDataModuleShape.square,
+                          color: Color(0xFF0F172A),
                         ),
                       ),
                     ),
-                    const SizedBox(height: 16),
+                    const SizedBox(height: 20),
                     Text(
                       Product.formatRupiah(_total),
                       style: GoogleFonts.poppins(
-                        fontSize: 22,
+                        fontSize: 24,
                         fontWeight: FontWeight.w800,
-                        color: AppColors.primaryTeal,
+                        color: AppColors.darkText, // Dark text for premium look
                       ),
                     ),
                   ],
@@ -262,22 +268,24 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
               const SizedBox(height: 20),
               SizedBox(
                 width: double.infinity,
-                height: 48,
+                height: 52, // Slightly taller
                 child: ElevatedButton(
                   onPressed: () {
                     Navigator.pop(ctx);
                     _processPayment();
                   },
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: AppColors.primaryTeal,
+                    backgroundColor: const Color(0xFF0F172A), // Dark slate button
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(14),
+                      borderRadius: BorderRadius.circular(16),
                     ),
+                    elevation: 0,
                   ),
                   child: Text(
                     'Konfirmasi QRIS Diterima',
                     style: GoogleFonts.inter(
-                      fontWeight: FontWeight.w700,
+                      fontSize: 15,
+                      fontWeight: FontWeight.w600,
                       color: Colors.white,
                     ),
                   ),
@@ -312,7 +320,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
         centerTitle: true,
         bottom: const PreferredSize(
           preferredSize: Size.fromHeight(1),
-          child: Divider(height: 1, color: AppColors.lightTealBorder),
+          child: Divider(height: 1, color: Color(0xFFE2E8F0)),
         ),
       ),
       body: Column(
@@ -402,6 +410,12 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                     _buildQrisActionBanner(),
                   ],
 
+                  // ── Card Helper (when Card selected) ──────────────
+                  if (_selectedMethod == PaymentMethodType.card) ...[
+                    const SizedBox(height: 16),
+                    _buildCardActionBanner(),
+                  ],
+
                   const SizedBox(height: 20),
                 ],
               ),
@@ -418,14 +432,14 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
   Widget _buildOrderSummaryCard() {
     return Container(
       decoration: BoxDecoration(
-        color: AppColors.cardBackground,
+        color: Colors.white,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppColors.lightTealBorder, width: 1.2),
+        // No hard border
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.02),
-            blurRadius: 8,
-            offset: const Offset(0, 2),
+            color: Colors.black.withValues(alpha: 0.06), // Deeper shadow to pop out
+            blurRadius: 20,
+            offset: const Offset(0, 6),
           ),
         ],
       ),
@@ -491,7 +505,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
 
           // Collapsible Items List
           if (_isSummaryExpanded) ...[
-            const Divider(height: 1, color: AppColors.lightTealBorder),
+            const Divider(height: 1, color: Color(0xFFE2E8F0)),
             Padding(
               padding: const EdgeInsets.fromLTRB(16, 12, 16, 16),
               child: Column(
@@ -507,7 +521,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                               Container(
                                 padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                                 decoration: BoxDecoration(
-                                  color: AppColors.tealBackgrounds,
+                                  color: const Color(0xFFF1F5F9),
                                   borderRadius: BorderRadius.circular(6),
                                 ),
                                 child: Text(
@@ -515,7 +529,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                                   style: GoogleFonts.inter(
                                     fontSize: 12,
                                     fontWeight: FontWeight.w700,
-                                    color: AppColors.primaryTeal,
+                                    color: const Color(0xFF0F172A),
                                   ),
                                 ),
                               ),
@@ -564,21 +578,19 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
         duration: const Duration(milliseconds: 200),
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          color: AppColors.cardBackground,
+          color: isSelected ? AppColors.primaryTeal.withValues(alpha: 0.02) : Colors.white,
           borderRadius: BorderRadius.circular(16),
           border: Border.all(
-            color: isSelected ? AppColors.primaryTeal : AppColors.lightTealBorder,
-            width: isSelected ? 2 : 1.2,
+            color: isSelected ? AppColors.primaryTeal.withValues(alpha: 0.4) : Colors.transparent,
+            width: 1.5,
           ),
-          boxShadow: isSelected
-              ? [
-                  BoxShadow(
-                    color: AppColors.primaryTeal.withValues(alpha: 0.06),
-                    blurRadius: 10,
-                    offset: const Offset(0, 2),
-                  ),
-                ]
-              : [],
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.06), // Stronger shadow so it's not flat
+              blurRadius: 20,
+              offset: const Offset(0, 6),
+            ),
+          ],
         ),
         child: Row(
           children: [
@@ -587,7 +599,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
               width: 44,
               height: 44,
               decoration: BoxDecoration(
-                color: isSelected ? AppColors.tealBackgrounds : AppColors.surface,
+                color: isSelected ? AppColors.tealBackgrounds : const Color(0xFFF1F5F9),
                 shape: BoxShape.circle,
               ),
               child: Icon(
@@ -608,17 +620,26 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                 ),
               ),
             ),
-            // Radio button circle
+            // Modern Radio button circle
             Container(
               width: 24,
               height: 24,
+              padding: const EdgeInsets.all(4), // Space for inner dot
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
                 border: Border.all(
-                  color: isSelected ? AppColors.primaryTeal : Colors.grey.shade400,
-                  width: isSelected ? 6 : 2,
+                  color: isSelected ? AppColors.primaryTeal : const Color(0xFFCBD5E1),
+                  width: 1.5, // Elegant thin border
                 ),
               ),
+              child: isSelected
+                  ? Container(
+                      decoration: const BoxDecoration(
+                        color: AppColors.primaryTeal,
+                        shape: BoxShape.circle,
+                      ),
+                    )
+                  : null,
             ),
           ],
         ),
@@ -638,9 +659,15 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: AppColors.tealBackgrounds,
+        color: Colors.white,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppColors.lightTealBorder),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.06),
+            blurRadius: 20,
+            offset: const Offset(0, 6),
+          ),
+        ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -674,7 +701,37 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                 ),
             ],
           ),
-          const SizedBox(height: 12),
+          const SizedBox(height: 16),
+          // Manual input
+          TextField(
+            controller: _cashInputController,
+            keyboardType: TextInputType.number,
+            style: GoogleFonts.poppins(
+              fontSize: 16,
+              fontWeight: FontWeight.w600,
+              color: AppColors.darkText,
+            ),
+            decoration: InputDecoration(
+              prefixText: 'Rp ',
+              prefixStyle: GoogleFonts.poppins(
+                fontSize: 16,
+                fontWeight: FontWeight.w600,
+                color: AppColors.darkText,
+              ),
+              filled: true,
+              fillColor: const Color(0xFFF1F5F9),
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+                borderSide: BorderSide.none,
+              ),
+              contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+            ),
+            onChanged: (val) {
+              final parsed = int.tryParse(val.replaceAll(RegExp(r'[^0-9]'), '')) ?? 0;
+              setState(() => _cashGiven = parsed);
+            },
+          ),
+          const SizedBox(height: 16),
           // Quick nominal suggestion chips
           Wrap(
             spacing: 8,
@@ -688,7 +745,15 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                 ),
                 selected: isSelected,
                 selectedColor: AppColors.primaryTeal,
-                backgroundColor: Colors.white,
+                backgroundColor: const Color(0xFFF1F5F9),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                side: const BorderSide(
+                  color: Colors.transparent,
+                  width: 0,
+                ),
+                showCheckmark: false, // Cleaner without checkmark
                 labelStyle: GoogleFonts.inter(
                   fontSize: 12,
                   fontWeight: FontWeight.w600,
@@ -709,38 +774,100 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
     return GestureDetector(
       onTap: _showQrisModal,
       child: Container(
-        padding: const EdgeInsets.all(14),
+        padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          color: AppColors.tealBackgrounds,
-          borderRadius: BorderRadius.circular(14),
-          border: Border.all(color: AppColors.lightTealBorder),
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(16),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.06),
+              blurRadius: 20,
+              offset: const Offset(0, 6),
+            ),
+          ],
         ),
         child: Row(
           children: [
-            const Icon(Icons.qr_code_rounded, color: AppColors.primaryTeal, size: 24),
-            const SizedBox(width: 12),
+            Container(
+              padding: const EdgeInsets.all(10),
+              decoration: BoxDecoration(
+                color: AppColors.primaryTeal.withValues(alpha: 0.1),
+                shape: BoxShape.circle,
+              ),
+              child: const Icon(Icons.qr_code_rounded, color: AppColors.primaryTeal, size: 24),
+            ),
+            const SizedBox(width: 16),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
                     'Tampilkan Kode QRIS',
-                    style: GoogleFonts.inter(
-                      fontSize: 13,
+                    style: GoogleFonts.poppins(
+                      fontSize: 14,
                       fontWeight: FontWeight.w700,
-                      color: AppColors.primaryTeal,
+                      color: AppColors.darkText,
                     ),
                   ),
                   Text(
-                    'Tekan untuk menampilkan QR dinamis ke pelanggan',
-                    style: GoogleFonts.inter(fontSize: 11, color: AppColors.mutedText),
+                    'QR statis & dinamis untuk pelanggan',
+                    style: GoogleFonts.inter(fontSize: 12, color: AppColors.mutedText),
                   ),
                 ],
               ),
             ),
-            const Icon(Icons.arrow_forward_ios_rounded, size: 14, color: AppColors.primaryTeal),
+            const Icon(Icons.arrow_forward_ios_rounded, size: 16, color: AppColors.mutedText),
           ],
         ),
+      ),
+    );
+  }
+
+  Widget _buildCardActionBanner() {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.06),
+            blurRadius: 20,
+            offset: const Offset(0, 6),
+          ),
+        ],
+      ),
+      child: Row(
+        children: [
+          Container(
+            padding: const EdgeInsets.all(10),
+            decoration: BoxDecoration(
+              color: AppColors.primaryTeal.withValues(alpha: 0.1),
+              shape: BoxShape.circle,
+            ),
+            child: const Icon(Icons.credit_card_rounded, color: AppColors.primaryTeal, size: 24),
+          ),
+          const SizedBox(width: 16),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Siapkan Mesin EDC',
+                  style: GoogleFonts.poppins(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w700,
+                    color: AppColors.darkText,
+                  ),
+                ),
+                Text(
+                  'Mendukung Debit & Credit Card',
+                  style: GoogleFonts.inter(fontSize: 12, color: AppColors.mutedText),
+                ),
+              ],
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -751,14 +878,12 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
-        border: const Border(
-          top: BorderSide(color: AppColors.lightTealBorder, width: 1),
-        ),
+        // No top border, rely on shadow
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.06),
-            blurRadius: 16,
-            offset: const Offset(0, -4),
+            color: Colors.black.withValues(alpha: 0.08),
+            blurRadius: 24,
+            offset: const Offset(0, -6),
           ),
         ],
       ),
@@ -772,7 +897,8 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
             style: ElevatedButton.styleFrom(
               backgroundColor: AppColors.primaryTeal,
               foregroundColor: Colors.white,
-              elevation: 0,
+              elevation: 6,
+              shadowColor: AppColors.primaryTeal.withValues(alpha: 0.5),
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(28),
               ),

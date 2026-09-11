@@ -108,12 +108,12 @@ class PaymentSuccessScreen extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: AppColors.cardBackground,
+        color: Colors.white,
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: AppColors.lightTealBorder, width: 1.2),
+        // No border
         boxShadow: [
           BoxShadow(
-            color: AppColors.primaryTeal.withValues(alpha: 0.06),
+            color: Colors.black.withValues(alpha: 0.04),
             blurRadius: 16,
             offset: const Offset(0, 4),
           ),
@@ -147,7 +147,7 @@ class PaymentSuccessScreen extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 16),
-          const Divider(color: AppColors.lightTealBorder, thickness: 1),
+          const Divider(color: Color(0xFFE2E8F0), thickness: 1),
           const SizedBox(height: 12),
 
           // Order Meta Info
@@ -168,7 +168,7 @@ class PaymentSuccessScreen extends StatelessWidget {
           _buildInfoRow('Metode Bayar', order.paymentMethod.label),
 
           const SizedBox(height: 12),
-          const Divider(color: AppColors.lightTealBorder, thickness: 1),
+          const Divider(color: Color(0xFFE2E8F0), thickness: 1),
           const SizedBox(height: 12),
 
           // Items List
@@ -227,7 +227,7 @@ class PaymentSuccessScreen extends StatelessWidget {
           }),
 
           const SizedBox(height: 8),
-          const Divider(color: AppColors.lightTealBorder, thickness: 1),
+          const Divider(color: Color(0xFFE2E8F0), thickness: 1),
           const SizedBox(height: 10),
 
           // Summary amounts
@@ -261,7 +261,7 @@ class PaymentSuccessScreen extends StatelessWidget {
 
           if (order.paymentMethod == PaymentMethodType.cash && order.cashGiven > 0) ...[
             const SizedBox(height: 10),
-            const Divider(color: AppColors.lightTealBorder, thickness: 1),
+            const Divider(color: Color(0xFFE2E8F0), thickness: 1),
             const SizedBox(height: 8),
             _buildAmountRow('Tunai Diterima', Product.formatRupiah(order.cashGiven)),
             const SizedBox(height: 4),
@@ -369,7 +369,7 @@ class PaymentSuccessScreen extends StatelessWidget {
                   ),
                   style: OutlinedButton.styleFrom(
                     foregroundColor: AppColors.darkText,
-                    side: const BorderSide(color: AppColors.lightTealBorder, width: 1.5),
+                    side: const BorderSide(color: Color(0xFFE2E8F0), width: 1.5),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(14),
                     ),
@@ -396,7 +396,7 @@ class PaymentSuccessScreen extends StatelessWidget {
                   ),
                   style: OutlinedButton.styleFrom(
                     foregroundColor: AppColors.darkText,
-                    side: const BorderSide(color: AppColors.lightTealBorder, width: 1.5),
+                    side: const BorderSide(color: Color(0xFFE2E8F0), width: 1.5),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(14),
                     ),

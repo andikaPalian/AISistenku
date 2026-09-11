@@ -36,7 +36,7 @@ class StockActionSheet extends StatelessWidget {
                 width: 44,
                 height: 4,
                 decoration: BoxDecoration(
-                  color: AppColors.lightTealBorder,
+                  color: Color(0xFFE2E8F0),
                   borderRadius: BorderRadius.circular(2),
                 ),
               ),
@@ -65,7 +65,6 @@ class StockActionSheet extends StatelessWidget {
             _buildActionItem(
               context: context,
               icon: Icons.add_shopping_cart_rounded,
-              iconBg: AppColors.primaryTeal.withValues(alpha: 0.12),
               iconColor: AppColors.primaryTeal,
               title: 'Catat Stok Masuk (Restock)',
               subtitle: 'Tambah stok bahan yang sudah ada dari supplier',
@@ -80,7 +79,6 @@ class StockActionSheet extends StatelessWidget {
             _buildActionItem(
               context: context,
               icon: Icons.add_box_rounded,
-              iconBg: AppColors.infoBg,
               iconColor: AppColors.infoBlue,
               title: 'Tambah Bahan Baku Baru',
               subtitle: 'Daftarkan varian bahan baku baru ke dalam katalog',
@@ -98,7 +96,6 @@ class StockActionSheet extends StatelessWidget {
   Widget _buildActionItem({
     required BuildContext context,
     required IconData icon,
-    required Color iconBg,
     required Color iconColor,
     required String title,
     required String subtitle,
@@ -110,17 +107,24 @@ class StockActionSheet extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          color: AppColors.cardBackground,
+          color: const Color(0xFFF8FAFC), // Slate 50
           borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: AppColors.lightTealBorder),
+          // No border
         ),
         child: Row(
           children: [
             Container(
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
-                color: iconBg,
+                color: Colors.white, // White circle
                 borderRadius: BorderRadius.circular(14),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withValues(alpha: 0.04),
+                    blurRadius: 8,
+                    offset: const Offset(0, 2),
+                  ),
+                ],
               ),
               child: Icon(icon, color: iconColor, size: 24),
             ),

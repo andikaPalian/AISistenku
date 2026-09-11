@@ -79,7 +79,7 @@ class _AiChatInputBarState extends State<AiChatInputBar> {
       decoration: BoxDecoration(
         color: Colors.white,
         border: const Border(
-          top: BorderSide(color: AppColors.lightTealBorder, width: 1),
+          top: BorderSide(color: Color(0xFFE2E8F0), width: 1), // Clean slate border
         ),
         boxShadow: [
           BoxShadow(
@@ -103,12 +103,12 @@ class _AiChatInputBarState extends State<AiChatInputBar> {
                 decoration: BoxDecoration(
                   color: _isListening
                       ? AppColors.dangerBg
-                      : AppColors.tealBackgrounds,
+                      : const Color(0xFFF1F5F9), // Clean slate
                   shape: BoxShape.circle,
                   border: Border.all(
                     color: _isListening
                         ? AppColors.destructive
-                        : AppColors.lightTealBorder,
+                        : Colors.transparent, // No border
                     width: 1.2,
                   ),
                 ),
@@ -130,12 +130,9 @@ class _AiChatInputBarState extends State<AiChatInputBar> {
               child: Container(
                 padding: const EdgeInsets.symmetric(horizontal: 16),
                 decoration: BoxDecoration(
-                  color: AppColors.tealBackgrounds,
+                  color: const Color(0xFFF1F5F9), // Clean slate
                   borderRadius: BorderRadius.circular(24),
-                  border: Border.all(
-                    color: AppColors.lightTealBorder,
-                    width: 1.2,
-                  ),
+                  // No border
                 ),
                 child: TextField(
                   controller: _controller,
@@ -160,18 +157,18 @@ class _AiChatInputBarState extends State<AiChatInputBar> {
             ),
             const SizedBox(width: 10),
 
-            // Send Button (Brand Primary Teal Circle)
+            // Send Button (Premium Dark Slate Circle)
             GestureDetector(
               onTap: _handleSend,
               child: Container(
                 width: 44,
                 height: 44,
                 decoration: BoxDecoration(
-                  color: AppColors.primaryTeal,
+                  color: const Color(0xFF0F172A), // Dark slate
                   shape: BoxShape.circle,
                   boxShadow: [
                     BoxShadow(
-                      color: AppColors.primaryTeal.withValues(alpha: 0.25),
+                      color: Colors.black.withValues(alpha: 0.15),
                       blurRadius: 8,
                       offset: const Offset(0, 2),
                     ),

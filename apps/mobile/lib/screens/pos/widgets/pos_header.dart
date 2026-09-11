@@ -33,7 +33,7 @@ class PosHeader extends StatelessWidget {
                       width: 44,
                       height: 4,
                       decoration: BoxDecoration(
-                        color: AppColors.lightTealBorder,
+                        color: const Color(0xFFE2E8F0), // Clean slate handle
                         borderRadius: BorderRadius.circular(2),
                       ),
                     ),
@@ -46,8 +46,8 @@ class PosHeader extends StatelessWidget {
                         children: [
                           Container(
                             padding: const EdgeInsets.all(8),
-                            decoration: const BoxDecoration(
-                              color: AppColors.tealBackgrounds,
+                            decoration: BoxDecoration(
+                              color: AppColors.primaryTeal.withValues(alpha: 0.1), // Elegant tinted teal
                               shape: BoxShape.circle,
                             ),
                             child: const Icon(
@@ -143,14 +143,13 @@ class PosHeader extends StatelessWidget {
       margin: const EdgeInsets.only(bottom: 12),
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: AppColors.cardBackground,
+        color: Colors.white,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppColors.lightTealBorder),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.02),
-            blurRadius: 6,
-            offset: const Offset(0, 2),
+            color: Colors.black.withValues(alpha: 0.06), // Pop out instead of border
+            blurRadius: 16,
+            offset: const Offset(0, 4),
           ),
         ],
       ),
@@ -165,7 +164,7 @@ class PosHeader extends StatelessWidget {
                 style: GoogleFonts.inter(
                   fontSize: 13,
                   fontWeight: FontWeight.w700,
-                  color: AppColors.primaryTeal,
+                  color: AppColors.darkText, // More premium than everything being teal
                 ),
               ),
               Container(
@@ -229,13 +228,12 @@ class PosHeader extends StatelessWidget {
           Container(
             padding: const EdgeInsets.all(9),
             decoration: BoxDecoration(
-              color: AppColors.tealBackgrounds,
+              color: const Color(0xFFF1F5F9), // Clean light slate
               borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: AppColors.lightTealBorder),
             ),
             child: const Icon(
               Icons.point_of_sale_rounded,
-              color: AppColors.primaryTeal,
+              color: Color(0xFF0F172A),
               size: 22,
             ),
           ),
@@ -309,17 +307,13 @@ class PosHeader extends StatelessWidget {
             behavior: HitTestBehavior.opaque,
             child: Container(
               padding: const EdgeInsets.all(9),
-              decoration: BoxDecoration(
-                color: AppColors.tealBackgrounds,
+              decoration: const BoxDecoration(
+                color: Color(0xFFF1F5F9), // Clean light slate
                 shape: BoxShape.circle,
-                border: Border.all(
-                  color: AppColors.lightTealBorder,
-                  width: 1,
-                ),
               ),
               child: const Icon(
                 Icons.receipt_long_rounded,
-                color: AppColors.darkText,
+                color: Color(0xFF0F172A),
                 size: 20,
               ),
             ),

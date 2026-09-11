@@ -41,19 +41,19 @@ class ProductCard extends StatelessWidget {
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 200),
         decoration: BoxDecoration(
-          color: AppColors.cardBackground,
+          color: Colors.white,
           borderRadius: BorderRadius.circular(16),
           border: Border.all(
-            color: _isInCart ? AppColors.primaryTeal : AppColors.lightTealBorder,
-            width: _isInCart ? 2 : 1,
+            color: _isInCart ? AppColors.primaryTeal : Colors.transparent,
+            width: _isInCart ? 2 : 0,
           ),
           boxShadow: [
             BoxShadow(
               color: _isInCart
-                  ? AppColors.primaryTeal.withValues(alpha: 0.12)
+                  ? AppColors.primaryTeal.withValues(alpha: 0.15)
                   : Colors.black.withValues(alpha: 0.04),
-              blurRadius: _isInCart ? 12 : 8,
-              offset: const Offset(0, 3),
+              blurRadius: _isInCart ? 12 : 14,
+              offset: const Offset(0, 4),
             ),
           ],
         ),
@@ -225,7 +225,7 @@ class ProductCard extends StatelessWidget {
                               style: GoogleFonts.poppins(
                                 fontSize: 13,
                                 fontWeight: FontWeight.w700,
-                                color: AppColors.primaryTeal,
+                                color: const Color(0xFF0F172A),
                               ),
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
@@ -306,7 +306,8 @@ class ProductCard extends StatelessWidget {
                                   vertical: 5,
                                 ),
                                 decoration: BoxDecoration(
-                                  color: AppColors.primaryTeal,
+                                  color: Colors.transparent,
+                                  border: Border.all(color: const Color(0xFFE2E8F0)),
                                   borderRadius: BorderRadius.circular(8),
                                 ),
                                 child: Row(
@@ -315,7 +316,7 @@ class ProductCard extends StatelessWidget {
                                     const Icon(
                                       Icons.add_rounded,
                                       size: 14,
-                                      color: Colors.white,
+                                      color: Color(0xFF0F172A),
                                     ),
                                     const SizedBox(width: 2),
                                     Text(
@@ -323,7 +324,7 @@ class ProductCard extends StatelessWidget {
                                       style: GoogleFonts.inter(
                                         fontSize: 11,
                                         fontWeight: FontWeight.w600,
-                                        color: Colors.white,
+                                        color: const Color(0xFF0F172A),
                                       ),
                                     ),
                                   ],

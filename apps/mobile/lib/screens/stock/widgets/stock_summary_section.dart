@@ -33,9 +33,9 @@ class StockSummarySection extends StatelessWidget {
             countColor: AppColors.darkText,
             borderColor: activeFilter == null
                 ? AppColors.primaryTeal
-                : AppColors.lightTealBorder,
+                : Color(0xFFE2E8F0),
             bgColor: activeFilter == null
-                ? AppColors.tealBackgrounds
+                ? Color(0xFFF1F5F9)
                 : AppColors.cardBackground,
             icon: Icons.inventory_2_outlined,
             iconColor: AppColors.primaryTeal,
@@ -119,27 +119,18 @@ class StockSummarySection extends StatelessWidget {
         duration: const Duration(milliseconds: 200),
         padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 12),
         decoration: BoxDecoration(
-          color: bgColor,
+          color: isSelected ? Colors.white : const Color(0xFFF1F5F9), // Clean state
           borderRadius: BorderRadius.circular(16),
-          border: Border.all(
-            color: borderColor,
-            width: isSelected ? 2.0 : 1.0,
-          ),
+          // No borders!
           boxShadow: isSelected
               ? [
                   BoxShadow(
-                    color: borderColor.withValues(alpha: 0.2),
-                    blurRadius: 8,
-                    offset: const Offset(0, 2),
+                    color: Colors.black.withValues(alpha: 0.08), // Pop out when selected
+                    blurRadius: 12,
+                    offset: const Offset(0, 4),
                   ),
                 ]
-              : [
-                  BoxShadow(
-                    color: Colors.black.withValues(alpha: 0.02),
-                    blurRadius: 4,
-                    offset: const Offset(0, 1),
-                  ),
-                ],
+              : null, // Flat when unselected
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.center,

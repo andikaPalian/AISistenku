@@ -22,14 +22,14 @@ class CartBottomBar extends StatelessWidget {
       padding: const EdgeInsets.fromLTRB(18, 12, 18, 14),
       margin: const EdgeInsets.fromLTRB(16, 0, 16, 12),
       decoration: BoxDecoration(
-        color: AppColors.cardBackground,
+        color: Colors.white,
         borderRadius: BorderRadius.circular(18),
-        border: Border.all(color: AppColors.lightTealBorder, width: 1.5),
+        // No hard border
         boxShadow: [
           BoxShadow(
-            color: AppColors.primaryTeal.withValues(alpha: 0.12),
+            color: Colors.black.withValues(alpha: 0.08), // Soft black shadow instead of tinted teal
             blurRadius: 16,
-            offset: const Offset(0, -4),
+            offset: const Offset(0, 4),
           ),
         ],
       ),
@@ -46,15 +46,15 @@ class CartBottomBar extends StatelessWidget {
                     Container(
                       padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2),
                       decoration: BoxDecoration(
-                        color: AppColors.tealBackgrounds,
+                        color: const Color(0xFFF1F5F9), // Clean light slate
                         borderRadius: BorderRadius.circular(6),
-                        border: Border.all(color: AppColors.lightTealBorder),
+                        // No border
                       ),
                       child: Text(
                         '$itemCount Item',
                         style: GoogleFonts.inter(
                           fontSize: 11,
-                          color: AppColors.primaryTeal,
+                          color: const Color(0xFF0F172A),
                           fontWeight: FontWeight.w700,
                         ),
                       ),

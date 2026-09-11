@@ -191,7 +191,7 @@ class _AddStockModalState extends State<AddStockModal> {
                     width: 44,
                     height: 4,
                     decoration: BoxDecoration(
-                      color: AppColors.lightTealBorder,
+                      color: Color(0xFFE2E8F0),
                       borderRadius: BorderRadius.circular(2),
                     ),
                   ),
@@ -260,15 +260,15 @@ class _AddStockModalState extends State<AddStockModal> {
                   decoration: InputDecoration(
                     hintText: 'Contoh: Sirup Hazelnut, Matcha Uji, Cup 16oz',
                     filled: true,
-                    fillColor: AppColors.tealBackgrounds,
+                    fillColor: Color(0xFFF1F5F9),
                     contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
-                      borderSide: const BorderSide(color: AppColors.lightTealBorder),
+                      borderSide: BorderSide.none,
                     ),
                     enabledBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
-                      borderSide: const BorderSide(color: AppColors.lightTealBorder),
+                      borderSide: BorderSide.none,
                     ),
                     focusedBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
@@ -300,9 +300,9 @@ class _AddStockModalState extends State<AddStockModal> {
                           Container(
                             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 2),
                             decoration: BoxDecoration(
-                              color: AppColors.tealBackgrounds,
+                              color: Color(0xFFF1F5F9),
                               borderRadius: BorderRadius.circular(12),
-                              border: Border.all(color: AppColors.lightTealBorder),
+
                             ),
                             child: DropdownButtonHideUnderline(
                               child: DropdownButton<StockCategory>(
@@ -346,9 +346,9 @@ class _AddStockModalState extends State<AddStockModal> {
                           Container(
                             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 2),
                             decoration: BoxDecoration(
-                              color: AppColors.tealBackgrounds,
+                              color: Color(0xFFF1F5F9),
                               borderRadius: BorderRadius.circular(12),
-                              border: Border.all(color: AppColors.lightTealBorder),
+
                             ),
                             child: DropdownButtonHideUnderline(
                               child: DropdownButton<String>(
@@ -400,15 +400,15 @@ class _AddStockModalState extends State<AddStockModal> {
                             decoration: InputDecoration(
                               hintText: '0',
                               filled: true,
-                              fillColor: AppColors.tealBackgrounds,
+                              fillColor: Color(0xFFF1F5F9),
                               contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
                               border: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(12),
-                                borderSide: const BorderSide(color: AppColors.lightTealBorder),
+                                borderSide: BorderSide.none,
                               ),
                               enabledBorder: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(12),
-                                borderSide: const BorderSide(color: AppColors.lightTealBorder),
+                                borderSide: BorderSide.none,
                               ),
                               focusedBorder: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(12),
@@ -442,15 +442,15 @@ class _AddStockModalState extends State<AddStockModal> {
                             decoration: InputDecoration(
                               hintText: '5',
                               filled: true,
-                              fillColor: AppColors.tealBackgrounds,
+                              fillColor: Color(0xFFF1F5F9),
                               contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
                               border: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(12),
-                                borderSide: const BorderSide(color: AppColors.lightTealBorder),
+                                borderSide: BorderSide.none,
                               ),
                               enabledBorder: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(12),
-                                borderSide: const BorderSide(color: AppColors.lightTealBorder),
+                                borderSide: BorderSide.none,
                               ),
                               focusedBorder: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(12),
@@ -490,15 +490,15 @@ class _AddStockModalState extends State<AddStockModal> {
                             decoration: InputDecoration(
                               prefixText: 'Rp ',
                               filled: true,
-                              fillColor: AppColors.tealBackgrounds,
+                              fillColor: Color(0xFFF1F5F9),
                               contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
                               border: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(12),
-                                borderSide: const BorderSide(color: AppColors.lightTealBorder),
+                                borderSide: BorderSide.none,
                               ),
                               enabledBorder: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(12),
-                                borderSide: const BorderSide(color: AppColors.lightTealBorder),
+                                borderSide: BorderSide.none,
                               ),
                               focusedBorder: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(12),
@@ -529,15 +529,15 @@ class _AddStockModalState extends State<AddStockModal> {
                             decoration: InputDecoration(
                               hintText: 'Nama supplier',
                               filled: true,
-                              fillColor: AppColors.tealBackgrounds,
+                              fillColor: Color(0xFFF1F5F9),
                               contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
                               border: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(12),
-                                borderSide: const BorderSide(color: AppColors.lightTealBorder),
+                                borderSide: BorderSide.none,
                               ),
                               enabledBorder: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(12),
-                                borderSide: const BorderSide(color: AppColors.lightTealBorder),
+                                borderSide: BorderSide.none,
                               ),
                               focusedBorder: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(12),
@@ -569,15 +569,15 @@ class _AddStockModalState extends State<AddStockModal> {
                   decoration: InputDecoration(
                     hintText: 'Contoh: Simpan di suhu chiller 4°C',
                     filled: true,
-                    fillColor: AppColors.tealBackgrounds,
+                    fillColor: Color(0xFFF1F5F9),
                     contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
-                      borderSide: const BorderSide(color: AppColors.lightTealBorder),
+                      borderSide: BorderSide.none,
                     ),
                     enabledBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
-                      borderSide: const BorderSide(color: AppColors.lightTealBorder),
+                      borderSide: BorderSide.none,
                     ),
                     focusedBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
@@ -599,7 +599,8 @@ class _AddStockModalState extends State<AddStockModal> {
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(14),
                       ),
-                      elevation: 0,
+                      elevation: 6,
+                      shadowColor: AppColors.primaryTeal.withValues(alpha: 0.4),
                     ),
                     child: Text(
                       isEditing ? 'Simpan Perubahan' : 'Simpan Bahan Baku',

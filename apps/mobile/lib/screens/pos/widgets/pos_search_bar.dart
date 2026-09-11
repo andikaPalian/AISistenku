@@ -27,16 +27,9 @@ class _PosSearchBarState extends State<PosSearchBar> {
     return Container(
       height: 48,
       decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: AppColors.lightTealBorder, width: 1.2),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.02),
-            blurRadius: 6,
-            offset: const Offset(0, 2),
-          ),
-        ],
+        color: const Color(0xFFF1F5F9), // Clean light slate background
+        borderRadius: BorderRadius.circular(12),
+        // No hard border, relying on background color for boundary
       ),
       child: TextField(
         controller: _controller,

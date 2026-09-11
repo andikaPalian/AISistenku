@@ -95,14 +95,17 @@ class _SmoothTabTransitionViewState extends State<SmoothTabTransitionView>
 
         return Offstage(
           offstage: !isActive && !isAnimating,
-          child: TickerMode(
-            enabled: isActive || isAnimating,
-            child: FadeTransition(
-              opacity: _fadeAnimations[index],
-              child: ScaleTransition(
-                scale: _scaleAnimations[index],
-                alignment: Alignment.center,
-                child: widget.children[index],
+          child: IgnorePointer(
+            ignoring: !isActive,
+            child: TickerMode(
+              enabled: isActive || isAnimating,
+              child: FadeTransition(
+                opacity: _fadeAnimations[index],
+                child: ScaleTransition(
+                  scale: _scaleAnimations[index],
+                  alignment: Alignment.center,
+                  child: widget.children[index],
+                ),
               ),
             ),
           ),

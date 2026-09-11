@@ -48,14 +48,14 @@ class StockCard extends StatelessWidget {
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
       decoration: BoxDecoration(
-        color: AppColors.cardBackground,
+        color: Colors.white,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppColors.lightTealBorder),
-        boxShadow: const [
+        // No border
+        boxShadow: [
           BoxShadow(
-            color: AppColors.cardShadow,
-            blurRadius: 10,
-            offset: Offset(0, 2),
+            color: Colors.black.withValues(alpha: 0.04), // Clean shadow
+            blurRadius: 12,
+            offset: const Offset(0, 4),
           ),
         ],
       ),
@@ -93,9 +93,9 @@ class StockCard extends StatelessWidget {
                                 width: 44,
                                 height: 44,
                                 decoration: BoxDecoration(
-                                  color: AppColors.tealBackgrounds,
+                                  color: const Color(0xFFF1F5F9), // Slate
                                   borderRadius: BorderRadius.circular(12),
-                                  border: Border.all(color: AppColors.lightTealBorder),
+                                  // No border
                                 ),
                                 child: Icon(
                                   item.icon,
@@ -181,7 +181,7 @@ class StockCard extends StatelessWidget {
                                   child: LinearProgressIndicator(
                                     value: item.healthRatio,
                                     minHeight: 5,
-                                    backgroundColor: AppColors.tealBackgrounds,
+                                    backgroundColor: const Color(0xFFE2E8F0), // Slate
                                     valueColor: AlwaysStoppedAnimation<Color>(accentColor),
                                   ),
                                 ),
@@ -206,9 +206,9 @@ class StockCard extends StatelessWidget {
                                 child: Container(
                                   padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                                   decoration: BoxDecoration(
-                                    color: AppColors.tealBackgrounds,
+                                    color: AppColors.primaryTeal.withValues(alpha: 0.1), // Subtle tint
                                     borderRadius: BorderRadius.circular(8),
-                                    border: Border.all(color: AppColors.lightTealBorder),
+                                    // No border
                                   ),
                                   child: Row(
                                     mainAxisSize: MainAxisSize.min,

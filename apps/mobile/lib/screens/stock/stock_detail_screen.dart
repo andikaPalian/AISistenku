@@ -335,9 +335,9 @@ class _StockDetailScreenState extends State<StockDetailScreen> {
                               return Container(
                                 padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                                 decoration: BoxDecoration(
-                                  color: AppColors.tealBackgrounds,
+                                  color: const Color(0xFFF1F5F9), // Slate 100
                                   borderRadius: BorderRadius.circular(10),
-                                  border: Border.all(color: AppColors.lightTealBorder),
+                                  // No border
                                 ),
                                 child: Row(
                                   mainAxisSize: MainAxisSize.min,
@@ -411,9 +411,16 @@ class _StockDetailScreenState extends State<StockDetailScreen> {
                             padding: const EdgeInsets.all(28),
                             alignment: Alignment.center,
                             decoration: BoxDecoration(
-                              color: AppColors.cardBackground,
+                              color: Colors.white,
                               borderRadius: BorderRadius.circular(16),
-                              border: Border.all(color: AppColors.lightTealBorder),
+                              // No border
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.black.withValues(alpha: 0.03),
+                                  blurRadius: 10,
+                                  offset: const Offset(0, 4),
+                                ),
+                              ],
                             ),
                             child: Column(
                               children: [
@@ -436,14 +443,14 @@ class _StockDetailScreenState extends State<StockDetailScreen> {
                         else
                           Container(
                             decoration: BoxDecoration(
-                              color: AppColors.cardBackground,
+                              color: Colors.white,
                               borderRadius: BorderRadius.circular(18),
-                              border: Border.all(color: AppColors.lightTealBorder),
-                              boxShadow: const [
+                              // No border
+                              boxShadow: [
                                 BoxShadow(
-                                  color: AppColors.cardShadow,
+                                  color: Colors.black.withValues(alpha: 0.04),
                                   blurRadius: 10,
-                                  offset: Offset(0, 2),
+                                  offset: const Offset(0, 4),
                                 ),
                               ],
                             ),
@@ -453,7 +460,7 @@ class _StockDetailScreenState extends State<StockDetailScreen> {
                               itemCount: filteredLogs.length,
                               separatorBuilder: (context, index) => const Divider(
                                 height: 1,
-                                color: AppColors.lightTealBorder,
+                                color: Color(0xFFE2E8F0),
                                 indent: 64,
                               ),
                               itemBuilder: (context, index) {
@@ -487,13 +494,13 @@ class _StockDetailScreenState extends State<StockDetailScreen> {
                         flex: 2,
                         child: SizedBox(
                           height: 50,
-                          child: OutlinedButton.icon(
+                          child: TextButton.icon(
                             onPressed: () => AdjustStockModal.show(context, item: item),
                             icon: const Icon(Icons.tune_rounded, size: 18),
                             label: const Text('Opname'),
-                            style: OutlinedButton.styleFrom(
+                            style: TextButton.styleFrom(
+                              backgroundColor: const Color(0xFFF1F5F9), // Slate
                               foregroundColor: AppColors.darkText,
-                              side: const BorderSide(color: AppColors.lightTealBorder, width: 1.5),
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(14),
                               ),
@@ -514,18 +521,19 @@ class _StockDetailScreenState extends State<StockDetailScreen> {
                           height: 50,
                           child: ElevatedButton.icon(
                             onPressed: () => RestockModal.show(context, initialItem: item),
-                            icon: const Icon(Icons.add_rounded, size: 20),
-                            label: const Text('Tambah Stok +'),
+                            icon: const Icon(Icons.add_rounded, size: 20, color: Colors.white),
+                            label: const Text('Tambah Stok'),
                             style: ElevatedButton.styleFrom(
-                              backgroundColor: AppColors.primaryTeal,
+                              backgroundColor: const Color(0xFF0F172A), // Dark Slate
                               foregroundColor: Colors.white,
-                              elevation: 0,
+                              elevation: 6,
+                              shadowColor: const Color(0xFF0F172A).withValues(alpha: 0.4),
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(14),
                               ),
                               textStyle: GoogleFonts.poppins(
                                 fontSize: 14,
-                                fontWeight: FontWeight.w700,
+                                fontWeight: FontWeight.w600,
                               ),
                             ),
                           ),
@@ -550,11 +558,9 @@ class _StockDetailScreenState extends State<StockDetailScreen> {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
         decoration: BoxDecoration(
-          color: isSelected ? AppColors.primaryTeal : AppColors.cardBackground,
+          color: isSelected ? AppColors.primaryTeal : const Color(0xFFF1F5F9), // Slate 100
           borderRadius: BorderRadius.circular(20),
-          border: Border.all(
-            color: isSelected ? AppColors.primaryTeal : AppColors.lightTealBorder,
-          ),
+          // No border
         ),
         child: Text(
           label,
@@ -578,14 +584,14 @@ class _StockDetailScreenState extends State<StockDetailScreen> {
     return Container(
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
-        color: AppColors.cardBackground,
+        color: Colors.white,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppColors.lightTealBorder),
-        boxShadow: const [
+        // No border
+        boxShadow: [
           BoxShadow(
-            color: AppColors.cardShadow,
-            blurRadius: 8,
-            offset: Offset(0, 2),
+            color: Colors.black.withValues(alpha: 0.04),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
           ),
         ],
       ),

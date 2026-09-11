@@ -17,15 +17,11 @@ class AiWelcomeHero extends StatelessWidget {
       width: double.infinity,
       padding: const EdgeInsets.all(18),
       decoration: BoxDecoration(
-        color: AppColors.tealBackgrounds,
+        color: Colors.white,
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(
-          color: AppColors.lightTealBorder,
-          width: 1.2,
-        ),
         boxShadow: [
           BoxShadow(
-            color: AppColors.primaryTeal.withValues(alpha: 0.04),
+            color: Colors.black.withValues(alpha: 0.04),
             blurRadius: 12,
             offset: const Offset(0, 3),
           ),
@@ -43,19 +39,8 @@ class AiWelcomeHero extends StatelessWidget {
                 height: 44,
                 padding: const EdgeInsets.all(6),
                 decoration: BoxDecoration(
-                  color: Colors.white,
+                  color: AppColors.primaryTeal, // Solid background
                   borderRadius: BorderRadius.circular(14),
-                  border: Border.all(
-                    color: AppColors.lightTealBorder,
-                    width: 1.2,
-                  ),
-                  boxShadow: [
-                    BoxShadow(
-                      color: AppColors.primaryTeal.withValues(alpha: 0.08),
-                      blurRadius: 8,
-                      offset: const Offset(0, 2),
-                    ),
-                  ],
                 ),
                 child: Image.asset(
                   'assets/icons/logoAisitenku.png',

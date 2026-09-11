@@ -42,13 +42,9 @@ class AiCaptionCard extends StatelessWidget {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(18),
-        border: Border.all(
-          color: AppColors.lightTealBorder,
-          width: 1.2,
-        ),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.03),
+            color: Colors.black.withValues(alpha: 0.04), // Clean shadow, no border
             blurRadius: 10,
             offset: const Offset(0, 3),
           ),
@@ -89,9 +85,9 @@ class AiCaptionCard extends StatelessWidget {
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                 decoration: BoxDecoration(
-                  color: AppColors.tealBackgrounds,
+                  color: const Color(0xFFF1F5F9), // Clean slate
                   borderRadius: BorderRadius.circular(8),
-                  border: Border.all(color: AppColors.lightTealBorder),
+                  // No border
                 ),
                 child: Text(
                   payload.platform ?? 'Instagram',
@@ -112,9 +108,9 @@ class AiCaptionCard extends StatelessWidget {
             width: double.infinity,
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
-              color: AppColors.tealBackgrounds,
+              color: const Color(0xFFF1F5F9), // Clean slate
               borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: AppColors.lightTealBorder),
+              // No border
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,

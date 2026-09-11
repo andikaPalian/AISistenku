@@ -415,7 +415,7 @@ class _AddEditProductModalState extends State<AddEditProductModal> {
               width: 40,
               height: 4,
               decoration: BoxDecoration(
-                color: AppColors.lightTealBorder,
+                color: const Color(0xFFE2E8F0),
                 borderRadius: BorderRadius.circular(2),
               ),
             ),
@@ -446,7 +446,7 @@ class _AddEditProductModalState extends State<AddEditProductModal> {
                 ),
             ],
           ),
-          const Divider(height: 1, color: AppColors.lightTealBorder),
+          const Divider(height: 1, color: Color(0xFFE2E8F0)),
           const SizedBox(height: 16),
 
           // Form fields scrollable
@@ -479,12 +479,12 @@ class _AddEditProductModalState extends State<AddEditProductModal> {
                             width: 88,
                             height: 88,
                             decoration: BoxDecoration(
-                              color: AppColors.tealBackgrounds,
+                              color: const Color(0xFFF1F5F9), // Slate
                               borderRadius: BorderRadius.circular(14),
-                              border: Border.all(color: AppColors.lightTealBorder, width: 1.5),
+                              // No border
                             ),
                             child: ClipRRect(
-                              borderRadius: BorderRadius.circular(12),
+                              borderRadius: BorderRadius.circular(14),
                               child: _buildImagePreviewWidget(),
                             ),
                           ),
@@ -506,8 +506,9 @@ class _AddEditProductModalState extends State<AddEditProductModal> {
                                   style: GoogleFonts.inter(fontSize: 12, fontWeight: FontWeight.w600),
                                 ),
                                 style: ElevatedButton.styleFrom(
-                                  backgroundColor: AppColors.primaryTeal,
+                                  backgroundColor: const Color(0xFF0F172A), // Premium dark slate
                                   foregroundColor: Colors.white,
+                                  elevation: 0,
                                   padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 12),
                                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
                                 ),
@@ -520,16 +521,16 @@ class _AddEditProductModalState extends State<AddEditProductModal> {
                                   hintText: 'Atau tempel link URL...',
                                   hintStyle: GoogleFonts.inter(fontSize: 11, color: AppColors.mutedText),
                                   filled: true,
-                                  fillColor: AppColors.tealBackgrounds,
+                                  fillColor: const Color(0xFFF1F5F9),
                                   isDense: true,
                                   contentPadding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
                                   border: OutlineInputBorder(
                                     borderRadius: BorderRadius.circular(8),
-                                    borderSide: const BorderSide(color: AppColors.lightTealBorder),
+                                    borderSide: BorderSide.none,
                                   ),
                                   enabledBorder: OutlineInputBorder(
                                     borderRadius: BorderRadius.circular(8),
-                                    borderSide: const BorderSide(color: AppColors.lightTealBorder),
+                                    borderSide: BorderSide.none,
                                   ),
                                   focusedBorder: OutlineInputBorder(
                                     borderRadius: BorderRadius.circular(8),
@@ -563,12 +564,10 @@ class _AddEditProductModalState extends State<AddEditProductModal> {
                                 ),
                               ),
                               avatar: const Icon(Icons.image_outlined, size: 14),
-                              backgroundColor: isSelected ? AppColors.primaryTeal : AppColors.tealBackgrounds,
+                              backgroundColor: isSelected ? AppColors.primaryTeal : const Color(0xFFF1F5F9),
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(8),
-                                side: BorderSide(
-                                  color: isSelected ? AppColors.primaryTeal : AppColors.lightTealBorder,
-                                ),
+                                side: BorderSide.none,
                               ),
                               onPressed: () => _onSelectPresetImage(p['url']!),
                             ),
@@ -610,10 +609,9 @@ class _AddEditProductModalState extends State<AddEditProductModal> {
                           ),
                           selected: isSel,
                           selectedColor: AppColors.primaryTeal,
-                          backgroundColor: AppColors.tealBackgrounds,
-                          side: BorderSide(
-                            color: isSel ? AppColors.primaryTeal : AppColors.lightTealBorder,
-                          ),
+                          backgroundColor: const Color(0xFFF1F5F9),
+                          side: BorderSide.none,
+                          showCheckmark: false,
                           onSelected: (_) => setState(() => _selectedCategory = cat),
                         );
                       }).toList(),
@@ -729,6 +727,8 @@ class _AddEditProductModalState extends State<AddEditProductModal> {
             style: ElevatedButton.styleFrom(
               backgroundColor: AppColors.primaryTeal,
               foregroundColor: Colors.white,
+              elevation: 6,
+              shadowColor: AppColors.primaryTeal.withValues(alpha: 0.5),
               padding: const EdgeInsets.symmetric(vertical: 14),
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
             ),
@@ -760,16 +760,16 @@ class _AddEditProductModalState extends State<AddEditProductModal> {
       prefixText: prefix,
       hintStyle: GoogleFonts.inter(fontSize: 13, color: AppColors.mutedText.withValues(alpha: 0.6)),
       filled: true,
-      fillColor: AppColors.tealBackgrounds,
+      fillColor: const Color(0xFFF1F5F9), // Clean slate
       isDense: true,
       contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
       border: OutlineInputBorder(
         borderRadius: BorderRadius.circular(10),
-        borderSide: const BorderSide(color: AppColors.lightTealBorder),
+        borderSide: BorderSide.none, // No border
       ),
       enabledBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(10),
-        borderSide: const BorderSide(color: AppColors.lightTealBorder),
+        borderSide: BorderSide.none,
       ),
       focusedBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(10),
