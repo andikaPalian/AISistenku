@@ -134,23 +134,13 @@ class StockAlertSection extends StatelessWidget {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Row(
-                  children: [
-                    const Icon(
-                      Icons.warning_amber_rounded,
-                      color: Color(0xFFC2410C),
-                      size: 20,
-                    ),
-                    const SizedBox(width: 8),
-                    Text(
-                      'Perlu Diperhatikan',
-                      style: GoogleFonts.poppins(
-                        fontSize: 17,
-                        fontWeight: FontWeight.w700,
-                        color: AppColors.darkText,
-                      ),
-                    ),
-                  ],
+                Text(
+                  'Perlu Diperhatikan',
+                  style: GoogleFonts.poppins(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w700,
+                    color: AppColors.darkText,
+                  ),
                 ),
                 GestureDetector(
                   onTap: () {
@@ -161,10 +151,10 @@ class StockAlertSection extends StatelessWidget {
                   },
                   behavior: HitTestBehavior.opaque,
                   child: Text(
-                    'Kelola Semua',
+                    'Kelola',
                     style: GoogleFonts.inter(
                       fontSize: 13,
-                      color: const Color(0xFFC2410C),
+                      color: AppColors.primaryTeal,
                       fontWeight: FontWeight.w600,
                     ),
                   ),

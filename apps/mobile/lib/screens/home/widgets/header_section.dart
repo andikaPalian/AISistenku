@@ -148,121 +148,51 @@ class _HeaderSectionState extends State<HeaderSection> {
             return Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // ── 1. Top App Bar Row ──────────────────────────────────────────
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
-                    // Store Switcher (Left)
-                    GestureDetector(
-                      onTap: _showStoreSwitcherModal,
-                      behavior: HitTestBehavior.opaque,
+                    // Left Side: Avatar + Store & Greeting
+                    Expanded(
                       child: Row(
                         children: [
-                          Container(
-                            width: 42,
-                            height: 42,
-                            decoration: BoxDecoration(
-                              color: const Color(0xFF1E293B),
-                              borderRadius: BorderRadius.circular(12),
-                              boxShadow: [
-                                BoxShadow(
-                                  color: Colors.black.withValues(alpha: 0.08),
-                                  blurRadius: 6,
-                                  offset: const Offset(0, 2),
+                          // Avatar
+                          GestureDetector(
+                            onTap: () {
+                              Navigator.of(context).push(
+                                MaterialPageRoute(
+                                  builder: (context) => const ProfileScreen(),
                                 ),
-                              ],
-                            ),
-                            child: Center(
-                              child: Image.asset(
-                                'assets/icons/logoAisitenku.png',
-                                width: 24,
-                                height: 24,
-                                errorBuilder: (_, __, ___) => const Icon(
-                                  Icons.local_cafe_rounded,
-                                  color: AppColors.mintAccent,
-                                  size: 20,
-                                ),
+                              );
+                            },
+                            child: Container(
+                              width: 44,
+                              height: 44,
+                              decoration: BoxDecoration(
+                                shape: BoxShape.circle,
+                                border: Border.all(color: const Color(0xFFE2E8F0), width: 1),
                               ),
-                            ),
-                          ),
-                          const SizedBox(width: 10),
-                          Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  Text(
-                                    effectiveStoreName,
-                                    style: GoogleFonts.poppins(
-                                      fontSize: 15,
-                                      fontWeight: FontWeight.w700,
-                                      color: AppColors.darkText,
-                                    ),
-                                  ),
-                                  const SizedBox(width: 4),
-                                  const Icon(
-                                    Icons.arrow_drop_down_rounded,
-                                    color: AppColors.darkText,
-                                    size: 20,
-                                  ),
-                                ],
-                              ),
-                              const SizedBox(height: 1),
-                              Text(
-                                effectiveRole,
-                                style: GoogleFonts.inter(
-                                  fontSize: 12,
-                                  color: AppColors.mutedText,
-                                  fontWeight: FontWeight.w500,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ],
-                      ),
-                    ),
-
-                    // Top Right Actions (Notification + Avatar)
-                    Row(
-                      children: [
-                        const _NotificationBell(),
-                        const SizedBox(width: 10),
-                        GestureDetector(
-                          onTap: () {
-                            Navigator.of(context).push(
-                              MaterialPageRoute(
-                                builder: (context) => const ProfileScreen(),
-                              ),
-                            );
-                          },
-                          child: Container(
-                            width: 38,
-                            height: 38,
-                            decoration: BoxDecoration(
-                              shape: BoxShape.circle,
-                              border: Border.all(color: AppColors.border, width: 1.5),
-                            ),
-                            child: ClipOval(
-                              child: Image.network(
-                                user.avatarUrl ??
-                                    'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80',
-                                width: 38,
-                                height: 38,
-                                fit: BoxFit.cover,
-                                errorBuilder: (_, __, ___) => Container(
-                                  width: 38,
-                                  height: 38,
-                                  color: AppColors.primaryTeal,
-                                  child: Center(
-                                    child: Text(
-                                      effectiveUserName.isNotEmpty
-                                          ? effectiveUserName[0].toUpperCase()
-                                          : 'B',
-                                      style: GoogleFonts.inter(
-                                        color: Colors.white,
-                                        fontWeight: FontWeight.w700,
-                                        fontSize: 14,
+                              child: ClipOval(
+                                child: Image.network(
+                                  user.avatarUrl ??
+                                      'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80',
+                                  width: 44,
+                                  height: 44,
+                                  fit: BoxFit.cover,
+                                  errorBuilder: (_, __, ___) => Container(
+                                    width: 44,
+                                    height: 44,
+                                    color: AppColors.primaryTeal,
+                                    child: Center(
+                                      child: Text(
+                                        effectiveUserName.isNotEmpty
+                                            ? effectiveUserName[0].toUpperCase()
+                                            : 'B',
+                                        style: GoogleFonts.inter(
+                                          color: Colors.white,
+                                          fontWeight: FontWeight.w700,
+                                          fontSize: 15,
+                                        ),
                                       ),
                                     ),
                                   ),
@@ -270,108 +200,64 @@ class _HeaderSectionState extends State<HeaderSection> {
                               ),
                             ),
                           ),
-                        ),
-
-                      ],
-                    ),
-                  ],
-                ),
-
-                const SizedBox(height: 20),
-
-                // ── 2. Greeting & Status Row ──────────────────────────────────
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    Text(
-                      '${_getGreeting()}, $effectiveUserName 👋',
-                      style: GoogleFonts.poppins(
-                        fontSize: 22,
-                        fontWeight: FontWeight.w700,
-                        color: AppColors.darkText,
-                        letterSpacing: -0.3,
+                          const SizedBox(width: 12),
+                          
+                          // Store Name & Greeting
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                GestureDetector(
+                                  onTap: _showStoreSwitcherModal,
+                                  behavior: HitTestBehavior.opaque,
+                                  child: Row(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      Flexible(
+                                        child: Text(
+                                          effectiveStoreName,
+                                          style: GoogleFonts.poppins(
+                                            fontSize: 16,
+                                            fontWeight: FontWeight.w700,
+                                            color: const Color(0xFF0F172A),
+                                          ),
+                                          overflow: TextOverflow.ellipsis,
+                                        ),
+                                      ),
+                                      const SizedBox(width: 2),
+                                      const Icon(
+                                        Icons.keyboard_arrow_down_rounded,
+                                        color: Color(0xFF0F172A),
+                                        size: 20,
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                                const SizedBox(height: 2),
+                                Text(
+                                  '${_getGreeting()}, $effectiveUserName 👋',
+                                  style: GoogleFonts.inter(
+                                    fontSize: 13,
+                                    color: const Color(0xFF64748B),
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
                       ),
                     ),
 
-                    // Live status badge
-                    Container(
-
-              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-              decoration: BoxDecoration(
-                color: _isStoreOpen ? const Color(0xFFDCFCE7) : const Color(0xFFFEE2E2),
-                borderRadius: BorderRadius.circular(20),
-                border: Border.all(
-                  color: _isStoreOpen ? const Color(0xFFBBF7D0) : const Color(0xFFFECACA),
-                  width: 1,
+                    // Right Side: Notification Bell
+                    const Padding(
+                      padding: EdgeInsets.only(left: 12),
+                      child: _NotificationBell(),
+                    ),
+                  ],
                 ),
-              ),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Container(
-                    width: 7,
-                    height: 7,
-                    decoration: BoxDecoration(
-                      color: _isStoreOpen ? const Color(0xFF16A34A) : const Color(0xFFDC2626),
-                      shape: BoxShape.circle,
-                    ),
-                  ),
-                  const SizedBox(width: 6),
-                  Text(
-                    _isStoreOpen ? 'Toko Buka' : 'Tutup',
-                    style: GoogleFonts.inter(
-                      fontSize: 12,
-                      fontWeight: FontWeight.w600,
-                      color: _isStoreOpen ? const Color(0xFF15803D) : const Color(0xFF991B1B),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ),
-
-        const SizedBox(height: 4),
-
-        // ── 3. Date & Operational Hours Subtitle ───────────────────────
-        Row(
-          children: [
-            Text(
-              _getFormattedDate(),
-              style: GoogleFonts.inter(
-                fontSize: 13,
-                color: AppColors.mutedText,
-                fontWeight: FontWeight.w500,
-              ),
-            ),
-            const SizedBox(width: 8),
-            Container(
-              width: 4,
-              height: 4,
-              decoration: const BoxDecoration(
-                color: AppColors.mutedForeground,
-                shape: BoxShape.circle,
-              ),
-            ),
-            const SizedBox(width: 8),
-            const Icon(
-              Icons.access_time_rounded,
-              size: 14,
-              color: AppColors.mutedText,
-            ),
-            const SizedBox(width: 4),
-            Text(
-              '08:00 - 22:00 WIB',
-              style: GoogleFonts.inter(
-                fontSize: 13,
-                color: AppColors.mutedText,
-                fontWeight: FontWeight.w500,
-              ),
-            ),
-          ],
-        ),
-      ],
+              ],
     );
   },
 );
@@ -398,34 +284,38 @@ class _NotificationBell extends StatelessWidget {
           onTap: () => NotificationSheet.show(context),
           behavior: HitTestBehavior.opaque,
           child: Container(
-            width: 38,
-            height: 38,
+            width: 44,
+            height: 44,
             decoration: BoxDecoration(
-              color: AppColors.tealBackgrounds,
+              color: Colors.white,
               shape: BoxShape.circle,
-              border: Border.all(
-                color: AppColors.lightTealBorder,
-                width: 1,
-              ),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withValues(alpha: 0.05),
+                  blurRadius: 10,
+                  offset: const Offset(0, 2),
+                ),
+              ],
+              border: Border.all(color: const Color(0xFFF1F5F9), width: 1),
             ),
             child: Stack(
               alignment: Alignment.center,
               clipBehavior: Clip.none,
               children: [
                 const Icon(
-                  Icons.notifications_outlined,
-                  color: AppColors.darkText,
-                  size: 20,
+                  Icons.notifications_none_rounded,
+                  color: Color(0xFF0F172A),
+                  size: 24,
                 ),
                 if (unreadCount > 0)
                   Positioned(
-                    right: 7,
-                    top: 7,
+                    right: 10,
+                    top: 10,
                     child: Container(
                       width: 8,
                       height: 8,
                       decoration: BoxDecoration(
-                        color: const Color(0xFFEA580C),
+                        color: const Color(0xFFEF4444), // Standard bright red
                         shape: BoxShape.circle,
                         border: Border.all(color: Colors.white, width: 1.5),
                       ),

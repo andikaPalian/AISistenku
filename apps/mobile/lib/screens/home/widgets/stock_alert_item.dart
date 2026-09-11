@@ -33,19 +33,17 @@ class StockAlertItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final themeColor = isCritical ? const Color(0xFFDC2626) : const Color(0xFFD97706);
-    final badgeBg = isCritical ? const Color(0xFFFEE2E2) : const Color(0xFFFEF3C7);
-    final borderColor = isCritical ? const Color(0xFFFECACA) : const Color(0xFFFDE68A);
+    final badgeBg = isCritical ? const Color(0xFFFEF2F2) : const Color(0xFFFFFBEB);
 
     return Container(
       decoration: BoxDecoration(
-        color: AppColors.cardBackground,
-        borderRadius: BorderRadius.circular(18),
-        border: Border.all(color: borderColor, width: 1),
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.02),
-            blurRadius: 8,
-            offset: const Offset(0, 2),
+            color: Colors.black.withValues(alpha: 0.04),
+            blurRadius: 14,
+            offset: const Offset(0, 4),
           ),
         ],
       ),
@@ -53,7 +51,7 @@ class StockAlertItem extends StatelessWidget {
         color: Colors.transparent,
         child: InkWell(
           onTap: onTap,
-          borderRadius: BorderRadius.circular(18),
+          borderRadius: BorderRadius.circular(16),
           child: Padding(
             padding: const EdgeInsets.all(16),
             child: Column(
@@ -68,13 +66,13 @@ class StockAlertItem extends StatelessWidget {
                       width: 40,
                       height: 40,
                       decoration: BoxDecoration(
-                        color: badgeBg,
-                        borderRadius: BorderRadius.circular(12),
+                        color: const Color(0xFFF1F5F9), // Neutral light slate
+                        borderRadius: BorderRadius.circular(10),
                       ),
                       child: Center(
                         child: Icon(
                           icon,
-                          color: themeColor,
+                          color: const Color(0xFF64748B), // Neutral icon color
                           size: 20,
                         ),
                       ),
@@ -90,8 +88,8 @@ class StockAlertItem extends StatelessWidget {
                             itemName,
                             style: GoogleFonts.poppins(
                               fontSize: 15,
-                              fontWeight: FontWeight.w700,
-                              color: AppColors.darkText,
+                              fontWeight: FontWeight.w600,
+                              color: const Color(0xFF0F172A),
                             ),
                           ),
                           const SizedBox(height: 2),
@@ -99,7 +97,7 @@ class StockAlertItem extends StatelessWidget {
                             minThresholdText,
                             style: GoogleFonts.inter(
                               fontSize: 12,
-                              color: AppColors.mutedText,
+                              color: const Color(0xFF64748B),
                             ),
                           ),
                         ],
@@ -112,12 +110,13 @@ class StockAlertItem extends StatelessWidget {
                       decoration: BoxDecoration(
                         color: badgeBg,
                         borderRadius: BorderRadius.circular(16),
+                        border: Border.all(color: themeColor.withValues(alpha: 0.2)),
                       ),
                       child: Text(
                         isCritical ? 'Kritis' : 'Rendah',
                         style: GoogleFonts.inter(
                           fontSize: 11,
-                          fontWeight: FontWeight.w700,
+                          fontWeight: FontWeight.w600,
                           color: themeColor,
                         ),
                       ),
@@ -125,7 +124,7 @@ class StockAlertItem extends StatelessWidget {
                   ],
                 ),
 
-                const SizedBox(height: 12),
+                const SizedBox(height: 16),
 
                 // ── Middle Row: Remaining text & Capacity percentage ───────
                 Row(
@@ -135,7 +134,7 @@ class StockAlertItem extends StatelessWidget {
                       remainingText,
                       style: GoogleFonts.inter(
                         fontSize: 12,
-                        fontWeight: FontWeight.w700,
+                        fontWeight: FontWeight.w600,
                         color: themeColor,
                       ),
                     ),
@@ -143,56 +142,52 @@ class StockAlertItem extends StatelessWidget {
                       capacityText,
                       style: GoogleFonts.inter(
                         fontSize: 12,
-                        color: AppColors.mutedText,
+                        color: const Color(0xFF64748B),
                         fontWeight: FontWeight.w500,
                       ),
                     ),
                   ],
                 ),
 
-                const SizedBox(height: 6),
+                const SizedBox(height: 8),
 
                 // ── Progress Bar ──────────────────────────────────────────
                 ClipRRect(
-                  borderRadius: BorderRadius.circular(3),
+                  borderRadius: BorderRadius.circular(4),
                   child: LinearProgressIndicator(
                     value: progressFraction.clamp(0.0, 1.0),
-                    minHeight: 5,
+                    minHeight: 6,
                     backgroundColor: const Color(0xFFF1F5F9),
                     valueColor: AlwaysStoppedAnimation<Color>(themeColor),
                   ),
                 ),
 
-                const SizedBox(height: 12),
+                const SizedBox(height: 16),
 
                 // ── Bottom Action: [Restock Cepat] Button ─────────────────
-                Align(
-                  alignment: Alignment.centerRight,
-                  child: SizedBox(
-                    height: 36, // Comfortable hit target
-                    child: ElevatedButton.icon(
-                      onPressed: onRestock ?? onTap,
-                      icon: Icon(
-                        Icons.shopping_cart_outlined,
-                        size: 14,
-                        color: themeColor,
+                SizedBox(
+                  width: double.infinity,
+                  height: 38,
+                  child: OutlinedButton.icon(
+                    onPressed: onRestock ?? onTap,
+                    icon: const Icon(
+                      Icons.shopping_cart_outlined,
+                      size: 16,
+                      color: Color(0xFF0F172A),
+                    ),
+                    label: Text(
+                      'Restock Cepat',
+                      style: GoogleFonts.inter(
+                        fontSize: 13,
+                        fontWeight: FontWeight.w600,
+                        color: const Color(0xFF0F172A),
                       ),
-                      label: Text(
-                        'Restock Cepat',
-                        style: GoogleFonts.inter(
-                          fontSize: 12,
-                          fontWeight: FontWeight.w600,
-                          color: themeColor,
-                        ),
-                      ),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: badgeBg,
-                        foregroundColor: themeColor,
-                        elevation: 0,
-                        padding: const EdgeInsets.symmetric(horizontal: 14),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(20),
-                        ),
+                    ),
+                    style: OutlinedButton.styleFrom(
+                      foregroundColor: const Color(0xFF0F172A),
+                      side: const BorderSide(color: Color(0xFFE2E8F0)),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10),
                       ),
                     ),
                   ),

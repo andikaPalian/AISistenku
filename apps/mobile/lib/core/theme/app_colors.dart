@@ -18,9 +18,9 @@ class AppColors {
   static const Color accent = Color(0xFF0F766E);
 
   // ── Backgrounds & Surfaces ───────────────────────────────────────
-  static const Color background = Color(0xFFF8FFFE);
+  static const Color background = Color(0xFFF8FAFC); // Clean neutral slate-50 instead of tinted cyan
   static const Color pageBackground = background; // alias
-  static const Color surface = Color(0xFFF1F5F9);
+  static const Color surface = Color(0xFFFFFFFF);
 
   // ── Foreground / Text ────────────────────────────────────────────
   static const Color foreground = Color(0xFF0F172A);

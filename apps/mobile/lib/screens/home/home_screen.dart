@@ -4,19 +4,16 @@ import '../../../models/stock_model.dart';
 import '../../../models/product.dart';
 import 'widgets/header_section.dart';
 import 'widgets/revenue_card.dart';
-import 'widgets/ai_insight_card.dart';
 import 'widgets/stock_alert_section.dart';
 import 'widgets/activity_card.dart';
 
 /// Main home dashboard screen for Tiga Angkatan / AIsistenku mobile app.
 ///
-/// Designed strictly to match the verified production reference UI:
-/// 1. Top Bar with Store Switcher, Notification bell, and User Avatar.
-/// 2. Greeting Row with live "Toko Buka" status pill and operational hours.
-/// 3. "BISNIS HARI INI" Card with Gross Revenue, 7-day mini bar chart, and sub-metrics.
-/// 4. "AI BUSINESS INSIGHT" Deep forest emerald card with dual action buttons.
-/// 5. "Perlu Diperhatikan" Stock alerts with linear progress bars and "Restock Cepat".
-/// 6. "Menu Terlaris Hari Ini" Top 3 ranked items and realtime sync status bar.
+/// Designed cleanly with no AI SLOP. Focuses on real backend data:
+/// 1. Top Bar & Greeting Header
+/// 2. Revenue Card (Bisnis Hari Ini)
+/// 3. Stock Alerts (Perlu Diperhatikan)
+/// 4. Top Products (Menu Terlaris)
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
 
@@ -50,27 +47,23 @@ class _HomeScreenState extends State<HomeScreen> {
             physics: const AlwaysScrollableScrollPhysics(
               parent: BouncingScrollPhysics(),
             ),
-            padding: const EdgeInsets.fromLTRB(20, 16, 20, 32),
+            padding: const EdgeInsets.fromLTRB(24, 24, 24, 100), // Increased padding and bottom margin
             child: const Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 // ── 1. Top Bar & Greeting Header ───────────────────────
                 HeaderSection(),
-                SizedBox(height: 20),
+                SizedBox(height: 32),
 
                 // ── 2. Bisnis Hari Ini (Revenue & Mini Bar Chart) ──────
                 RevenueCard(),
-                SizedBox(height: 20),
+                SizedBox(height: 32),
 
-                // ── 3. AI Business Insight (Hero Dark Emerald Card) ────
-                AiInsightCard(),
-                SizedBox(height: 24),
-
-                // ── 4. Perlu Diperhatikan (Stock Alert Section) ────────
+                // ── 3. Perlu Diperhatikan (Stock Alert Section) ────────
                 StockAlertSection(),
-                SizedBox(height: 24),
+                SizedBox(height: 32),
 
-                // ── 5. Menu Terlaris Hari Ini & Realtime Sync ──────────
+                // ── 4. Menu Terlaris Hari Ini & Realtime Sync ──────────
                 ActivityCard(),
               ],
             ),

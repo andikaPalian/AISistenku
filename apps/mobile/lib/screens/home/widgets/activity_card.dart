@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../../core/theme/app_colors.dart';
+import '../../../models/finance_model.dart';
 
 /// Represents a ranked best-selling product item.
 class TopMenuItem {
@@ -32,64 +33,41 @@ class ActivityCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    const topItems = [
-      TopMenuItem(
-        rank: 1,
-        name: 'Kopi Susu Aren',
-        salesDescription: '42 cup • Terlaris',
-        totalRevenueFormatted: 'Rp756.000',
-        unitPriceFormatted: '@ Rp18.000',
-        imageUrl:
-            'https://images.unsplash.com/photo-1517701550927-30cf4ba1dba5?w=200&auto=format&fit=crop&q=80',
-        isTopPerformer: true,
-      ),
-      TopMenuItem(
-        rank: 2,
-        name: 'Iced Cafe Latte',
-        salesDescription: '24 cup • Kategori Kopi',
-        totalRevenueFormatted: 'Rp480.000',
-        unitPriceFormatted: '@ Rp20.000',
-        imageUrl:
-            'https://images.unsplash.com/photo-1572442388796-11668a67e53d?w=200&auto=format&fit=crop&q=80',
-      ),
-      TopMenuItem(
-        rank: 3,
-        name: 'Croissant Butter',
-        salesDescription: '15 pcs • Pastry',
-        totalRevenueFormatted: 'Rp225.000',
-        unitPriceFormatted: '@ Rp15.000',
-        imageUrl:
-            'https://images.unsplash.com/photo-1555507036-ab1f4038808a?w=200&auto=format&fit=crop&q=80',
-      ),
-    ];
+    return AnimatedBuilder(
+      animation: FinanceRepository.instance,
+      builder: (context, _) {
+        final topProductsData = FinanceRepository.instance.getTopProducts();
+        final topItems = topProductsData.asMap().entries.map((entry) {
+          final idx = entry.key;
+          final prod = entry.value;
+          return TopMenuItem(
+            rank: idx + 1,
+            name: prod.name,
+            salesDescription: '${prod.soldQuantity} cup',
+            totalRevenueFormatted: FinanceRepository.formatRupiah(prod.totalRevenue),
+            unitPriceFormatted: '', // Alternatively compute unit price if available
+            imageUrl: 'https://images.unsplash.com/photo-1517701550927-30cf4ba1dba5?w=200&auto=format&fit=crop&q=80',
+            isTopPerformer: idx == 0,
+          );
+        }).toList();
 
-    return Column(
+        return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         // ── Section Header ───────────────────────────────────────────
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Row(
-              children: [
-                const Icon(
-                  Icons.local_fire_department_rounded,
-                  color: Color(0xFF0F172A),
-                  size: 20,
-                ),
-                const SizedBox(width: 8),
-                Text(
-                  'Menu Terlaris Hari Ini',
-                  style: GoogleFonts.poppins(
-                    fontSize: 17,
-                    fontWeight: FontWeight.w700,
-                    color: AppColors.darkText,
-                  ),
-                ),
-              ],
+            Text(
+              'Menu Terlaris',
+              style: GoogleFonts.poppins(
+                fontSize: 16,
+                fontWeight: FontWeight.w700,
+                color: AppColors.darkText,
+              ),
             ),
             Text(
-              'Top 3 item',
+              'Top 3',
               style: GoogleFonts.inter(
                 fontSize: 13,
                 color: AppColors.mutedText,
@@ -104,14 +82,13 @@ class ActivityCard extends StatelessWidget {
         // ── Top Products Card List ───────────────────────────────────
         Container(
           decoration: BoxDecoration(
-            color: AppColors.cardBackground,
+            color: Colors.white,
             borderRadius: BorderRadius.circular(20),
-            border: Border.all(color: AppColors.lightTealBorder, width: 1),
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withValues(alpha: 0.02),
-                blurRadius: 8,
-                offset: const Offset(0, 2),
+                color: Colors.black.withValues(alpha: 0.04),
+                blurRadius: 14,
+                offset: const Offset(0, 4),
               ),
             ],
           ),
@@ -124,56 +101,15 @@ class ActivityCard extends StatelessWidget {
                   const Divider(
                     height: 20,
                     thickness: 1,
-                    color: AppColors.lightTealBorder,
+                    color: Color(0xFFF1F5F9),
                   ),
               ],
             ],
           ),
         ),
-
-        const SizedBox(height: 20),
-
-        // ── Sync Status Pill Banner ──────────────────────────────────
-        Container(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-          decoration: BoxDecoration(
-            color: const Color(0xFFF8FAFC),
-            borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: AppColors.border, width: 1),
-          ),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Row(
-                children: [
-                  const Icon(
-                    Icons.sync_rounded,
-                    size: 18,
-                    color: Color(0xFF64748B),
-                  ),
-                  const SizedBox(width: 8),
-                  Text(
-                    'Sinkronisasi Kasir Cabang 1 & 2 Aktif',
-                    style: GoogleFonts.inter(
-                      fontSize: 12.5,
-                      color: AppColors.darkText,
-                      fontWeight: FontWeight.w500,
-                    ),
-                  ),
-                ],
-              ),
-              Text(
-                'Realtime',
-                style: GoogleFonts.inter(
-                  fontSize: 12,
-                  fontWeight: FontWeight.w700,
-                  color: const Color(0xFF16A34A),
-                ),
-              ),
-            ],
-          ),
-        ),
       ],
+    );
+      },
     );
   }
 
