@@ -165,46 +165,60 @@ class _AddEditProductModalState extends State<AddEditProductModal> {
       context: context,
       backgroundColor: Colors.white,
       shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+        borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
       ),
       builder: (ctx) => SafeArea(
         child: Padding(
-          padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 16),
+          padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 20),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
+              Center(
+                child: Container(
+                  width: 40,
+                  height: 4,
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFE2E8F0),
+                    borderRadius: BorderRadius.circular(2),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 16),
               Text(
-                'Pilih Sumber Gambar',
-                style: GoogleFonts.poppins(fontWeight: FontWeight.w700, fontSize: 16),
+                'Pilih Sumber Foto',
+                style: GoogleFonts.poppins(fontWeight: FontWeight.w700, fontSize: 17, color: AppColors.darkText),
               ),
               const SizedBox(height: 16),
               ListTile(
+                contentPadding: EdgeInsets.zero,
                 leading: Container(
-                  padding: const EdgeInsets.all(10),
+                  padding: const EdgeInsets.all(12),
                   decoration: BoxDecoration(
-                    color: AppColors.tealBackgrounds,
-                    borderRadius: BorderRadius.circular(10),
+                    color: const Color(0xFFF1F5F9),
+                    borderRadius: BorderRadius.circular(14),
                   ),
-                  child: const Icon(Icons.photo_library_rounded, color: AppColors.primaryTeal),
+                  child: const Icon(Icons.photo_library_rounded, color: Color(0xFF111111)),
                 ),
-                title: Text('Pilih dari Galeri Foto', style: GoogleFonts.inter(fontWeight: FontWeight.w600)),
-                subtitle: Text('Ambil foto dari memori HP', style: GoogleFonts.inter(fontSize: 12, color: AppColors.mutedText)),
+                title: Text('Pilih dari Galeri Foto', style: GoogleFonts.inter(fontWeight: FontWeight.w600, color: AppColors.darkText)),
+                subtitle: Text('Ambil foto dari penyimpanan perangkat', style: GoogleFonts.inter(fontSize: 12, color: AppColors.mutedText)),
                 onTap: () {
                   Navigator.pop(ctx);
                   _pickImage(ImageSource.gallery);
                 },
               ),
+              const SizedBox(height: 8),
               ListTile(
+                contentPadding: EdgeInsets.zero,
                 leading: Container(
-                  padding: const EdgeInsets.all(10),
+                  padding: const EdgeInsets.all(12),
                   decoration: BoxDecoration(
-                    color: AppColors.tealBackgrounds,
-                    borderRadius: BorderRadius.circular(10),
+                    color: const Color(0xFFF1F5F9),
+                    borderRadius: BorderRadius.circular(14),
                   ),
-                  child: const Icon(Icons.camera_alt_rounded, color: AppColors.primaryTeal),
+                  child: const Icon(Icons.camera_alt_rounded, color: Color(0xFF111111)),
                 ),
-                title: Text('Ambil Foto Kamera', style: GoogleFonts.inter(fontWeight: FontWeight.w600)),
-                subtitle: Text('Foto langsung menggunakan kamera', style: GoogleFonts.inter(fontSize: 12, color: AppColors.mutedText)),
+                title: Text('Ambil Foto Kamera', style: GoogleFonts.inter(fontWeight: FontWeight.w600, color: AppColors.darkText)),
+                subtitle: Text('Foto menu langsung menggunakan kamera HP', style: GoogleFonts.inter(fontSize: 12, color: AppColors.mutedText)),
                 onTap: () {
                   Navigator.pop(ctx);
                   _pickImage(ImageSource.camera);
@@ -374,15 +388,22 @@ class _AddEditProductModalState extends State<AddEditProductModal> {
       );
     }
 
-    return const Center(
+    return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(Icons.add_a_photo_rounded, color: AppColors.primaryTeal, size: 28),
-          SizedBox(height: 4),
+          Container(
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color: AppColors.secondary.withValues(alpha: 0.12), // Light green tint
+              shape: BoxShape.circle,
+            ),
+            child: const Icon(Icons.add_a_photo_rounded, color: AppColors.secondary, size: 26),
+          ),
+          const SizedBox(height: 6),
           Text(
-            'Upload Foto',
-            style: TextStyle(fontSize: 10, fontWeight: FontWeight.w600, color: AppColors.primaryTeal),
+            'Sentuh untuk Upload Foto',
+            style: GoogleFonts.inter(fontSize: 11, fontWeight: FontWeight.w600, color: AppColors.darkText),
           ),
         ],
       ),
@@ -394,12 +415,12 @@ class _AddEditProductModalState extends State<AddEditProductModal> {
     return Container(
       decoration: const BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+        borderRadius: BorderRadius.vertical(top: Radius.circular(32)),
       ),
       padding: EdgeInsets.only(
         top: 16,
-        left: 20,
-        right: 20,
+        left: 24,
+        right: 24,
         bottom: MediaQuery.of(context).viewInsets.bottom + 24,
       ),
       constraints: BoxConstraints(
@@ -412,7 +433,7 @@ class _AddEditProductModalState extends State<AddEditProductModal> {
           // Drag handle
           Center(
             child: Container(
-              width: 40,
+              width: 44,
               height: 4,
               decoration: BoxDecoration(
                 color: const Color(0xFFE2E8F0),
@@ -420,7 +441,7 @@ class _AddEditProductModalState extends State<AddEditProductModal> {
               ),
             ),
           ),
-          const SizedBox(height: 14),
+          const SizedBox(height: 16),
 
           // Header Row
           Row(
@@ -429,8 +450,8 @@ class _AddEditProductModalState extends State<AddEditProductModal> {
               Text(
                 _isEditing ? 'Edit Menu Produk' : 'Tambah Menu Baru',
                 style: GoogleFonts.poppins(
-                  fontSize: 18,
-                  fontWeight: FontWeight.w700,
+                  fontSize: 20,
+                  fontWeight: FontWeight.w800,
                   color: AppColors.darkText,
                 ),
               ),
@@ -440,12 +461,19 @@ class _AddEditProductModalState extends State<AddEditProductModal> {
                   onPressed: _handleDelete,
                 )
               else
-                IconButton(
-                  icon: const Icon(Icons.close_rounded),
-                  onPressed: () => Navigator.pop(context),
+                Container(
+                  decoration: const BoxDecoration(
+                    color: Color(0xFFF1F5F9),
+                    shape: BoxShape.circle,
+                  ),
+                  child: IconButton(
+                    icon: const Icon(Icons.close_rounded, size: 20),
+                    onPressed: () => Navigator.pop(context),
+                  ),
                 ),
             ],
           ),
+          const SizedBox(height: 12),
           const Divider(height: 1, color: Color(0xFFE2E8F0)),
           const SizedBox(height: 16),
 
@@ -459,86 +487,56 @@ class _AddEditProductModalState extends State<AddEditProductModal> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     // ── 1. Image Preview & Upload Actions ──
-                    Text(
-                      'Foto / Gambar Menu *',
-                      style: GoogleFonts.poppins(
-                        fontSize: 13,
-                        fontWeight: FontWeight.w600,
-                        color: AppColors.darkText,
+                    _buildFieldLabel('Foto Menu *'),
+                    const SizedBox(height: 4),
+
+                    // Tappable Banner Card for Photo
+                    GestureDetector(
+                      onTap: _showImageSourcePicker,
+                      child: Container(
+                        width: double.infinity,
+                        height: 140,
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFF8FAFC),
+                          borderRadius: BorderRadius.circular(20),
+                          border: Border.all(color: const Color(0xFFE2E8F0), width: 1.5),
+                        ),
+                        child: ClipRRect(
+                          borderRadius: BorderRadius.circular(20),
+                          child: _buildImagePreviewWidget(),
+                        ),
                       ),
                     ),
-                    const SizedBox(height: 8),
+                    const SizedBox(height: 10),
 
+                    // Quick Action Buttons (Gallery & Camera Pills)
                     Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        // Live Thumbnail Box (Tappable to pick image)
-                        GestureDetector(
-                          onTap: _showImageSourcePicker,
-                          child: Container(
-                            width: 88,
-                            height: 88,
-                            decoration: BoxDecoration(
-                              color: const Color(0xFFF1F5F9), // Slate
-                              borderRadius: BorderRadius.circular(14),
-                              // No border
-                            ),
-                            child: ClipRRect(
-                              borderRadius: BorderRadius.circular(14),
-                              child: _buildImagePreviewWidget(),
+                        Expanded(
+                          child: OutlinedButton.icon(
+                            onPressed: () => _pickImage(ImageSource.gallery),
+                            icon: const Icon(Icons.photo_library_outlined, size: 16),
+                            label: Text('Galeri', style: GoogleFonts.inter(fontSize: 12, fontWeight: FontWeight.w600)),
+                            style: OutlinedButton.styleFrom(
+                              foregroundColor: const Color(0xFF111111),
+                              side: const BorderSide(color: Color(0xFFE2E8F0)),
+                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                              padding: const EdgeInsets.symmetric(vertical: 10),
                             ),
                           ),
                         ),
-                        const SizedBox(width: 14),
-
-                        // Upload Action Buttons
+                        const SizedBox(width: 8),
                         Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.stretch,
-                            children: [
-                              ElevatedButton.icon(
-                                onPressed: _showImageSourcePicker,
-                                icon: const Icon(Icons.cloud_upload_rounded, size: 18),
-                                label: Text(
-                                  _pickedImageBytes != null || (_currentImageUrl != null && _currentImageUrl!.isNotEmpty)
-                                      ? 'Ganti Foto'
-                                      : 'Pilih Foto (Galeri/Kamera)',
-                                  style: GoogleFonts.inter(fontSize: 12, fontWeight: FontWeight.w600),
-                                ),
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: const Color(0xFF0F172A), // Premium dark slate
-                                  foregroundColor: Colors.white,
-                                  elevation: 0,
-                                  padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 12),
-                                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-                                ),
-                              ),
-                              const SizedBox(height: 8),
-                              TextFormField(
-                                controller: _imageUrlController,
-                                style: GoogleFonts.inter(fontSize: 12),
-                                decoration: InputDecoration(
-                                  hintText: 'Atau tempel link URL...',
-                                  hintStyle: GoogleFonts.inter(fontSize: 11, color: AppColors.mutedText),
-                                  filled: true,
-                                  fillColor: const Color(0xFFF1F5F9),
-                                  isDense: true,
-                                  contentPadding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
-                                  border: OutlineInputBorder(
-                                    borderRadius: BorderRadius.circular(8),
-                                    borderSide: BorderSide.none,
-                                  ),
-                                  enabledBorder: OutlineInputBorder(
-                                    borderRadius: BorderRadius.circular(8),
-                                    borderSide: BorderSide.none,
-                                  ),
-                                  focusedBorder: OutlineInputBorder(
-                                    borderRadius: BorderRadius.circular(8),
-                                    borderSide: const BorderSide(color: AppColors.primaryTeal, width: 1.5),
-                                  ),
-                                ),
-                              ),
-                            ],
+                          child: OutlinedButton.icon(
+                            onPressed: () => _pickImage(ImageSource.camera),
+                            icon: const Icon(Icons.camera_alt_outlined, size: 16),
+                            label: Text('Kamera', style: GoogleFonts.inter(fontSize: 12, fontWeight: FontWeight.w600)),
+                            style: OutlinedButton.styleFrom(
+                              foregroundColor: const Color(0xFF111111),
+                              side: const BorderSide(color: Color(0xFFE2E8F0)),
+                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                              padding: const EdgeInsets.symmetric(vertical: 10),
+                            ),
                           ),
                         ),
                       ],
@@ -546,6 +544,7 @@ class _AddEditProductModalState extends State<AddEditProductModal> {
                     const SizedBox(height: 12),
 
                     // Preset Image Badges
+                    _buildFieldLabel('Atau Pilih Foto Cepat:'),
                     SingleChildScrollView(
                       scrollDirection: Axis.horizontal,
                       physics: const BouncingScrollPhysics(),
@@ -558,15 +557,19 @@ class _AddEditProductModalState extends State<AddEditProductModal> {
                               label: Text(
                                 p['label']!,
                                 style: GoogleFonts.inter(
-                                  fontSize: 11,
+                                  fontSize: 12,
                                   fontWeight: FontWeight.w600,
                                   color: isSelected ? Colors.white : AppColors.darkText,
                                 ),
                               ),
-                              avatar: const Icon(Icons.image_outlined, size: 14),
-                              backgroundColor: isSelected ? AppColors.primaryTeal : const Color(0xFFF1F5F9),
+                              avatar: Icon(
+                                Icons.coffee_rounded,
+                                size: 15,
+                                color: isSelected ? Colors.white : const Color(0xFF64748B),
+                              ),
+                              backgroundColor: isSelected ? const Color(0xFF111111) : const Color(0xFFF1F5F9),
                               shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(8),
+                                borderRadius: BorderRadius.circular(20), // Pill preset
                                 side: BorderSide.none,
                               ),
                               onPressed: () => _onSelectPresetImage(p['url']!),
@@ -575,7 +578,7 @@ class _AddEditProductModalState extends State<AddEditProductModal> {
                         }).toList(),
                       ),
                     ),
-                    const SizedBox(height: 16),
+                    const SizedBox(height: 18),
 
                     // ── 2. Nama Produk ──
                     _buildFieldLabel('Nama Produk *'),
@@ -591,6 +594,7 @@ class _AddEditProductModalState extends State<AddEditProductModal> {
                     _buildFieldLabel('Kategori Produk'),
                     Wrap(
                       spacing: 8,
+                      runSpacing: 8,
                       children: [
                         ProductCategory.kopi,
                         ProductCategory.nonKopi,
@@ -602,21 +606,24 @@ class _AddEditProductModalState extends State<AddEditProductModal> {
                           label: Text(
                             cat.label,
                             style: GoogleFonts.inter(
-                              fontSize: 12,
+                              fontSize: 12.5,
                               fontWeight: FontWeight.w600,
                               color: isSel ? Colors.white : AppColors.darkText,
                             ),
                           ),
                           selected: isSel,
-                          selectedColor: AppColors.primaryTeal,
+                          selectedColor: const Color(0xFF111111), // Solid Black Pill
                           backgroundColor: const Color(0xFFF1F5F9),
-                          side: BorderSide.none,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(20),
+                            side: isSel ? BorderSide.none : const BorderSide(color: Color(0xFFE2E8F0)),
+                          ),
                           showCheckmark: false,
                           onSelected: (_) => setState(() => _selectedCategory = cat),
                         );
                       }).toList(),
                     ),
-                    const SizedBox(height: 14),
+                    const SizedBox(height: 16),
 
                     // ── 4. Harga & Kode SKU ──
                     Row(
@@ -630,7 +637,7 @@ class _AddEditProductModalState extends State<AddEditProductModal> {
                                 controller: _priceController,
                                 keyboardType: TextInputType.number,
                                 validator: (v) => v == null || int.tryParse(v) == null ? 'Harga wajib angka' : null,
-                                style: GoogleFonts.inter(fontSize: 14),
+                                style: GoogleFonts.inter(fontSize: 14, fontWeight: FontWeight.w600),
                                 decoration: _inputDecoration('15000', prefix: 'Rp '),
                               ),
                             ],
@@ -721,23 +728,26 @@ class _AddEditProductModalState extends State<AddEditProductModal> {
             ),
           ),
 
-          // Submit Button
-          ElevatedButton(
-            onPressed: _isLoading ? null : _handleSave,
-            style: ElevatedButton.styleFrom(
-              backgroundColor: AppColors.primaryTeal,
-              foregroundColor: Colors.white,
-              elevation: 6,
-              shadowColor: AppColors.primaryTeal.withValues(alpha: 0.5),
-              padding: const EdgeInsets.symmetric(vertical: 14),
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+          // Submit Button (Solid Black Pill)
+          SizedBox(
+            width: double.infinity,
+            height: 56,
+            child: ElevatedButton(
+              onPressed: _isLoading ? null : _handleSave,
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color(0xFF111111), // Solid Black Pill
+                foregroundColor: Colors.white,
+                elevation: 4,
+                shadowColor: const Color(0xFF111111).withValues(alpha: 0.3),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
+              ),
+              child: _isLoading
+                  ? const SizedBox(width: 24, height: 24, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2.5))
+                  : Text(
+                      _isEditing ? 'Simpan Perubahan' : 'Tambah ke Menu POS',
+                      style: GoogleFonts.poppins(fontWeight: FontWeight.w700, fontSize: 16),
+                    ),
             ),
-            child: _isLoading
-                ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2))
-                : Text(
-                    _isEditing ? 'Simpan Perubahan' : 'Tambah ke Menu POS',
-                    style: GoogleFonts.poppins(fontWeight: FontWeight.w600, fontSize: 15),
-                  ),
           ),
         ],
       ),
@@ -749,7 +759,7 @@ class _AddEditProductModalState extends State<AddEditProductModal> {
       padding: const EdgeInsets.only(bottom: 6),
       child: Text(
         label,
-        style: GoogleFonts.inter(fontSize: 12, fontWeight: FontWeight.w600, color: AppColors.darkText),
+        style: GoogleFonts.poppins(fontSize: 13, fontWeight: FontWeight.w700, color: AppColors.darkText),
       ),
     );
   }
@@ -758,22 +768,23 @@ class _AddEditProductModalState extends State<AddEditProductModal> {
     return InputDecoration(
       hintText: hint,
       prefixText: prefix,
+      prefixStyle: GoogleFonts.inter(fontSize: 14, fontWeight: FontWeight.w700, color: const Color(0xFF111111)),
       hintStyle: GoogleFonts.inter(fontSize: 13, color: AppColors.mutedText.withValues(alpha: 0.6)),
       filled: true,
-      fillColor: const Color(0xFFF1F5F9), // Clean slate
+      fillColor: const Color(0xFFF8FAFC), // Modern clean slate
       isDense: true,
-      contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
       border: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(10),
-        borderSide: BorderSide.none, // No border
+        borderRadius: BorderRadius.circular(16),
+        borderSide: const BorderSide(color: Color(0xFFE2E8F0)),
       ),
       enabledBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(10),
-        borderSide: BorderSide.none,
+        borderRadius: BorderRadius.circular(16),
+        borderSide: const BorderSide(color: Color(0xFFE2E8F0)),
       ),
       focusedBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(10),
-        borderSide: const BorderSide(color: AppColors.primaryTeal, width: 1.5),
+        borderRadius: BorderRadius.circular(16),
+        borderSide: const BorderSide(color: Color(0xFF111111), width: 1.5),
       ),
     );
   }

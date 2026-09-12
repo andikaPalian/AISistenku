@@ -27,7 +27,6 @@ class _LoginScreenState extends State<LoginScreen> {
   int _registerStep = 1; // 1: Email/Pass, 2: Personal/Business Info
   bool _obscurePassword = true;
   bool _isLoading = false;
-  bool _isServerConnected = false;
 
   @override
   void initState() {
@@ -37,10 +36,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
   Future<void> _checkServer() async {
     await ApiConfig.autoDetectServer();
-    final ok = await ApiService.instance.checkHealth();
-    if (mounted) {
-      setState(() => _isServerConnected = ok);
-    }
+    await ApiService.instance.checkHealth();
   }
 
   void _showServerConfigDialog() {

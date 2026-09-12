@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import '../../../core/theme/app_colors.dart';
 import '../../../models/stock_model.dart';
 
 /// Modal bottom sheet for creating/registering a new raw material.
@@ -153,15 +152,23 @@ class _AddStockModalState extends State<AddStockModal> {
 
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text(
-          isEditing
-              ? 'Data bahan baku $name berhasil diperbarui'
-              : 'Bahan baku baru $name berhasil ditambahkan!',
-          style: GoogleFonts.inter(fontWeight: FontWeight.w500),
+        content: Row(
+          children: [
+            const Icon(Icons.check_circle_rounded, color: Color(0xFF22C55E)),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Text(
+                isEditing
+                    ? 'Data bahan baku $name berhasil diperbarui'
+                    : 'Bahan baku baru $name berhasil ditambahkan!',
+                style: GoogleFonts.plusJakartaSans(fontWeight: FontWeight.w600, color: Colors.white),
+              ),
+            ),
+          ],
         ),
-        backgroundColor: AppColors.primaryTeal,
+        backgroundColor: const Color(0xFF111111),
         behavior: SnackBarBehavior.floating,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
       ),
     );
   }
@@ -191,7 +198,7 @@ class _AddStockModalState extends State<AddStockModal> {
                     width: 44,
                     height: 4,
                     decoration: BoxDecoration(
-                      color: Color(0xFFE2E8F0),
+                      color: const Color(0xFFE2E8F0),
                       borderRadius: BorderRadius.circular(2),
                     ),
                   ),
@@ -204,12 +211,12 @@ class _AddStockModalState extends State<AddStockModal> {
                     Container(
                       padding: const EdgeInsets.all(10),
                       decoration: BoxDecoration(
-                        color: AppColors.primaryTeal.withValues(alpha: 0.12),
+                        color: const Color(0xFF111111),
                         borderRadius: BorderRadius.circular(12),
                       ),
                       child: Icon(
                         isEditing ? Icons.edit_note_rounded : Icons.add_box_rounded,
-                        color: AppColors.primaryTeal,
+                        color: const Color(0xFF22C55E),
                         size: 22,
                       ),
                     ),
@@ -220,17 +227,18 @@ class _AddStockModalState extends State<AddStockModal> {
                         children: [
                           Text(
                             isEditing ? 'Ubah Bahan Baku' : 'Tambah Bahan Baku Baru',
-                            style: GoogleFonts.poppins(
+                            style: GoogleFonts.plusJakartaSans(
                               fontSize: 18,
-                              fontWeight: FontWeight.w700,
-                              color: AppColors.darkText,
+                              fontWeight: FontWeight.w800,
+                              color: const Color(0xFF111111),
+                              letterSpacing: -0.3,
                             ),
                           ),
                           Text(
                             'Kelola detail & batas peringatan stok',
-                            style: GoogleFonts.inter(
+                            style: GoogleFonts.plusJakartaSans(
                               fontSize: 13,
-                              color: AppColors.mutedText,
+                              color: const Color(0xFF64748B),
                             ),
                           ),
                         ],
@@ -238,7 +246,7 @@ class _AddStockModalState extends State<AddStockModal> {
                     ),
                     IconButton(
                       onPressed: () => Navigator.pop(context),
-                      icon: const Icon(Icons.close_rounded, color: AppColors.mutedText),
+                      icon: const Icon(Icons.close_rounded, color: Color(0xFF64748B)),
                     ),
                   ],
                 ),
@@ -247,32 +255,33 @@ class _AddStockModalState extends State<AddStockModal> {
                 // Nama Bahan
                 Text(
                   'Nama Bahan Baku',
-                  style: GoogleFonts.inter(
+                  style: GoogleFonts.plusJakartaSans(
                     fontSize: 13,
                     fontWeight: FontWeight.w600,
-                    color: AppColors.darkText,
+                    color: const Color(0xFF111111),
                   ),
                 ),
                 const SizedBox(height: 8),
                 TextFormField(
                   controller: _nameController,
-                  style: GoogleFonts.inter(fontSize: 15, fontWeight: FontWeight.w500),
+                  style: GoogleFonts.plusJakartaSans(fontSize: 14, fontWeight: FontWeight.w600, color: const Color(0xFF111111)),
                   decoration: InputDecoration(
                     hintText: 'Contoh: Sirup Hazelnut, Matcha Uji, Cup 16oz',
+                    hintStyle: GoogleFonts.plusJakartaSans(fontSize: 13, color: const Color(0xFF94A3B8)),
                     filled: true,
-                    fillColor: Color(0xFFF1F5F9),
+                    fillColor: Colors.white,
                     contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
                     border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                      borderSide: BorderSide.none,
+                      borderRadius: BorderRadius.circular(14),
+                      borderSide: const BorderSide(color: Color(0xFFE2E8F0), width: 1.2),
                     ),
                     enabledBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                      borderSide: BorderSide.none,
+                      borderRadius: BorderRadius.circular(14),
+                      borderSide: const BorderSide(color: Color(0xFFE2E8F0), width: 1.2),
                     ),
                     focusedBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                      borderSide: const BorderSide(color: AppColors.primaryTeal, width: 1.5),
+                      borderRadius: BorderRadius.circular(14),
+                      borderSide: const BorderSide(color: Color(0xFF111111), width: 1.5),
                     ),
                   ),
                   validator: (v) =>
@@ -290,32 +299,32 @@ class _AddStockModalState extends State<AddStockModal> {
                         children: [
                           Text(
                             'Kategori',
-                            style: GoogleFonts.inter(
+                            style: GoogleFonts.plusJakartaSans(
                               fontSize: 13,
                               fontWeight: FontWeight.w600,
-                              color: AppColors.darkText,
+                              color: const Color(0xFF111111),
                             ),
                           ),
                           const SizedBox(height: 8),
                           Container(
                             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 2),
                             decoration: BoxDecoration(
-                              color: Color(0xFFF1F5F9),
-                              borderRadius: BorderRadius.circular(12),
-
+                              color: Colors.white,
+                              borderRadius: BorderRadius.circular(14),
+                              border: Border.all(color: const Color(0xFFE2E8F0), width: 1.2),
                             ),
                             child: DropdownButtonHideUnderline(
                               child: DropdownButton<StockCategory>(
                                 isExpanded: true,
                                 value: _selectedCategory,
-                                icon: const Icon(Icons.keyboard_arrow_down_rounded, color: AppColors.primaryTeal),
+                                icon: const Icon(Icons.keyboard_arrow_down_rounded, color: Color(0xFF111111)),
                                 items: StockCategory.values
                                     .where((c) => c != StockCategory.all)
                                     .map((cat) => DropdownMenuItem(
                                           value: cat,
                                           child: Text(
                                             cat.label,
-                                            style: GoogleFonts.inter(fontSize: 13, fontWeight: FontWeight.w500),
+                                            style: GoogleFonts.plusJakartaSans(fontSize: 13, fontWeight: FontWeight.w600, color: const Color(0xFF111111)),
                                           ),
                                         ))
                                     .toList(),
@@ -336,31 +345,31 @@ class _AddStockModalState extends State<AddStockModal> {
                         children: [
                           Text(
                             'Satuan',
-                            style: GoogleFonts.inter(
+                            style: GoogleFonts.plusJakartaSans(
                               fontSize: 13,
                               fontWeight: FontWeight.w600,
-                              color: AppColors.darkText,
+                              color: const Color(0xFF111111),
                             ),
                           ),
                           const SizedBox(height: 8),
                           Container(
                             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 2),
                             decoration: BoxDecoration(
-                              color: Color(0xFFF1F5F9),
-                              borderRadius: BorderRadius.circular(12),
-
+                              color: Colors.white,
+                              borderRadius: BorderRadius.circular(14),
+                              border: Border.all(color: const Color(0xFFE2E8F0), width: 1.2),
                             ),
                             child: DropdownButtonHideUnderline(
                               child: DropdownButton<String>(
                                 isExpanded: true,
                                 value: _selectedUnit,
-                                icon: const Icon(Icons.keyboard_arrow_down_rounded, color: AppColors.primaryTeal),
+                                icon: const Icon(Icons.keyboard_arrow_down_rounded, color: Color(0xFF111111)),
                                 items: _availableUnits
                                     .map((u) => DropdownMenuItem(
                                           value: u,
                                           child: Text(
                                             u,
-                                            style: GoogleFonts.inter(fontSize: 13, fontWeight: FontWeight.w600),
+                                            style: GoogleFonts.plusJakartaSans(fontSize: 13, fontWeight: FontWeight.w700, color: const Color(0xFF111111)),
                                           ),
                                         ))
                                     .toList(),
@@ -386,33 +395,33 @@ class _AddStockModalState extends State<AddStockModal> {
                         children: [
                           Text(
                             isEditing ? 'Stok Saat Ini' : 'Stok Awal ($_selectedUnit)',
-                            style: GoogleFonts.inter(
+                            style: GoogleFonts.plusJakartaSans(
                               fontSize: 13,
                               fontWeight: FontWeight.w600,
-                              color: AppColors.darkText,
+                              color: const Color(0xFF111111),
                             ),
                           ),
                           const SizedBox(height: 8),
                           TextFormField(
                             controller: _stockController,
                             keyboardType: const TextInputType.numberWithOptions(decimal: true),
-                            style: GoogleFonts.poppins(fontSize: 16, fontWeight: FontWeight.w600),
+                            style: GoogleFonts.plusJakartaSans(fontSize: 16, fontWeight: FontWeight.w700, color: const Color(0xFF111111)),
                             decoration: InputDecoration(
                               hintText: '0',
                               filled: true,
-                              fillColor: Color(0xFFF1F5F9),
+                              fillColor: Colors.white,
                               contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
                               border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(12),
-                                borderSide: BorderSide.none,
+                                borderRadius: BorderRadius.circular(14),
+                                borderSide: const BorderSide(color: Color(0xFFE2E8F0), width: 1.2),
                               ),
                               enabledBorder: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(12),
-                                borderSide: BorderSide.none,
+                                borderRadius: BorderRadius.circular(14),
+                                borderSide: const BorderSide(color: Color(0xFFE2E8F0), width: 1.2),
                               ),
                               focusedBorder: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(12),
-                                borderSide: const BorderSide(color: AppColors.primaryTeal, width: 1.5),
+                                borderRadius: BorderRadius.circular(14),
+                                borderSide: const BorderSide(color: Color(0xFF111111), width: 1.5),
                               ),
                             ),
                             validator: (v) =>
@@ -428,33 +437,33 @@ class _AddStockModalState extends State<AddStockModal> {
                         children: [
                           Text(
                             'Batas Minimum ($_selectedUnit)',
-                            style: GoogleFonts.inter(
+                            style: GoogleFonts.plusJakartaSans(
                               fontSize: 13,
                               fontWeight: FontWeight.w600,
-                              color: AppColors.darkText,
+                              color: const Color(0xFF111111),
                             ),
                           ),
                           const SizedBox(height: 8),
                           TextFormField(
                             controller: _minStockController,
                             keyboardType: const TextInputType.numberWithOptions(decimal: true),
-                            style: GoogleFonts.poppins(fontSize: 16, fontWeight: FontWeight.w600),
+                            style: GoogleFonts.plusJakartaSans(fontSize: 16, fontWeight: FontWeight.w700, color: const Color(0xFF111111)),
                             decoration: InputDecoration(
                               hintText: '5',
                               filled: true,
-                              fillColor: Color(0xFFF1F5F9),
+                              fillColor: Colors.white,
                               contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
                               border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(12),
-                                borderSide: BorderSide.none,
+                                borderRadius: BorderRadius.circular(14),
+                                borderSide: const BorderSide(color: Color(0xFFE2E8F0), width: 1.2),
                               ),
                               enabledBorder: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(12),
-                                borderSide: BorderSide.none,
+                                borderRadius: BorderRadius.circular(14),
+                                borderSide: const BorderSide(color: Color(0xFFE2E8F0), width: 1.2),
                               ),
                               focusedBorder: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(12),
-                                borderSide: const BorderSide(color: AppColors.primaryTeal, width: 1.5),
+                                borderRadius: BorderRadius.circular(14),
+                                borderSide: const BorderSide(color: Color(0xFF111111), width: 1.5),
                               ),
                             ),
                             validator: (v) =>
@@ -476,33 +485,33 @@ class _AddStockModalState extends State<AddStockModal> {
                         children: [
                           Text(
                             'Harga Beli / $_selectedUnit',
-                            style: GoogleFonts.inter(
+                            style: GoogleFonts.plusJakartaSans(
                               fontSize: 13,
                               fontWeight: FontWeight.w600,
-                              color: AppColors.darkText,
+                              color: const Color(0xFF111111),
                             ),
                           ),
                           const SizedBox(height: 8),
                           TextFormField(
                             controller: _costController,
                             keyboardType: TextInputType.number,
-                            style: GoogleFonts.inter(fontSize: 14, fontWeight: FontWeight.w500),
+                            style: GoogleFonts.plusJakartaSans(fontSize: 14, fontWeight: FontWeight.w600, color: const Color(0xFF111111)),
                             decoration: InputDecoration(
                               prefixText: 'Rp ',
                               filled: true,
-                              fillColor: Color(0xFFF1F5F9),
+                              fillColor: Colors.white,
                               contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
                               border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(12),
-                                borderSide: BorderSide.none,
+                                borderRadius: BorderRadius.circular(14),
+                                borderSide: const BorderSide(color: Color(0xFFE2E8F0), width: 1.2),
                               ),
                               enabledBorder: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(12),
-                                borderSide: BorderSide.none,
+                                borderRadius: BorderRadius.circular(14),
+                                borderSide: const BorderSide(color: Color(0xFFE2E8F0), width: 1.2),
                               ),
                               focusedBorder: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(12),
-                                borderSide: const BorderSide(color: AppColors.primaryTeal, width: 1.5),
+                                borderRadius: BorderRadius.circular(14),
+                                borderSide: const BorderSide(color: Color(0xFF111111), width: 1.5),
                               ),
                             ),
                           ),
@@ -516,32 +525,32 @@ class _AddStockModalState extends State<AddStockModal> {
                         children: [
                           Text(
                             'Supplier',
-                            style: GoogleFonts.inter(
+                            style: GoogleFonts.plusJakartaSans(
                               fontSize: 13,
                               fontWeight: FontWeight.w600,
-                              color: AppColors.darkText,
+                              color: const Color(0xFF111111),
                             ),
                           ),
                           const SizedBox(height: 8),
                           TextFormField(
                             controller: _supplierController,
-                            style: GoogleFonts.inter(fontSize: 14),
+                            style: GoogleFonts.plusJakartaSans(fontSize: 14, color: const Color(0xFF111111)),
                             decoration: InputDecoration(
                               hintText: 'Nama supplier',
                               filled: true,
-                              fillColor: Color(0xFFF1F5F9),
+                              fillColor: Colors.white,
                               contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
                               border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(12),
-                                borderSide: BorderSide.none,
+                                borderRadius: BorderRadius.circular(14),
+                                borderSide: const BorderSide(color: Color(0xFFE2E8F0), width: 1.2),
                               ),
                               enabledBorder: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(12),
-                                borderSide: BorderSide.none,
+                                borderRadius: BorderRadius.circular(14),
+                                borderSide: const BorderSide(color: Color(0xFFE2E8F0), width: 1.2),
                               ),
                               focusedBorder: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(12),
-                                borderSide: const BorderSide(color: AppColors.primaryTeal, width: 1.5),
+                                borderRadius: BorderRadius.circular(14),
+                                borderSide: const BorderSide(color: Color(0xFF111111), width: 1.5),
                               ),
                             ),
                           ),
@@ -555,58 +564,58 @@ class _AddStockModalState extends State<AddStockModal> {
                 // Catatan
                 Text(
                   'Catatan Khusus (Opsional)',
-                  style: GoogleFonts.inter(
+                  style: GoogleFonts.plusJakartaSans(
                     fontSize: 13,
                     fontWeight: FontWeight.w600,
-                    color: AppColors.darkText,
+                    color: const Color(0xFF111111),
                   ),
                 ),
                 const SizedBox(height: 8),
                 TextFormField(
                   controller: _notesController,
                   maxLines: 2,
-                  style: GoogleFonts.inter(fontSize: 14),
+                  style: GoogleFonts.plusJakartaSans(fontSize: 14, color: const Color(0xFF111111)),
                   decoration: InputDecoration(
                     hintText: 'Contoh: Simpan di suhu chiller 4°C',
                     filled: true,
-                    fillColor: Color(0xFFF1F5F9),
+                    fillColor: Colors.white,
                     contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
                     border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                      borderSide: BorderSide.none,
+                      borderRadius: BorderRadius.circular(14),
+                      borderSide: const BorderSide(color: Color(0xFFE2E8F0), width: 1.2),
                     ),
                     enabledBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                      borderSide: BorderSide.none,
+                      borderRadius: BorderRadius.circular(14),
+                      borderSide: const BorderSide(color: Color(0xFFE2E8F0), width: 1.2),
                     ),
                     focusedBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                      borderSide: const BorderSide(color: AppColors.primaryTeal, width: 1.5),
+                      borderRadius: BorderRadius.circular(14),
+                      borderSide: const BorderSide(color: Color(0xFF111111), width: 1.5),
                     ),
                   ),
                 ),
                 const SizedBox(height: 24),
 
-                // Submit Button
+                // Submit Button (Solid Black)
                 SizedBox(
                   width: double.infinity,
                   height: 52,
                   child: ElevatedButton(
                     onPressed: _handleSubmit,
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: AppColors.primaryTeal,
+                      backgroundColor: const Color(0xFF111111),
                       foregroundColor: Colors.white,
                       shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(14),
+                        borderRadius: BorderRadius.circular(16),
                       ),
-                      elevation: 6,
-                      shadowColor: AppColors.primaryTeal.withValues(alpha: 0.4),
+                      elevation: 4,
+                      shadowColor: Colors.black.withValues(alpha: 0.25),
                     ),
                     child: Text(
                       isEditing ? 'Simpan Perubahan' : 'Simpan Bahan Baku',
-                      style: GoogleFonts.poppins(
+                      style: GoogleFonts.plusJakartaSans(
                         fontSize: 15,
-                        fontWeight: FontWeight.w600,
+                        fontWeight: FontWeight.w700,
                       ),
                     ),
                   ),

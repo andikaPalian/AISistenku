@@ -1,13 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import '../../../core/theme/app_colors.dart';
 import '../../../models/stock_model.dart';
 
-/// Interactive KPI summary metrics at the top of Stock screen.
+/// Ultra-clean Segmented Status Filter Bar.
+///
+/// Replaces chunky box templates with a sleek, native-grade segmented pill control (44px height).
 class StockSummarySection extends StatelessWidget {
   final int totalCount;
   final int lowCount;
   final int criticalCount;
+  final int totalValue;
   final StockStatus? activeFilter;
   final ValueChanged<StockStatus?> onFilterChanged;
 
@@ -16,164 +18,151 @@ class StockSummarySection extends StatelessWidget {
     required this.totalCount,
     required this.lowCount,
     required this.criticalCount,
+    this.totalValue = 0,
     required this.activeFilter,
     required this.onFilterChanged,
   });
 
   @override
   Widget build(BuildContext context) {
-    return Row(
-      children: [
-        // 1. Total Bahan
-        Expanded(
-          child: _buildMetricCard(
-            title: 'Total Bahan',
-            count: totalCount,
-            isSelected: activeFilter == null,
-            countColor: AppColors.darkText,
-            borderColor: activeFilter == null
-                ? AppColors.primaryTeal
-                : Color(0xFFE2E8F0),
-            bgColor: activeFilter == null
-                ? Color(0xFFF1F5F9)
-                : AppColors.cardBackground,
-            icon: Icons.inventory_2_outlined,
-            iconColor: AppColors.primaryTeal,
-            onTap: () => onFilterChanged(null),
+    return Container(
+      height: 44,
+      padding: const EdgeInsets.all(3),
+      decoration: BoxDecoration(
+        color: const Color(0xFFF1F5F9),
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(color: const Color(0xFFE2E8F0), width: 1),
+      ),
+      child: Row(
+        children: [
+          // 1. Total Bahan (Semua)
+          Expanded(
+            child: _buildSegmentItem(
+              title: 'Total Bahan',
+              count: totalCount,
+              isSelected: activeFilter == null,
+              activeTextColor: const Color(0xFF0F172A),
+              activeBadgeBg: const Color(0xFF111111),
+              activeBadgeTextColor: Colors.white,
+              inactiveBadgeBg: const Color(0xFFE2E8F0),
+              inactiveBadgeTextColor: const Color(0xFF475569),
+              onTap: () => onFilterChanged(null),
+            ),
           ),
-        ),
-        const SizedBox(width: 10),
 
-        // 2. Rendah
-        Expanded(
-          child: _buildMetricCard(
-            title: 'Rendah',
-            count: lowCount,
-            isSelected: activeFilter == StockStatus.rendah,
-            countColor: AppColors.warningOrange,
-            borderColor: activeFilter == StockStatus.rendah
-                ? AppColors.warningOrange
-                : const Color(0xFFFDE68A),
-            bgColor: activeFilter == StockStatus.rendah
-                ? AppColors.warningBg.withValues(alpha: 0.6)
-                : AppColors.cardBackground,
-            icon: Icons.warning_amber_rounded,
-            iconColor: AppColors.warningOrange,
-            badgeDot: lowCount > 0,
-            onTap: () {
-              if (activeFilter == StockStatus.rendah) {
-                onFilterChanged(null);
-              } else {
-                onFilterChanged(StockStatus.rendah);
-              }
-            },
+          // 2. Rendah
+          Expanded(
+            child: _buildSegmentItem(
+              title: 'Rendah',
+              count: lowCount,
+              isSelected: activeFilter == StockStatus.rendah,
+              activeTextColor: const Color(0xFFB45309),
+              activeBadgeBg: const Color(0xFFF59E0B),
+              activeBadgeTextColor: Colors.white,
+              inactiveBadgeBg: const Color(0xFFFEF3C7),
+              inactiveBadgeTextColor: const Color(0xFFB45309),
+              onTap: () {
+                if (activeFilter == StockStatus.rendah) {
+                  onFilterChanged(null);
+                } else {
+                  onFilterChanged(StockStatus.rendah);
+                }
+              },
+            ),
           ),
-        ),
-        const SizedBox(width: 10),
 
-        // 3. Kritis
-        Expanded(
-          child: _buildMetricCard(
-            title: 'Kritis',
-            count: criticalCount,
-            isSelected: activeFilter == StockStatus.kritis,
-            countColor: AppColors.destructive,
-            borderColor: activeFilter == StockStatus.kritis
-                ? AppColors.destructive
-                : const Color(0xFFFECACA),
-            bgColor: activeFilter == StockStatus.kritis
-                ? AppColors.dangerBg.withValues(alpha: 0.6)
-                : AppColors.cardBackground,
-            icon: Icons.error_outline_rounded,
-            iconColor: AppColors.destructive,
-            badgeDot: criticalCount > 0,
-            onTap: () {
-              if (activeFilter == StockStatus.kritis) {
-                onFilterChanged(null);
-              } else {
-                onFilterChanged(StockStatus.kritis);
-              }
-            },
+          // 3. Kritis
+          Expanded(
+            child: _buildSegmentItem(
+              title: 'Kritis',
+              count: criticalCount,
+              isSelected: activeFilter == StockStatus.kritis,
+              activeTextColor: const Color(0xFFB91C1C),
+              activeBadgeBg: const Color(0xFFEF4444),
+              activeBadgeTextColor: Colors.white,
+              inactiveBadgeBg: const Color(0xFFFEE2E2),
+              inactiveBadgeTextColor: const Color(0xFFB91C1C),
+              onTap: () {
+                if (activeFilter == StockStatus.kritis) {
+                  onFilterChanged(null);
+                } else {
+                  onFilterChanged(StockStatus.kritis);
+                }
+              },
+            ),
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 
-  Widget _buildMetricCard({
+  Widget _buildSegmentItem({
     required String title,
     required int count,
     required bool isSelected,
-    required Color countColor,
-    required Color borderColor,
-    required Color bgColor,
-    required IconData icon,
-    required Color iconColor,
-    bool badgeDot = false,
+    required Color activeTextColor,
+    required Color activeBadgeBg,
+    required Color activeBadgeTextColor,
+    required Color inactiveBadgeBg,
+    required Color inactiveBadgeTextColor,
     required VoidCallback onTap,
   }) {
-    return InkWell(
-      onTap: onTap,
-      borderRadius: BorderRadius.circular(16),
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 200),
-        padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 12),
-        decoration: BoxDecoration(
-          color: isSelected ? Colors.white : const Color(0xFFF1F5F9), // Clean state
-          borderRadius: BorderRadius.circular(16),
-          // No borders!
-          boxShadow: isSelected
-              ? [
-                  BoxShadow(
-                    color: Colors.black.withValues(alpha: 0.08), // Pop out when selected
-                    blurRadius: 12,
-                    offset: const Offset(0, 4),
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(11),
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 180),
+          decoration: BoxDecoration(
+            color: isSelected ? Colors.white : Colors.transparent,
+            borderRadius: BorderRadius.circular(11),
+            boxShadow: isSelected
+                ? [
+                    BoxShadow(
+                      color: Colors.black.withValues(alpha: 0.06),
+                      blurRadius: 4,
+                      offset: const Offset(0, 1.5),
+                    ),
+                  ]
+                : null,
+          ),
+          alignment: Alignment.center,
+          padding: const EdgeInsets.symmetric(horizontal: 4),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Flexible(
+                child: Text(
+                  title,
+                  style: GoogleFonts.plusJakartaSans(
+                    fontSize: 12,
+                    fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
+                    color: isSelected ? activeTextColor : const Color(0xFF64748B),
                   ),
-                ]
-              : null, // Flat when unselected
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            Text(
-              count.toString(),
-              style: GoogleFonts.poppins(
-                fontSize: 24,
-                fontWeight: FontWeight.w700,
-                color: countColor,
-                height: 1.1,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
               ),
-            ),
-            const SizedBox(height: 4),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                if (badgeDot) ...[
-                  Container(
-                    width: 6,
-                    height: 6,
-                    decoration: BoxDecoration(
-                      color: countColor,
-                      shape: BoxShape.circle,
-                    ),
-                  ),
-                  const SizedBox(width: 4),
-                ],
-                Flexible(
-                  child: Text(
-                    title,
-                    style: GoogleFonts.inter(
-                      fontSize: 12,
-                      fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
-                      color: isSelected ? AppColors.darkText : AppColors.mutedText,
-                    ),
-                    overflow: TextOverflow.ellipsis,
+              const SizedBox(width: 5),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 1.5),
+                decoration: BoxDecoration(
+                  color: isSelected ? activeBadgeBg : inactiveBadgeBg,
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: Text(
+                  count.toString(),
+                  style: GoogleFonts.plusJakartaSans(
+                    fontSize: 11,
+                    fontWeight: FontWeight.w800,
+                    color: isSelected ? activeBadgeTextColor : inactiveBadgeTextColor,
                   ),
                 ),
-              ],
-            ),
-          ],
+              ),
+            ],
+          ),
         ),
       ),
     );

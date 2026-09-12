@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:tiga_angkatan/models/notification_model.dart';
-import 'package:tiga_angkatan/screens/home/widgets/notification_sheet.dart';
+import 'package:AISISTENKU/models/notification_model.dart';
+import 'package:AISISTENKU/screens/home/widgets/notification_sheet.dart';
 
 void main() {
   group('Notification Model & Repository Tests', () {

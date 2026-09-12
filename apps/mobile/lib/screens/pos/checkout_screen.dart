@@ -32,15 +32,11 @@ class CheckoutScreen extends StatefulWidget {
 
 class _CheckoutScreenState extends State<CheckoutScreen> {
   PaymentMethodType _selectedMethod = PaymentMethodType.cash;
-  bool _isSummaryExpanded = false;
   bool _isProcessing = false;
 
   // Cash payment variables
   int _cashGiven = 0;
   final TextEditingController _cashInputController = TextEditingController();
-
-  int get _totalItems =>
-      widget.items.fold(0, (sum, item) => sum + item.quantity);
 
   int get _subtotal =>
       widget.items.fold(0, (sum, item) => sum + item.subtotal);
@@ -148,8 +144,9 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
         builder: (context) => PaymentSuccessScreen(
           order: orderRecord,
           onNewTransaction: () {
-            widget.onPaymentSuccess();
-            Navigator.of(context).popUntil((route) => route.isFirst);
+            try {
+              widget.onPaymentSuccess();
+            } catch (_) {}
           },
         ),
       ),
@@ -268,24 +265,25 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
               const SizedBox(height: 20),
               SizedBox(
                 width: double.infinity,
-                height: 52, // Slightly taller
+                height: 56, // Slightly taller
                 child: ElevatedButton(
                   onPressed: () {
                     Navigator.pop(ctx);
                     _processPayment();
                   },
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF0F172A), // Dark slate button
+                    backgroundColor: const Color(0xFF111111), // Solid Black Pill
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(16),
+                      borderRadius: BorderRadius.circular(30),
                     ),
-                    elevation: 0,
+                    elevation: 4,
+                    shadowColor: const Color(0xFF111111).withValues(alpha: 0.3),
                   ),
                   child: Text(
                     'Konfirmasi QRIS Diterima',
                     style: GoogleFonts.inter(
-                      fontSize: 15,
-                      fontWeight: FontWeight.w600,
+                      fontSize: 16,
+                      fontWeight: FontWeight.w700,
                       color: Colors.white,
                     ),
                   ),
@@ -301,348 +299,623 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.pageBackground,
-      appBar: AppBar(
-        backgroundColor: AppColors.pageBackground,
-        elevation: 0,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios_new_rounded, color: AppColors.darkText, size: 20),
-          onPressed: () => Navigator.pop(context),
+      backgroundColor: const Color(0xFF111111), // Dark top background matching reference
+      body: SafeArea(
+        bottom: false,
+        child: Column(
+          children: [
+            // ── Dark Top Navigation Bar (Header) ─────────────────
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  IconButton(
+                    icon: const Icon(Icons.arrow_back, color: Colors.white, size: 22),
+                    onPressed: () => Navigator.pop(context),
+                  ),
+                  Text(
+                    'Tiga Angkatan - Kartasura',
+                    style: GoogleFonts.inter(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w600,
+                      color: Colors.white,
+                    ),
+                  ),
+                  IconButton(
+                    icon: const Icon(Icons.menu_rounded, color: Colors.white, size: 22),
+                    onPressed: () {},
+                  ),
+                ],
+              ),
+            ),
+
+            const SizedBox(height: 6),
+
+            // ── White Curved Sheet Overlay (Radius 32) ───────────
+            Expanded(
+              child: Container(
+                decoration: const BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.vertical(top: Radius.circular(32)),
+                ),
+                child: ClipRRect(
+                  borderRadius: const BorderRadius.vertical(top: Radius.circular(32)),
+                  child: Column(
+                    children: [
+                      Expanded(
+                        child: SingleChildScrollView(
+                          physics: const BouncingScrollPhysics(),
+                          padding: const EdgeInsets.fromLTRB(24, 24, 24, 120),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              // 1. Heading "Checkout"
+                              Text(
+                                'Checkout',
+                                style: GoogleFonts.poppins(
+                                  fontSize: 24,
+                                  fontWeight: FontWeight.w800,
+                                  color: AppColors.darkText,
+                                  letterSpacing: -0.5,
+                                ),
+                              ),
+                              const SizedBox(height: 16),
+
+                              // 2. Delivery / Order Route Preview Snippet
+                              _buildRouteTrackerCard(),
+                              const SizedBox(height: 18),
+
+                              // 3. Delivery Time / Estimasi Saji
+                              _buildDeliveryTimeRow(),
+                              const SizedBox(height: 16),
+
+                              // 4. Promotion Applied Banner (Vibrant Green)
+                              _buildPromotionBanner(),
+                              const SizedBox(height: 20),
+
+                              // 5. Payment Selector Row
+                              _buildPaymentMethodSelector(),
+                              const SizedBox(height: 16),
+
+                              // Cash Helper if Cash selected
+                              if (_selectedMethod == PaymentMethodType.cash) ...[
+                                _buildCashHelperCard(),
+                                const SizedBox(height: 16),
+                              ],
+
+                              // QRIS Helper if QRIS selected
+                              if (_selectedMethod == PaymentMethodType.qris) ...[
+                                _buildQrisActionBanner(),
+                                const SizedBox(height: 16),
+                              ],
+
+                              // Card Helper if Card selected
+                              if (_selectedMethod == PaymentMethodType.card) ...[
+                                _buildCardActionBanner(),
+                                const SizedBox(height: 16),
+                              ],
+
+                              const SizedBox(height: 8),
+
+                              // 6. Your Items Section with Green Price Pills
+                              _buildYourItemsSection(),
+                              const SizedBox(height: 24),
+
+                              // 7. Summary Breakdown
+                              _buildOrderBreakdown(),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ],
         ),
-        title: Text(
-          'Checkout',
+      ),
+
+      // ── Fixed Bottom Checkout Button (Black Pill: Order : Rp...) ──
+      bottomSheet: Container(
+        color: Colors.white,
+        padding: const EdgeInsets.fromLTRB(24, 12, 24, 28),
+        child: SafeArea(
+          top: false,
+          child: SizedBox(
+            width: double.infinity,
+            height: 56,
+            child: ElevatedButton(
+              onPressed: _isProcessing ? null : _processPayment,
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color(0xFF111111), // Solid Black Pill
+                foregroundColor: Colors.white,
+                elevation: 4,
+                shadowColor: const Color(0xFF111111).withValues(alpha: 0.3),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(30), // Full Pill
+                ),
+              ),
+              child: _isProcessing
+                  ? const SizedBox(
+                      width: 24,
+                      height: 24,
+                      child: CircularProgressIndicator(
+                        color: Colors.white,
+                        strokeWidth: 2.5,
+                      ),
+                    )
+                  : Text(
+                      'Order : ${Product.formatRupiah(_total)}',
+                      style: GoogleFonts.poppins(
+                        fontSize: 17,
+                        fontWeight: FontWeight.w700,
+                        color: Colors.white,
+                      ),
+                    ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  /// Map / Route Tracker snippet card matching Screen 3
+  Widget _buildRouteTrackerCard() {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: const Color(0xFFF1F5F9), // Light map background slate
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: const Color(0xFFE2E8F0)),
+      ),
+      child: Row(
+        children: [
+          // Store Pin Icon
+          Container(
+            width: 38,
+            height: 38,
+            decoration: const BoxDecoration(
+              color: Color(0xFFFEF3C7), // Light amber circle
+              shape: BoxShape.circle,
+            ),
+            child: const Center(
+              child: Icon(Icons.coffee_rounded, color: Color(0xFFD97706), size: 20),
+            ),
+          ),
+
+          // Connecting Green Route Line
+          Expanded(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 10),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: Container(
+                      height: 3,
+                      decoration: BoxDecoration(
+                        color: const Color(0xFF22C55E), // Vibrant Green line
+                        borderRadius: BorderRadius.circular(2),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+
+          // Destination / Table Pin Icon
+          Container(
+            width: 38,
+            height: 38,
+            decoration: const BoxDecoration(
+              color: Color(0xFFDCFCE7), // Light green circle
+              shape: BoxShape.circle,
+            ),
+            child: Center(
+              child: Icon(
+                widget.orderType == OrderType.dineIn
+                    ? Icons.table_restaurant_rounded
+                    : Icons.shopping_bag_outlined,
+                color: const Color(0xFF16A34A),
+                size: 20,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  /// Order Type & Table row with green pill badge matching Screen 3
+  Widget _buildDeliveryTimeRow() {
+    final isDineIn = widget.orderType == OrderType.dineIn;
+    final orderText = isDineIn
+        ? (widget.tableNumber != null ? 'Makan di Tempat • ${widget.tableNumber}' : 'Makan di Tempat')
+        : 'Bawa Pulang (Take Away)';
+
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Text(
+          'Tipe Pesanan',
           style: GoogleFonts.poppins(
-            fontSize: 18,
+            fontSize: 15,
             fontWeight: FontWeight.w700,
             color: AppColors.darkText,
           ),
         ),
-        centerTitle: true,
-        bottom: const PreferredSize(
-          preferredSize: Size.fromHeight(1),
-          child: Divider(height: 1, color: Color(0xFFE2E8F0)),
-        ),
-      ),
-      body: Column(
-        children: [
-          Expanded(
-            child: SingleChildScrollView(
-              physics: const BouncingScrollPhysics(),
-              padding: const EdgeInsets.fromLTRB(20, 24, 20, 24),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // ── Hero Total Amount ────────────────────────────
-                  Center(
-                    child: Column(
-                      children: [
-                        Text(
-                          'Total Tagihan',
-                          style: GoogleFonts.inter(
-                            fontSize: 14,
-                            color: AppColors.mutedText,
-                            fontWeight: FontWeight.w500,
-                          ),
-                        ),
-                        const SizedBox(height: 6),
-                        Text(
-                          Product.formatRupiah(_total),
-                          style: GoogleFonts.poppins(
-                            fontSize: 34,
-                            fontWeight: FontWeight.w800,
-                            color: AppColors.darkText,
-                            letterSpacing: -0.5,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  const SizedBox(height: 24),
-
-                  // ── Expandable Order Summary Card ────────────────
-                  _buildOrderSummaryCard(),
-
-                  const SizedBox(height: 28),
-
-                  // ── Payment Method Section ───────────────────────
-                  Text(
-                    'Metode Pembayaran',
-                    style: GoogleFonts.poppins(
-                      fontSize: 18,
-                      fontWeight: FontWeight.w700,
-                      color: AppColors.darkText,
-                    ),
-                  ),
-                  const SizedBox(height: 14),
-
-                  // 1. Cash Card
-                  _buildPaymentOptionCard(
-                    method: PaymentMethodType.cash,
-                    icon: Icons.payments_outlined,
-                    title: 'Cash',
-                  ),
-                  const SizedBox(height: 12),
-
-                  // 2. QRIS Card
-                  _buildPaymentOptionCard(
-                    method: PaymentMethodType.qris,
-                    icon: Icons.qr_code_scanner_rounded,
-                    title: 'QRIS / E-Wallet',
-                  ),
-                  const SizedBox(height: 12),
-
-                  // 3. Card Option
-                  _buildPaymentOptionCard(
-                    method: PaymentMethodType.card,
-                    icon: Icons.credit_card_rounded,
-                    title: 'Debit / Credit Card',
-                  ),
-
-                  // ── Cash Calculations Helper (when Cash selected) ─
-                  if (_selectedMethod == PaymentMethodType.cash) ...[
-                    const SizedBox(height: 16),
-                    _buildCashHelperCard(),
-                  ],
-
-                  // ── QRIS Helper (when QRIS selected) ──────────────
-                  if (_selectedMethod == PaymentMethodType.qris) ...[
-                    const SizedBox(height: 16),
-                    _buildQrisActionBanner(),
-                  ],
-
-                  // ── Card Helper (when Card selected) ──────────────
-                  if (_selectedMethod == PaymentMethodType.card) ...[
-                    const SizedBox(height: 16),
-                    _buildCardActionBanner(),
-                  ],
-
-                  const SizedBox(height: 20),
-                ],
-              ),
-            ),
+        Container(
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+          decoration: BoxDecoration(
+            color: const Color(0xFFDCFCE7), // Light Green Pill
+            borderRadius: BorderRadius.circular(20),
           ),
-
-          // ── Bottom Action Button ─────────────────────────────────
-          _buildBottomAction(),
-        ],
-      ),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(
+                isDineIn ? Icons.check_circle_rounded : Icons.shopping_bag_rounded,
+                color: const Color(0xFF16A34A),
+                size: 16,
+              ),
+              const SizedBox(width: 6),
+              Text(
+                orderText,
+                style: GoogleFonts.inter(
+                  fontSize: 12.5,
+                  fontWeight: FontWeight.w700,
+                  color: const Color(0xFF16A34A),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ],
     );
   }
 
-  Widget _buildOrderSummaryCard() {
+  /// Vibrant Green Promotion Applied banner matching Screen 3
+  Widget _buildPromotionBanner() {
     return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        // No hard border
+        color: const Color(0xFF22C55E), // Vibrant Green Banner
+        borderRadius: BorderRadius.circular(18),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.06), // Deeper shadow to pop out
-            blurRadius: 20,
+            color: const Color(0xFF22C55E).withValues(alpha: 0.25),
+            blurRadius: 16,
             offset: const Offset(0, 6),
           ),
         ],
       ),
-      child: Column(
+      child: Row(
         children: [
-          InkWell(
-            onTap: () => setState(() => _isSummaryExpanded = !_isSummaryExpanded),
-            borderRadius: BorderRadius.circular(16),
-            child: Padding(
-              padding: const EdgeInsets.all(16),
-              child: Row(
-                children: [
-                  Container(
-                    width: 44,
-                    height: 44,
-                    decoration: BoxDecoration(
-                      color: AppColors.primaryTeal,
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: const Icon(
-                      Icons.shopping_bag_outlined,
-                      color: Colors.white,
-                      size: 22,
-                    ),
+          // Icon
+          Container(
+            width: 36,
+            height: 36,
+            decoration: BoxDecoration(
+              color: Colors.white.withValues(alpha: 0.2),
+              shape: BoxShape.circle,
+            ),
+            child: const Icon(Icons.local_offer_rounded, color: Colors.white, size: 18),
+          ),
+          const SizedBox(width: 12),
+
+          // Promotion text
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Promotion applied',
+                  style: GoogleFonts.inter(
+                    fontSize: 13,
+                    fontWeight: FontWeight.w700,
+                    color: Colors.white,
                   ),
-                  const SizedBox(width: 14),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          'Ringkasan Pesanan',
-                          style: GoogleFonts.poppins(
-                            fontSize: 16,
-                            fontWeight: FontWeight.w700,
-                            color: AppColors.darkText,
-                          ),
-                        ),
-                        const SizedBox(height: 2),
-                        Text(
-                          '$_totalItems Item ${widget.tableNumber != null ? "• ${widget.tableNumber}" : ""}',
-                          style: GoogleFonts.inter(
-                            fontSize: 13,
-                            color: AppColors.mutedText,
-                          ),
-                        ),
-                      ],
-                    ),
+                ),
+                Text(
+                  '-Rp 5.000 (10%)',
+                  style: GoogleFonts.inter(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w500,
+                    color: Colors.white.withValues(alpha: 0.85),
                   ),
-                  AnimatedRotation(
-                    turns: _isSummaryExpanded ? 0.5 : 0.0,
-                    duration: const Duration(milliseconds: 200),
-                    child: const Icon(
-                      Icons.keyboard_arrow_down_rounded,
-                      color: AppColors.darkText,
-                      size: 26,
-                    ),
-                  ),
-                ],
-              ),
+                ),
+              ],
             ),
           ),
 
-          // Collapsible Items List
-          if (_isSummaryExpanded) ...[
-            const Divider(height: 1, color: Color(0xFFE2E8F0)),
-            Padding(
-              padding: const EdgeInsets.fromLTRB(16, 12, 16, 16),
-              child: Column(
-                children: [
-                  ...widget.items.map((item) {
-                    return Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 6),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Row(
-                            children: [
-                              Container(
-                                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                                decoration: BoxDecoration(
-                                  color: const Color(0xFFF1F5F9),
-                                  borderRadius: BorderRadius.circular(6),
-                                ),
-                                child: Text(
-                                  '${item.quantity}x',
-                                  style: GoogleFonts.inter(
-                                    fontSize: 12,
-                                    fontWeight: FontWeight.w700,
-                                    color: const Color(0xFF0F172A),
-                                  ),
-                                ),
-                              ),
-                              const SizedBox(width: 8),
-                              Text(
-                                item.product.name,
-                                style: GoogleFonts.inter(
-                                  fontSize: 13,
-                                  fontWeight: FontWeight.w600,
-                                  color: AppColors.darkText,
-                                ),
-                              ),
-                            ],
-                          ),
-                          Text(
-                            item.formattedSubtotal,
-                            style: GoogleFonts.inter(
-                              fontSize: 13,
-                              fontWeight: FontWeight.w600,
-                              color: AppColors.darkText,
-                            ),
-                          ),
-                        ],
-                      ),
-                    );
-                  }),
-                ],
-              ),
+          // "View all >" pill button
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(20),
             ),
-          ],
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  'View all',
+                  style: GoogleFonts.inter(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w700,
+                    color: const Color(0xFF111111),
+                  ),
+                ),
+                const SizedBox(width: 2),
+                const Icon(Icons.chevron_right_rounded, size: 16, color: Color(0xFF111111)),
+              ],
+            ),
+          ),
         ],
       ),
     );
   }
 
-  Widget _buildPaymentOptionCard({
-    required PaymentMethodType method,
-    required IconData icon,
-    required String title,
-  }) {
-    final isSelected = _selectedMethod == method;
+  /// Payment selector row with pill dropdown matching Screen 3
+  Widget _buildPaymentMethodSelector() {
+    String methodLabel = 'Cash';
+    IconData methodIcon = Icons.payments_rounded;
+    if (_selectedMethod == PaymentMethodType.qris) {
+      methodLabel = 'QRIS';
+      methodIcon = Icons.qr_code_2_rounded;
+    } else if (_selectedMethod == PaymentMethodType.card) {
+      methodLabel = 'Debit Card';
+      methodIcon = Icons.credit_card_rounded;
+    }
 
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Text(
+          'Payment',
+          style: GoogleFonts.poppins(
+            fontSize: 15,
+            fontWeight: FontWeight.w700,
+            color: AppColors.darkText,
+          ),
+        ),
+        GestureDetector(
+          onTap: _showPaymentPickerModal,
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(20),
+              border: Border.all(color: const Color(0xFFE2E8F0), width: 1.2),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withValues(alpha: 0.04),
+                  blurRadius: 10,
+                  offset: const Offset(0, 2),
+                ),
+              ],
+            ),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(methodIcon, color: const Color(0xFF111111), size: 18),
+                const SizedBox(width: 8),
+                Text(
+                  methodLabel,
+                  style: GoogleFonts.poppins(
+                    fontSize: 13,
+                    fontWeight: FontWeight.w700,
+                    color: const Color(0xFF111111),
+                  ),
+                ),
+                const SizedBox(width: 4),
+                const Icon(Icons.keyboard_arrow_down_rounded, size: 18, color: Color(0xFF111111)),
+              ],
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  void _showPaymentPickerModal() {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.white,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
+      ),
+      builder: (ctx) {
+        return Padding(
+          padding: const EdgeInsets.fromLTRB(24, 20, 24, 32),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Center(
+                child: Container(
+                  width: 40,
+                  height: 4,
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFE2E8F0),
+                    borderRadius: BorderRadius.circular(2),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 18),
+              Text(
+                'Pilih Metode Pembayaran',
+                style: GoogleFonts.poppins(
+                  fontSize: 18,
+                  fontWeight: FontWeight.w700,
+                  color: AppColors.darkText,
+                ),
+              ),
+              const SizedBox(height: 16),
+              _buildPaymentOptionTile(PaymentMethodType.cash, 'Cash / Tunai', Icons.payments_rounded),
+              const SizedBox(height: 10),
+              _buildPaymentOptionTile(PaymentMethodType.qris, 'QRIS / E-Wallet', Icons.qr_code_2_rounded),
+              const SizedBox(height: 10),
+              _buildPaymentOptionTile(PaymentMethodType.card, 'Debit / Credit Card', Icons.credit_card_rounded),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildPaymentOptionTile(PaymentMethodType method, String title, IconData icon) {
+    final isSelected = _selectedMethod == method;
     return GestureDetector(
-      onTap: () => setState(() => _selectedMethod = method),
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 200),
-        padding: const EdgeInsets.all(16),
+      onTap: () {
+        setState(() => _selectedMethod = method);
+        Navigator.pop(context);
+      },
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
         decoration: BoxDecoration(
-          color: isSelected ? AppColors.primaryTeal.withValues(alpha: 0.02) : Colors.white,
+          color: isSelected ? const Color(0xFFF1F5F9) : Colors.white,
           borderRadius: BorderRadius.circular(16),
           border: Border.all(
-            color: isSelected ? AppColors.primaryTeal.withValues(alpha: 0.4) : Colors.transparent,
-            width: 1.5,
+            color: isSelected ? const Color(0xFF111111) : const Color(0xFFE2E8F0),
+            width: isSelected ? 1.5 : 1,
           ),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withValues(alpha: 0.06), // Stronger shadow so it's not flat
-              blurRadius: 20,
-              offset: const Offset(0, 6),
-            ),
-          ],
         ),
         child: Row(
           children: [
-            // Icon container
-            Container(
-              width: 44,
-              height: 44,
-              decoration: BoxDecoration(
-                color: isSelected ? AppColors.tealBackgrounds : const Color(0xFFF1F5F9),
-                shape: BoxShape.circle,
-              ),
-              child: Icon(
-                icon,
-                color: isSelected ? AppColors.primaryTeal : AppColors.darkText,
-                size: 22,
-              ),
-            ),
-            const SizedBox(width: 16),
-            // Title
+            Icon(icon, color: const Color(0xFF111111), size: 22),
+            const SizedBox(width: 14),
             Expanded(
               child: Text(
                 title,
-                style: GoogleFonts.poppins(
-                  fontSize: 16,
+                style: GoogleFonts.inter(
+                  fontSize: 14,
                   fontWeight: FontWeight.w600,
                   color: AppColors.darkText,
                 ),
               ),
             ),
-            // Modern Radio button circle
-            Container(
-              width: 24,
-              height: 24,
-              padding: const EdgeInsets.all(4), // Space for inner dot
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                border: Border.all(
-                  color: isSelected ? AppColors.primaryTeal : const Color(0xFFCBD5E1),
-                  width: 1.5, // Elegant thin border
+            if (isSelected)
+              const Icon(Icons.check_circle_rounded, color: Color(0xFF22C55E), size: 20),
+          ],
+        ),
+      ),
+    );
+  }
+
+  /// "Your items" section with "+ Add Items" and Green Price Pills matching Screen 3
+  Widget _buildYourItemsSection() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text(
+              'Your items',
+              style: GoogleFonts.poppins(
+                fontSize: 15,
+                fontWeight: FontWeight.w700,
+                color: AppColors.darkText,
+              ),
+            ),
+            GestureDetector(
+              onTap: () => Navigator.pop(context),
+              child: Text(
+                '+ Add Items',
+                style: GoogleFonts.inter(
+                  fontSize: 13,
+                  fontWeight: FontWeight.w700,
+                  color: const Color(0xFF111111),
                 ),
               ),
-              child: isSelected
-                  ? Container(
-                      decoration: const BoxDecoration(
-                        color: AppColors.primaryTeal,
-                        shape: BoxShape.circle,
-                      ),
-                    )
-                  : null,
             ),
           ],
         ),
+        const SizedBox(height: 14),
+
+        // List of items
+        ...widget.items.map((item) {
+          return Padding(
+            padding: const EdgeInsets.only(bottom: 12),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Expanded(
+                  child: Text(
+                    '${item.quantity > 1 ? "${item.quantity}x " : ""}${item.product.name}',
+                    style: GoogleFonts.inter(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w500,
+                      color: AppColors.darkText,
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
+                const SizedBox(width: 12),
+                // Green Price Pill matching Screen 3
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFF22C55E), // Vibrant Green Pill
+                    borderRadius: BorderRadius.circular(16),
+                  ),
+                  child: Text(
+                    Product.formatRupiah(item.subtotal),
+                    style: GoogleFonts.poppins(
+                      fontSize: 13,
+                      fontWeight: FontWeight.w700,
+                      color: Colors.white,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          );
+        }),
+      ],
+    );
+  }
+
+  Widget _buildOrderBreakdown() {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: const Color(0xFFF8FAFC),
+        borderRadius: BorderRadius.circular(18),
+        border: Border.all(color: const Color(0xFFE2E8F0)),
+      ),
+      child: Column(
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text('Subtotal', style: GoogleFonts.inter(fontSize: 13, color: AppColors.mutedText)),
+              Text(Product.formatRupiah(_subtotal), style: GoogleFonts.poppins(fontSize: 13, fontWeight: FontWeight.w600, color: AppColors.darkText)),
+            ],
+          ),
+          const SizedBox(height: 8),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text('Diskon Promo', style: GoogleFonts.inter(fontSize: 13, color: const Color(0xFF22C55E), fontWeight: FontWeight.w600)),
+              Text('-Rp 0', style: GoogleFonts.poppins(fontSize: 13, fontWeight: FontWeight.w600, color: const Color(0xFF22C55E))),
+            ],
+          ),
+          const SizedBox(height: 8),
+          const Divider(height: 1, color: Color(0xFFE2E8F0)),
+          const SizedBox(height: 8),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text('Total Tagihan', style: GoogleFonts.poppins(fontSize: 14, fontWeight: FontWeight.w700, color: AppColors.darkText)),
+              Text(Product.formatRupiah(_total), style: GoogleFonts.poppins(fontSize: 16, fontWeight: FontWeight.w800, color: AppColors.darkText)),
+            ],
+          ),
+        ],
       ),
     );
   }
@@ -660,7 +933,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(24),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withValues(alpha: 0.06),
@@ -679,23 +952,23 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                 'Nominal Uang Tunai',
                 style: GoogleFonts.inter(
                   fontSize: 13,
-                  fontWeight: FontWeight.w600,
-                  color: AppColors.primaryTeal,
+                  fontWeight: FontWeight.w700,
+                  color: AppColors.primary,
                 ),
               ),
               if (_change > 0)
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                   decoration: BoxDecoration(
-                    color: AppColors.successGreen.withValues(alpha: 0.15),
-                    borderRadius: BorderRadius.circular(8),
+                    color: AppColors.secondary.withValues(alpha: 0.15),
+                    borderRadius: BorderRadius.circular(16),
                   ),
                   child: Text(
                     'Kembalian: ${Product.formatRupiah(_change)}',
                     style: GoogleFonts.inter(
                       fontSize: 12,
                       fontWeight: FontWeight.w700,
-                      color: AppColors.successGreen,
+                      color: AppColors.secondary,
                     ),
                   ),
                 ),
@@ -721,10 +994,10 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
               filled: true,
               fillColor: const Color(0xFFF1F5F9),
               border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(12),
+                borderRadius: BorderRadius.circular(25), // Pill shape
                 borderSide: BorderSide.none,
               ),
-              contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+              contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
             ),
             onChanged: (val) {
               final parsed = int.tryParse(val.replaceAll(RegExp(r'[^0-9]'), '')) ?? 0;
@@ -744,10 +1017,10 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                   isExact ? 'Uang Pas (${Product.formatRupiah(amount)})' : Product.formatRupiah(amount),
                 ),
                 selected: isSelected,
-                selectedColor: AppColors.primaryTeal,
+                selectedColor: AppColors.primary, // Black selected state
                 backgroundColor: const Color(0xFFF1F5F9),
                 shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(10),
+                  borderRadius: BorderRadius.circular(20), // Pill chip
                 ),
                 side: const BorderSide(
                   color: Colors.transparent,
@@ -777,7 +1050,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
           color: Colors.white,
-          borderRadius: BorderRadius.circular(16),
+          borderRadius: BorderRadius.circular(24),
           boxShadow: [
             BoxShadow(
               color: Colors.black.withValues(alpha: 0.06),
@@ -791,10 +1064,10 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
             Container(
               padding: const EdgeInsets.all(10),
               decoration: BoxDecoration(
-                color: AppColors.primaryTeal.withValues(alpha: 0.1),
+                color: AppColors.primary.withValues(alpha: 0.1),
                 shape: BoxShape.circle,
               ),
-              child: const Icon(Icons.qr_code_rounded, color: AppColors.primaryTeal, size: 24),
+              child: const Icon(Icons.qr_code_rounded, color: AppColors.primary, size: 24),
             ),
             const SizedBox(width: 16),
             Expanded(
@@ -828,7 +1101,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(24),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withValues(alpha: 0.06),
@@ -842,10 +1115,10 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
           Container(
             padding: const EdgeInsets.all(10),
             decoration: BoxDecoration(
-              color: AppColors.primaryTeal.withValues(alpha: 0.1),
+              color: AppColors.primary.withValues(alpha: 0.1),
               shape: BoxShape.circle,
             ),
-            child: const Icon(Icons.credit_card_rounded, color: AppColors.primaryTeal, size: 24),
+            child: const Icon(Icons.credit_card_rounded, color: AppColors.primary, size: 24),
           ),
           const SizedBox(width: 16),
           Expanded(
@@ -868,66 +1141,6 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
             ),
           ),
         ],
-      ),
-    );
-  }
-
-  Widget _buildBottomAction() {
-    return Container(
-      padding: const EdgeInsets.fromLTRB(24, 16, 24, 24),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
-        // No top border, rely on shadow
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.08),
-            blurRadius: 24,
-            offset: const Offset(0, -6),
-          ),
-        ],
-      ),
-      child: SafeArea(
-        top: false,
-        child: SizedBox(
-          width: double.infinity,
-          height: 54,
-          child: ElevatedButton(
-            onPressed: _isProcessing ? null : _processPayment,
-            style: ElevatedButton.styleFrom(
-              backgroundColor: AppColors.primaryTeal,
-              foregroundColor: Colors.white,
-              elevation: 6,
-              shadowColor: AppColors.primaryTeal.withValues(alpha: 0.5),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(28),
-              ),
-            ),
-            child: _isProcessing
-                ? const SizedBox(
-                    width: 24,
-                    height: 24,
-                    child: CircularProgressIndicator(
-                      color: Colors.white,
-                      strokeWidth: 2.5,
-                    ),
-                  )
-                : Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Text(
-                        'Selesaikan Pembayaran',
-                        style: GoogleFonts.inter(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w700,
-                        ),
-                      ),
-                      const SizedBox(width: 8),
-                      const Icon(Icons.arrow_forward_rounded, size: 20),
-                    ],
-                  ),
-          ),
-        ),
       ),
     );
   }

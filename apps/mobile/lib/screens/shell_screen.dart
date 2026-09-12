@@ -58,6 +58,7 @@ class _ShellScreenState extends State<ShellScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.pageBackground,
+      extendBody: true, // Allow content to flow under the floating bottom nav
       body: SmoothTabTransitionView(
         currentIndex: _currentIndex,
         children: _screens,

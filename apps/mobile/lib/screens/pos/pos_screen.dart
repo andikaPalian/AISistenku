@@ -111,41 +111,50 @@ class _PosScreenState extends State<PosScreen> {
                 const PosHeader(),
                 const Divider(height: 1, color: AppColors.lightTealBorder),
 
-                // ── Scrollable content ──────────────────────────
+                // ── Scrollable content & Floating Cart ──────────
                 Expanded(
-                  child: Column(
+                  child: Stack(
                     children: [
-                      Padding(
-                        padding: const EdgeInsets.fromLTRB(20, 16, 20, 0),
-                        child: PosSearchBar(
-                          onChanged: _onSearchChanged,
+                      Column(
+                        children: [
+                          Padding(
+                            padding: const EdgeInsets.fromLTRB(20, 16, 20, 0),
+                            child: PosSearchBar(
+                              onChanged: _onSearchChanged,
+                            ),
+                          ),
+                          const SizedBox(height: 14),
+                          CategoryChips(
+                            selected: _selectedCategory,
+                            onChanged: _onCategoryChanged,
+                          ),
+                          const SizedBox(height: 8),
+                          Expanded(
+                            child: ProductGrid(
+                              products: products,
+                              getQuantity: _getQuantity,
+                              onAdd: _addToCart,
+                              onRemove: _removeFromCart,
+                            ),
+                          ),
+                        ],
+                      ),
+
+                      // ── Cart bar (floating at bottom) ──
+                      if (_totalItems > 0)
+                        Positioned(
+                          left: 0,
+                          right: 0,
+                          bottom: 110, // Increased to float above the global AppBottomNav
+                          child: CartBottomBar(
+                            itemCount: _totalItems,
+                            totalFormatted: _formattedTotal,
+                            onViewOrder: _navigateToOrderReview,
+                          ),
                         ),
-                      ),
-                      const SizedBox(height: 14),
-                      CategoryChips(
-                        selected: _selectedCategory,
-                        onChanged: _onCategoryChanged,
-                      ),
-                      const SizedBox(height: 8),
-                      Expanded(
-                        child: ProductGrid(
-                          products: products,
-                          getQuantity: _getQuantity,
-                          onAdd: _addToCart,
-                          onRemove: _removeFromCart,
-                        ),
-                      ),
                     ],
                   ),
                 ),
-
-                // ── Cart bar (only visible when items in cart) ──
-                if (_totalItems > 0)
-                  CartBottomBar(
-                    itemCount: _totalItems,
-                    totalFormatted: _formattedTotal,
-                    onViewOrder: _navigateToOrderReview,
-                  ),
               ],
             );
           },

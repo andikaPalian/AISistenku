@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:tiga_angkatan/core/theme/app_animations.dart';
-import 'package:tiga_angkatan/core/widgets/ai_portal_route.dart';
-import 'package:tiga_angkatan/core/widgets/bouncing_press.dart';
-import 'package:tiga_angkatan/core/widgets/smooth_tab_view.dart';
+import 'package:AISISTENKU/core/theme/app_animations.dart';
+import 'package:AISISTENKU/core/widgets/ai_portal_route.dart';
+import 'package:AISISTENKU/core/widgets/bouncing_press.dart';
+import 'package:AISISTENKU/core/widgets/smooth_tab_view.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();

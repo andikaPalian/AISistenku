@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:tiga_angkatan/screens/auth/login_screen.dart';
+import 'package:AISISTENKU/screens/auth/login_screen.dart';
 
 void main() {
   group('Auth Screen UI Widget Tests', () {

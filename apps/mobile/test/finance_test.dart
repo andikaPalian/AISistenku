@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:tiga_angkatan/models/finance_model.dart';
-import 'package:tiga_angkatan/screens/finance/finance_screen.dart';
-import 'package:tiga_angkatan/screens/finance/add_transaction_screen.dart';
+import 'package:AISISTENKU/models/finance_model.dart';
+import 'package:AISISTENKU/screens/finance/finance_screen.dart';
+import 'package:AISISTENKU/screens/finance/add_transaction_screen.dart';
 
 void main() {
   group('Finance Model & Repository Tests', () {

@@ -1,12 +1,13 @@
 import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import '../../../core/theme/app_colors.dart';
+import 'package:fl_chart/fl_chart.dart';
 import '../../../models/finance_model.dart';
 
 /// Interactive chart displaying sales revenue trend and cashflow breakdown.
 ///
-/// Gives UMKM business owners clear insights to make data-driven decisions.
+/// Overhauled with Neo-Clean aesthetics, smooth glowing emerald splines,
+/// interactive pulse points, and clean axes.
 class SalesAnalyticsChart extends StatefulWidget {
   final List<ChartDataPoint> dataPoints;
   final FinancePeriod period;
@@ -23,7 +24,6 @@ class SalesAnalyticsChart extends StatefulWidget {
 
 class _SalesAnalyticsChartState extends State<SalesAnalyticsChart> {
   int _selectedChartMode = 0; // 0 = Line Trend, 1 = Bar Comparison
-  int? _selectedIndex;
 
   @override
   Widget build(BuildContext context) {
@@ -35,18 +35,21 @@ class _SalesAnalyticsChartState extends State<SalesAnalyticsChart> {
       0.0,
       (max, p) => math.max(max, math.max(p.income, p.expense)),
     );
-    final safeMax = maxVal == 0 ? 1000000.0 : maxVal * 1.15;
+    final safeMax = maxVal == 0 ? 100000.0 : maxVal * 1.25;
+
+    final totalIncome = widget.dataPoints.fold<double>(0, (sum, p) => sum + p.income);
+    final avgIncome = totalIncome / widget.dataPoints.length;
 
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.all(18),
+      padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: AppColors.lightTealBorder, width: 1.2),
+        borderRadius: BorderRadius.circular(22),
+        border: Border.all(color: const Color(0xFFE2E8F0), width: 1.1),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.03),
+            color: const Color(0xFF0F172A).withValues(alpha: 0.03),
             blurRadius: 14,
             offset: const Offset(0, 4),
           ),
@@ -57,69 +60,69 @@ class _SalesAnalyticsChartState extends State<SalesAnalyticsChart> {
         children: [
           // ── Header & Growth Badge ─────────────────────────────────
           Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              Container(
+                width: 38,
+                height: 38,
+                decoration: BoxDecoration(
+                  color: const Color(0xFFDCFCE7),
+                  borderRadius: BorderRadius.circular(11),
+                ),
+                child: const Icon(
+                  Icons.insights_rounded,
+                  color: Color(0xFF16A34A),
+                  size: 20,
+                ),
+              ),
+              const SizedBox(width: 12),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Row(
-                      children: [
-                        const Icon(
-                          Icons.analytics_rounded,
-                          color: AppColors.primaryTeal,
-                          size: 20,
-                        ),
-                        const SizedBox(width: 6),
-                        Flexible(
-                          child: Text(
-                            'Grafik Penjualan & Arus Kas',
-                            style: GoogleFonts.poppins(
-                              fontSize: 14,
-                              fontWeight: FontWeight.w600,
-                              color: AppColors.darkText,
-                            ),
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                        ),
-                      ],
+                    Text(
+                      'Grafik Penjualan & Arus Kas',
+                      style: GoogleFonts.plusJakartaSans(
+                        fontSize: 15,
+                        fontWeight: FontWeight.w700,
+                        color: const Color(0xFF0F172A),
+                        letterSpacing: -0.3,
+                      ),
                     ),
                     const SizedBox(height: 2),
                     Text(
                       'Tren performa finansial bisnis Anda',
-                      style: GoogleFonts.inter(
-                        fontSize: 11,
-                        color: AppColors.mutedText,
+                      style: GoogleFonts.plusJakartaSans(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w400,
+                        color: const Color(0xFF64748B),
                       ),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
                     ),
                   ],
                 ),
               ),
               const SizedBox(width: 8),
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 4.5),
                 decoration: BoxDecoration(
-                  color: AppColors.successBg,
-                  borderRadius: BorderRadius.circular(12),
+                  color: const Color(0xFFDCFCE7),
+                  borderRadius: BorderRadius.circular(14),
                 ),
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     const Icon(
                       Icons.arrow_upward_rounded,
-                      size: 12,
-                      color: AppColors.successText,
+                      size: 13,
+                      color: Color(0xFF16A34A),
                     ),
-                    const SizedBox(width: 2),
+                    const SizedBox(width: 3),
                     Text(
                       '+18.4%',
-                      style: GoogleFonts.inter(
-                        fontSize: 11,
+                      style: GoogleFonts.plusJakartaSans(
+                        fontSize: 11.5,
                         fontWeight: FontWeight.w700,
-                        color: AppColors.successText,
+                        color: const Color(0xFF16A34A),
                       ),
                     ),
                   ],
@@ -128,84 +131,88 @@ class _SalesAnalyticsChartState extends State<SalesAnalyticsChart> {
             ],
           ),
 
-          const SizedBox(height: 14),
+          const SizedBox(height: 18),
 
-          // ── Chart Mode Toggle (Line vs Bar) ─────────────────────────
+          // ── Chart Mode Toggle (Pill Style) ────────────────────────
           Container(
-            padding: const EdgeInsets.all(3),
+            padding: const EdgeInsets.all(3.5),
             decoration: BoxDecoration(
-              color: AppColors.tealBackgrounds,
-              borderRadius: BorderRadius.circular(10),
+              color: const Color(0xFFF1F5F9),
+              borderRadius: BorderRadius.circular(14),
             ),
             child: Row(
               children: [
                 Expanded(
-                  child: GestureDetector(
+                  child: InkWell(
                     onTap: () => setState(() => _selectedChartMode = 0),
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(vertical: 6),
+                    borderRadius: BorderRadius.circular(11),
+                    child: AnimatedContainer(
+                      duration: const Duration(milliseconds: 160),
+                      padding: const EdgeInsets.symmetric(vertical: 8),
                       decoration: BoxDecoration(
                         color: _selectedChartMode == 0
-                            ? Colors.white
+                            ? const Color(0xFF111111)
                             : Colors.transparent,
-                        borderRadius: BorderRadius.circular(8),
+                        borderRadius: BorderRadius.circular(11),
                         boxShadow: _selectedChartMode == 0
                             ? [
                                 BoxShadow(
-                                  color: Colors.black.withValues(alpha: 0.06),
+                                  color: Colors.black.withValues(alpha: 0.12),
                                   blurRadius: 4,
-                                  offset: const Offset(0, 2),
+                                  offset: const Offset(0, 1.5),
                                 ),
                               ]
                             : null,
                       ),
                       alignment: Alignment.center,
                       child: Text(
-                        'Tren Omzet (Line)',
-                        style: GoogleFonts.inter(
-                           fontSize: 12,
+                        'Tren Omzet',
+                        style: GoogleFonts.plusJakartaSans(
+                          fontSize: 12.5,
                           fontWeight: _selectedChartMode == 0
-                              ? FontWeight.w600
+                              ? FontWeight.w700
                               : FontWeight.w500,
                           color: _selectedChartMode == 0
-                              ? AppColors.primaryTeal
-                              : AppColors.mutedText,
+                              ? Colors.white
+                              : const Color(0xFF64748B),
                         ),
                       ),
                     ),
                   ),
                 ),
                 Expanded(
-                  child: GestureDetector(
+                  child: InkWell(
                     onTap: () => setState(() => _selectedChartMode = 1),
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(vertical: 6),
+                    borderRadius: BorderRadius.circular(11),
+                    child: AnimatedContainer(
+                      duration: const Duration(milliseconds: 160),
+                      padding: const EdgeInsets.symmetric(vertical: 8),
                       decoration: BoxDecoration(
                         color: _selectedChartMode == 1
-                            ? Colors.white
+                            ? const Color(0xFF111111)
                             : Colors.transparent,
-                        borderRadius: BorderRadius.circular(8),
+                        borderRadius: BorderRadius.circular(11),
                         boxShadow: _selectedChartMode == 1
                             ? [
                                 BoxShadow(
-                                  color: Colors.black.withValues(alpha: 0.06),
+                                  color: Colors.black.withValues(alpha: 0.12),
                                   blurRadius: 4,
-                                  offset: const Offset(0, 2),
+                                  offset: const Offset(0, 1.5),
                                 ),
                               ]
                             : null,
                       ),
                       alignment: Alignment.center,
                       child: Text(
-                        'Masuk vs Keluar (Bar)',
-                        style: GoogleFonts.inter(
-                          fontSize: 12,
+                        'Arus Kas',
+                        style: GoogleFonts.plusJakartaSans(
+                          fontSize: 12.5,
                           fontWeight: _selectedChartMode == 1
-                              ? FontWeight.w600
+                              ? FontWeight.w700
                               : FontWeight.w500,
                           color: _selectedChartMode == 1
-                              ? AppColors.primaryTeal
-                              : AppColors.mutedText,
+                              ? Colors.white
+                              : const Color(0xFF64748B),
                         ),
                       ),
                     ),
@@ -215,133 +222,68 @@ class _SalesAnalyticsChartState extends State<SalesAnalyticsChart> {
             ),
           ),
 
-          const SizedBox(height: 16),
+          const SizedBox(height: 14),
 
-          // ── Selected Data Point Tooltip (if tapped) ───────────────
-          if (_selectedIndex != null &&
-              _selectedIndex! < widget.dataPoints.length) ...[
-            Builder(builder: (context) {
-              final p = widget.dataPoints[_selectedIndex!];
-              return Container(
-                margin: const EdgeInsets.only(bottom: 12),
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-                decoration: BoxDecoration(
-                  color: AppColors.darkText,
-                  borderRadius: BorderRadius.circular(12),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withValues(alpha: 0.1),
-                      blurRadius: 8,
-                      offset: const Offset(0, 2),
-                    ),
-                  ],
+          // ── Quick Summary Stat Bar ────────────────────────────────
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+            decoration: BoxDecoration(
+              color: const Color(0xFFF8FAFC),
+              borderRadius: BorderRadius.circular(10),
+              border: Border.all(color: const Color(0xFFE2E8F0), width: 0.8),
+            ),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  _selectedChartMode == 0 ? 'Rata-rata Penjualan' : 'Total Masuk / Periode',
+                  style: GoogleFonts.plusJakartaSans(
+                    fontSize: 11,
+                    fontWeight: FontWeight.w500,
+                    color: const Color(0xFF64748B),
+                  ),
                 ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(
-                          'Periode: ${p.label}',
-                          style: GoogleFonts.inter(
-                            fontSize: 11,
-                            fontWeight: FontWeight.w600,
-                            color: Colors.white70,
-                          ),
-                        ),
-                        InkWell(
-                          onTap: () => setState(() => _selectedIndex = null),
-                          child: const Icon(
-                            Icons.close_rounded,
-                            size: 14,
-                            color: Colors.white54,
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 6),
-                    Wrap(
-                      spacing: 12,
-                      runSpacing: 4,
-                      children: [
-                        Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Container(
-                              width: 8,
-                              height: 8,
-                              decoration: const BoxDecoration(
-                                color: Color(0xFF34D399),
-                                shape: BoxShape.circle,
-                              ),
-                            ),
-                            const SizedBox(width: 5),
-                            Text(
-                              'Masuk: ${FinanceRepository.formatRupiah(p.income)}',
-                              style: GoogleFonts.inter(
-                                fontSize: 12,
-                                fontWeight: FontWeight.w600,
-                                color: const Color(0xFF34D399),
-                              ),
-                            ),
-                          ],
-                        ),
-                        if (p.expense > 0)
-                          Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Container(
-                                width: 8,
-                                height: 8,
-                                decoration: const BoxDecoration(
-                                  color: Color(0xFFF87171),
-                                  shape: BoxShape.circle,
-                                ),
-                              ),
-                              const SizedBox(width: 5),
-                              Text(
-                                'Keluar: ${FinanceRepository.formatRupiah(p.expense)}',
-                                style: GoogleFonts.inter(
-                                  fontSize: 12,
-                                  fontWeight: FontWeight.w600,
-                                  color: const Color(0xFFF87171),
-                                ),
-                              ),
-                            ],
-                          ),
-                      ],
-                    ),
-                  ],
+                Text(
+                  _selectedChartMode == 0
+                      ? FinanceRepository.formatRupiah(avgIncome)
+                      : FinanceRepository.formatRupiah(totalIncome),
+                  style: GoogleFonts.plusJakartaSans(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w700,
+                    color: const Color(0xFF0F172A),
+                  ),
                 ),
-              );
-            }),
-          ],
+              ],
+            ),
+          ),
+
+          const SizedBox(height: 20),
 
           // ── Chart Canvas / Visualizer ──────────────────────────────
           SizedBox(
-            height: 160,
+            height: 210,
             child: _selectedChartMode == 0
-                ? _buildLineChart(safeMax)
-                : _buildBarChart(safeMax),
+                ? _buildFlLineChart(safeMax)
+                : _buildFlBarChart(safeMax),
           ),
 
-          const SizedBox(height: 12),
+          const SizedBox(height: 16),
 
           // ── Legend Indicators ─────────────────────────────────────
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               _buildLegendDot(
-                color: AppColors.primaryTeal,
-                label: 'Pemasukan (Sales)',
+                color: const Color(0xFF22C55E),
+                label: 'Pemasukan (Omzet)',
               ),
-              const SizedBox(width: 20),
-              _buildLegendDot(
-                color: AppColors.destructive,
-                label: 'Pengeluaran (Cost)',
-              ),
+              if (_selectedChartMode == 1) ...[
+                const SizedBox(width: 20),
+                _buildLegendDot(
+                  color: const Color(0xFFEF4444),
+                  label: 'Pengeluaran',
+                ),
+              ],
             ],
           ),
         ],
@@ -349,115 +291,280 @@ class _SalesAnalyticsChartState extends State<SalesAnalyticsChart> {
     );
   }
 
-  Widget _buildLineChart(double maxVal) {
-    return LayoutBuilder(builder: (context, constraints) {
-      return GestureDetector(
-        onTapDown: (details) {
-          final renderBox = context.findRenderObject() as RenderBox?;
-          if (renderBox == null) return;
-          final localPos = details.localPosition;
-          final pointWidth =
-              constraints.maxWidth / (widget.dataPoints.length - 1);
-          final index = (localPos.dx / pointWidth)
-              .round()
-              .clamp(0, widget.dataPoints.length - 1);
-          setState(() {
-            _selectedIndex = index;
-          });
-        },
-        child: CustomPaint(
-          size: Size(constraints.maxWidth, 160),
-          painter: _LineChartPainter(
-            points: widget.dataPoints,
-            maxVal: maxVal,
-            selectedIndex: _selectedIndex,
-          ),
+  Widget _buildFlLineChart(double maxVal) {
+    final interval = maxVal <= 0 ? 10000.0 : maxVal / 3;
+
+    return LineChart(
+      LineChartData(
+        gridData: FlGridData(
+          show: true,
+          drawVerticalLine: false,
+          horizontalInterval: interval,
+          getDrawingHorizontalLine: (value) {
+            return FlLine(
+              color: const Color(0xFFF1F5F9),
+              strokeWidth: 1,
+              dashArray: [5, 5],
+            );
+          },
         ),
-      );
-    });
-  }
-
-  Widget _buildBarChart(double maxVal) {
-    return LayoutBuilder(builder: (context, constraints) {
-      final barGroupWidth = constraints.maxWidth / widget.dataPoints.length;
-
-      return Row(
-        crossAxisAlignment: CrossAxisAlignment.end,
-        children: widget.dataPoints.asMap().entries.map((entry) {
-          final index = entry.key;
-          final item = entry.value;
-          final isSelected = _selectedIndex == index;
-
-          final incomeHeight =
-              (item.income / maxVal) * 120.0;
-          final expenseHeight =
-              (item.expense / maxVal) * 120.0;
-
-          return GestureDetector(
-            onTap: () {
-              setState(() {
-                _selectedIndex = index;
-              });
-            },
-            child: Container(
-              width: barGroupWidth,
-              color: Colors.transparent,
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    crossAxisAlignment: CrossAxisAlignment.end,
-                    children: [
-                      // Income Bar
-                      AnimatedContainer(
-                        duration: const Duration(milliseconds: 300),
-                        width: barGroupWidth * 0.3,
-                        height: math.max(incomeHeight, 4.0),
-                        decoration: BoxDecoration(
-                          color: isSelected
-                              ? AppColors.accent
-                              : AppColors.primaryTeal,
-                          borderRadius: const BorderRadius.vertical(
-                            top: Radius.circular(4),
-                          ),
-                        ),
-                      ),
-                      const SizedBox(width: 3),
-                      // Expense Bar
-                      AnimatedContainer(
-                        duration: const Duration(milliseconds: 300),
-                        width: barGroupWidth * 0.3,
-                        height: math.max(expenseHeight, 2.0),
-                        decoration: BoxDecoration(
-                          color: isSelected
-                              ? const Color(0xFFB91C1C)
-                              : AppColors.destructive.withValues(alpha: 0.85),
-                          borderRadius: const BorderRadius.vertical(
-                            top: Radius.circular(4),
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 8),
-                  Text(
-                    item.label,
-                    style: GoogleFonts.inter(
-                      fontSize: 10,
-                      fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
-                      color: isSelected
-                          ? AppColors.primaryTeal
-                          : AppColors.mutedText,
+        titlesData: FlTitlesData(
+          show: true,
+          rightTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+          topTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+          bottomTitles: AxisTitles(
+            sideTitles: SideTitles(
+              showTitles: true,
+              reservedSize: 26,
+              interval: 1,
+              getTitlesWidget: (value, meta) {
+                final index = value.toInt();
+                if (index < 0 || index >= widget.dataPoints.length) {
+                  return const SizedBox();
+                }
+                return SideTitleWidget(
+                  meta: meta,
+                  space: 6,
+                  child: Text(
+                    widget.dataPoints[index].label,
+                    style: GoogleFonts.plusJakartaSans(
+                      fontSize: 10.5,
+                      fontWeight: FontWeight.w600,
+                      color: const Color(0xFF64748B),
                     ),
                   ),
+                );
+              },
+            ),
+          ),
+          leftTitles: AxisTitles(
+            sideTitles: SideTitles(
+              showTitles: true,
+              interval: interval,
+              reservedSize: 42,
+              getTitlesWidget: (value, meta) {
+                if (value == maxVal) return const SizedBox();
+                return SideTitleWidget(
+                  meta: meta,
+                  child: Text(
+                    _compactFormat(value),
+                    style: GoogleFonts.plusJakartaSans(
+                      fontSize: 10,
+                      fontWeight: FontWeight.w600,
+                      color: const Color(0xFF94A3B8),
+                    ),
+                  ),
+                );
+              },
+            ),
+          ),
+        ),
+        borderData: FlBorderData(show: false),
+        minX: 0,
+        maxX: widget.dataPoints.length.toDouble() - 1,
+        minY: 0,
+        maxY: maxVal,
+        lineTouchData: LineTouchData(
+          touchTooltipData: LineTouchTooltipData(
+            getTooltipColor: (touchedSpot) => const Color(0xFF111111),
+            tooltipPadding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+            getTooltipItems: (touchedSpots) {
+              return touchedSpots.map((LineBarSpot touchedSpot) {
+                final pt = widget.dataPoints[touchedSpot.x.toInt()];
+                return LineTooltipItem(
+                  '${pt.label}\n',
+                  GoogleFonts.plusJakartaSans(
+                    color: const Color(0xFF94A3B8),
+                    fontSize: 10,
+                    fontWeight: FontWeight.w600,
+                  ),
+                  children: [
+                    TextSpan(
+                      text: FinanceRepository.formatRupiah(pt.income),
+                      style: GoogleFonts.plusJakartaSans(
+                        color: const Color(0xFF22C55E),
+                        fontSize: 13,
+                        fontWeight: FontWeight.w800,
+                      ),
+                    ),
+                  ],
+                );
+              }).toList();
+            },
+          ),
+          handleBuiltInTouches: true,
+        ),
+        lineBarsData: [
+          LineChartBarData(
+            spots: widget.dataPoints
+                .asMap()
+                .entries
+                .map((e) => FlSpot(e.key.toDouble(), e.value.income))
+                .toList(),
+            isCurved: true,
+            curveSmoothness: 0.35,
+            color: const Color(0xFF22C55E),
+            barWidth: 3.2,
+            isStrokeCapRound: true,
+            dotData: FlDotData(
+              show: true,
+              getDotPainter: (spot, percent, barData, index) {
+                return FlDotCirclePainter(
+                  radius: 3,
+                  color: Colors.white,
+                  strokeWidth: 2,
+                  strokeColor: const Color(0xFF22C55E),
+                );
+              },
+            ),
+            belowBarData: BarAreaData(
+              show: true,
+              gradient: LinearGradient(
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
+                colors: [
+                  const Color(0xFF22C55E).withValues(alpha: 0.24),
+                  const Color(0xFF22C55E).withValues(alpha: 0.0),
                 ],
               ),
             ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildFlBarChart(double maxVal) {
+    final interval = maxVal <= 0 ? 10000.0 : maxVal / 3;
+
+    return BarChart(
+      BarChartData(
+        alignment: BarChartAlignment.spaceAround,
+        maxY: maxVal,
+        minY: 0,
+        gridData: FlGridData(
+          show: true,
+          drawVerticalLine: false,
+          horizontalInterval: interval,
+          getDrawingHorizontalLine: (value) {
+            return FlLine(
+              color: const Color(0xFFF1F5F9),
+              strokeWidth: 1,
+              dashArray: [5, 5],
+            );
+          },
+        ),
+        titlesData: FlTitlesData(
+          show: true,
+          rightTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+          topTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+          bottomTitles: AxisTitles(
+            sideTitles: SideTitles(
+              showTitles: true,
+              reservedSize: 26,
+              getTitlesWidget: (value, meta) {
+                final index = value.toInt();
+                if (index < 0 || index >= widget.dataPoints.length) {
+                  return const SizedBox();
+                }
+                return SideTitleWidget(
+                  meta: meta,
+                  space: 6,
+                  child: Text(
+                    widget.dataPoints[index].label,
+                    style: GoogleFonts.plusJakartaSans(
+                      fontSize: 10.5,
+                      fontWeight: FontWeight.w600,
+                      color: const Color(0xFF64748B),
+                    ),
+                  ),
+                );
+              },
+            ),
+          ),
+          leftTitles: AxisTitles(
+            sideTitles: SideTitles(
+              showTitles: true,
+              interval: interval,
+              reservedSize: 42,
+              getTitlesWidget: (value, meta) {
+                if (value == maxVal) return const SizedBox();
+                return SideTitleWidget(
+                  meta: meta,
+                  child: Text(
+                    _compactFormat(value),
+                    style: GoogleFonts.plusJakartaSans(
+                      fontSize: 10,
+                      fontWeight: FontWeight.w600,
+                      color: const Color(0xFF94A3B8),
+                    ),
+                  ),
+                );
+              },
+            ),
+          ),
+        ),
+        borderData: FlBorderData(show: false),
+        barTouchData: BarTouchData(
+          touchTooltipData: BarTouchTooltipData(
+            getTooltipColor: (group) => const Color(0xFF111111),
+            tooltipPadding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+            getTooltipItem: (group, groupIndex, rod, rodIndex) {
+              final pt = widget.dataPoints[groupIndex];
+              final isIncome = rodIndex == 0;
+              return BarTooltipItem(
+                '${pt.label}\n',
+                GoogleFonts.plusJakartaSans(
+                  color: const Color(0xFF94A3B8),
+                  fontSize: 10,
+                  fontWeight: FontWeight.w600,
+                ),
+                children: [
+                  TextSpan(
+                    text: isIncome ? 'Masuk: ' : 'Keluar: ',
+                    style: TextStyle(
+                      color: isIncome ? const Color(0xFF22C55E) : const Color(0xFFF87171),
+                      fontSize: 11,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                  TextSpan(
+                    text: FinanceRepository.formatRupiah(rod.toY),
+                    style: GoogleFonts.plusJakartaSans(
+                      color: isIncome ? const Color(0xFF22C55E) : const Color(0xFFF87171),
+                      fontSize: 12.5,
+                      fontWeight: FontWeight.w800,
+                    ),
+                  ),
+                ],
+              );
+            },
+          ),
+        ),
+        barGroups: widget.dataPoints.asMap().entries.map((e) {
+          final i = e.key;
+          final pt = e.value;
+          return BarChartGroupData(
+            x: i,
+            barsSpace: 4,
+            barRods: [
+              BarChartRodData(
+                toY: pt.income,
+                color: const Color(0xFF22C55E),
+                width: 10,
+                borderRadius: const BorderRadius.vertical(top: Radius.circular(5)),
+              ),
+              BarChartRodData(
+                toY: pt.expense,
+                color: const Color(0xFFEF4444),
+                width: 10,
+                borderRadius: const BorderRadius.vertical(top: Radius.circular(5)),
+              ),
+            ],
           );
         }).toList(),
-      );
-    });
+      ),
+    );
   }
 
   Widget _buildLegendDot({required Color color, required String label}) {
@@ -475,154 +582,22 @@ class _SalesAnalyticsChartState extends State<SalesAnalyticsChart> {
         const SizedBox(width: 6),
         Text(
           label,
-          style: GoogleFonts.inter(
-            fontSize: 11,
-            fontWeight: FontWeight.w500,
-            color: AppColors.mutedText,
+          style: GoogleFonts.plusJakartaSans(
+            fontSize: 12,
+            fontWeight: FontWeight.w600,
+            color: const Color(0xFF64748B),
           ),
         ),
       ],
     );
   }
-}
 
-class _LineChartPainter extends CustomPainter {
-  final List<ChartDataPoint> points;
-  final double maxVal;
-  final int? selectedIndex;
-
-  _LineChartPainter({
-    required this.points,
-    required this.maxVal,
-    this.selectedIndex,
-  });
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    if (points.isEmpty) return;
-
-    final chartHeight = size.height - 24; // room for x-axis labels
-    final pointSpacing = size.width / (points.length - 1);
-
-    // Draw horizontal grid lines with soft teal border tint
-    final gridPaint = Paint()
-      ..color = AppColors.lightTealBorder.withValues(alpha: 0.6)
-      ..strokeWidth = 1;
-
-    for (int i = 0; i <= 3; i++) {
-      final y = chartHeight * (i / 3);
-      canvas.drawLine(Offset(0, y), Offset(size.width, y), gridPaint);
+  String _compactFormat(double val) {
+    if (val >= 1000000) {
+      return '${(val / 1000000).toStringAsFixed(1)}Jt';
+    } else if (val >= 1000) {
+      return '${(val / 1000).toStringAsFixed(0)}k';
     }
-
-    final incomeOffsets = <Offset>[];
-    for (int i = 0; i < points.length; i++) {
-      final x = i * pointSpacing;
-      final y = chartHeight - ((points[i].income / maxVal) * chartHeight);
-      incomeOffsets.add(Offset(x, y.clamp(10.0, chartHeight)));
-    }
-
-    // Draw Smooth Area Gradient
-    final areaPath = Path();
-    areaPath.moveTo(0, chartHeight);
-    areaPath.lineTo(incomeOffsets[0].dx, incomeOffsets[0].dy);
-
-    for (int i = 0; i < incomeOffsets.length - 1; i++) {
-      final current = incomeOffsets[i];
-      final next = incomeOffsets[i + 1];
-      final controlX = (current.dx + next.dx) / 2;
-      areaPath.cubicTo(
-        controlX,
-        current.dy,
-        controlX,
-        next.dy,
-        next.dx,
-        next.dy,
-      );
-    }
-    areaPath.lineTo(size.width, chartHeight);
-    areaPath.close();
-
-    final gradientPaint = Paint()
-      ..shader = LinearGradient(
-        begin: Alignment.topCenter,
-        end: Alignment.bottomCenter,
-        colors: [
-          AppColors.primaryTeal.withValues(alpha: 0.35),
-          AppColors.primaryTeal.withValues(alpha: 0.0),
-        ],
-      ).createShader(Rect.fromLTWH(0, 0, size.width, chartHeight))
-      ..style = PaintingStyle.fill;
-
-    canvas.drawPath(areaPath, gradientPaint);
-
-    // Draw Curved Stroke Line
-    final linePath = Path();
-    linePath.moveTo(incomeOffsets[0].dx, incomeOffsets[0].dy);
-    for (int i = 0; i < incomeOffsets.length - 1; i++) {
-      final current = incomeOffsets[i];
-      final next = incomeOffsets[i + 1];
-      final controlX = (current.dx + next.dx) / 2;
-      linePath.cubicTo(
-        controlX,
-        current.dy,
-        controlX,
-        next.dy,
-        next.dx,
-        next.dy,
-      );
-    }
-
-    final strokePaint = Paint()
-      ..color = AppColors.primaryTeal
-      ..strokeWidth = 3
-      ..style = PaintingStyle.stroke
-      ..strokeCap = StrokeCap.round;
-
-    canvas.drawPath(linePath, strokePaint);
-
-    // Draw Point Dots & Labels
-    for (int i = 0; i < points.length; i++) {
-      final offset = incomeOffsets[i];
-      final isSelected = selectedIndex == i;
-
-      // Circle Point
-      final dotPaint = Paint()
-        ..color = isSelected ? AppColors.accent : Colors.white
-        ..style = PaintingStyle.fill;
-      final borderDotPaint = Paint()
-        ..color = AppColors.primaryTeal
-        ..strokeWidth = isSelected ? 3 : 2
-        ..style = PaintingStyle.stroke;
-
-      canvas.drawCircle(offset, isSelected ? 6 : 4, dotPaint);
-      canvas.drawCircle(offset, isSelected ? 6 : 4, borderDotPaint);
-
-      // X-Axis Text Label
-      final textPainter = TextPainter(
-        text: TextSpan(
-          text: points[i].label,
-          style: GoogleFonts.inter(
-            fontSize: 10,
-            fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
-            color: isSelected
-                ? AppColors.primaryTeal
-                : AppColors.mutedText,
-          ),
-        ),
-        textDirection: TextDirection.ltr,
-      )..layout();
-
-      textPainter.paint(
-        canvas,
-        Offset(offset.dx - (textPainter.width / 2), size.height - 14),
-      );
-    }
-  }
-
-  @override
-  bool shouldRepaint(covariant _LineChartPainter oldDelegate) {
-    return oldDelegate.points != points ||
-        oldDelegate.maxVal != maxVal ||
-        oldDelegate.selectedIndex != selectedIndex;
+    return val.toStringAsFixed(0);
   }
 }

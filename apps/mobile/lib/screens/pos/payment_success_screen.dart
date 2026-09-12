@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../core/theme/app_colors.dart';
 import '../../models/product.dart';
+import '../shell_screen.dart';
 
 /// Screen displayed after a successful transaction payment.
 ///
@@ -16,14 +17,23 @@ class PaymentSuccessScreen extends StatelessWidget {
     required this.onNewTransaction,
   });
 
+  void _navigateToHome(BuildContext context) {
+    try {
+      onNewTransaction();
+    } catch (_) {}
+    Navigator.of(context, rootNavigator: true).pushAndRemoveUntil(
+      MaterialPageRoute(builder: (_) => const ShellScreen()),
+      (route) => false,
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return PopScope(
       canPop: false,
       onPopInvokedWithResult: (didPop, _) {
         if (!didPop) {
-          onNewTransaction();
-          Navigator.of(context).popUntil((route) => route.isFirst);
+          _navigateToHome(context);
         }
       },
       child: Scaffold(
@@ -35,10 +45,7 @@ class PaymentSuccessScreen extends StatelessWidget {
           actions: [
             IconButton(
               icon: const Icon(Icons.close_rounded, color: AppColors.darkText),
-              onPressed: () {
-                onNewTransaction();
-                Navigator.of(context).popUntil((route) => route.isFirst);
-              },
+              onPressed: () => _navigateToHome(context),
             ),
             const SizedBox(width: 8),
           ],
@@ -57,13 +64,13 @@ class PaymentSuccessScreen extends StatelessWidget {
                         width: 80,
                         height: 80,
                         decoration: BoxDecoration(
-                          color: AppColors.primaryTeal.withValues(alpha: 0.12),
+                          color: AppColors.secondary.withValues(alpha: 0.12),
                           shape: BoxShape.circle,
                         ),
                         child: const Center(
                           child: Icon(
                             Icons.check_circle_rounded,
-                            color: AppColors.primaryTeal,
+                            color: AppColors.secondary,
                             size: 52,
                           ),
                         ),
@@ -109,13 +116,12 @@ class PaymentSuccessScreen extends StatelessWidget {
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(20),
-        // No border
+        borderRadius: BorderRadius.circular(24),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.04),
-            blurRadius: 16,
-            offset: const Offset(0, 4),
+            color: Colors.black.withValues(alpha: 0.08),
+            blurRadius: 24,
+            offset: const Offset(0, 8),
           ),
         ],
       ),
@@ -334,18 +340,8 @@ class PaymentSuccessScreen extends StatelessWidget {
 
   Widget _buildBottomActions(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.fromLTRB(24, 12, 24, 20),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.05),
-            blurRadius: 12,
-            offset: const Offset(0, -3),
-          ),
-        ],
-      ),
+      color: const Color(0xFFF8F9FA),
+      padding: const EdgeInsets.fromLTRB(24, 16, 24, 32),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
@@ -357,7 +353,7 @@ class PaymentSuccessScreen extends StatelessWidget {
                     ScaffoldMessenger.of(context).showSnackBar(
                       const SnackBar(
                         content: Text('Mengirim perintah cetak struk Bluetooth...'),
-                        backgroundColor: AppColors.primaryTeal,
+                        backgroundColor: AppColors.primary,
                         duration: Duration(seconds: 2),
                       ),
                     );
@@ -365,13 +361,13 @@ class PaymentSuccessScreen extends StatelessWidget {
                   icon: const Icon(Icons.print_outlined, size: 18),
                   label: Text(
                     'Cetak Struk',
-                    style: GoogleFonts.inter(fontSize: 13, fontWeight: FontWeight.w600),
+                    style: GoogleFonts.inter(fontSize: 13, fontWeight: FontWeight.w700),
                   ),
                   style: OutlinedButton.styleFrom(
-                    foregroundColor: AppColors.darkText,
-                    side: const BorderSide(color: Color(0xFFE2E8F0), width: 1.5),
+                    foregroundColor: AppColors.primary,
+                    side: const BorderSide(color: AppColors.border, width: 1.5),
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(14),
+                      borderRadius: BorderRadius.circular(30),
                     ),
                     padding: const EdgeInsets.symmetric(vertical: 14),
                   ),
@@ -384,7 +380,7 @@ class PaymentSuccessScreen extends StatelessWidget {
                     ScaffoldMessenger.of(context).showSnackBar(
                       const SnackBar(
                         content: Text('Membuka format struk WhatsApp...'),
-                        backgroundColor: AppColors.primaryTeal,
+                        backgroundColor: AppColors.primary,
                         duration: Duration(seconds: 2),
                       ),
                     );
@@ -392,13 +388,13 @@ class PaymentSuccessScreen extends StatelessWidget {
                   icon: const Icon(Icons.share_outlined, size: 18),
                   label: Text(
                     'Kirim Struk',
-                    style: GoogleFonts.inter(fontSize: 13, fontWeight: FontWeight.w600),
+                    style: GoogleFonts.inter(fontSize: 13, fontWeight: FontWeight.w700),
                   ),
                   style: OutlinedButton.styleFrom(
-                    foregroundColor: AppColors.darkText,
-                    side: const BorderSide(color: Color(0xFFE2E8F0), width: 1.5),
+                    foregroundColor: AppColors.primary,
+                    side: const BorderSide(color: AppColors.border, width: 1.5),
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(14),
+                      borderRadius: BorderRadius.circular(30),
                     ),
                     padding: const EdgeInsets.symmetric(vertical: 14),
                   ),
@@ -406,19 +402,20 @@ class PaymentSuccessScreen extends StatelessWidget {
               ),
             ],
           ),
-          const SizedBox(height: 12),
+          const SizedBox(height: 16),
           SizedBox(
             width: double.infinity,
-            height: 52,
+            height: 56,
             child: ElevatedButton(
-              onPressed: onNewTransaction,
+              onPressed: () => _navigateToHome(context),
               style: ElevatedButton.styleFrom(
-                backgroundColor: AppColors.primaryTeal,
+                backgroundColor: const Color(0xFF111111),
                 foregroundColor: Colors.white,
                 shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(28),
+                  borderRadius: BorderRadius.circular(30),
                 ),
-                elevation: 0,
+                elevation: 4,
+                shadowColor: const Color(0xFF111111).withValues(alpha: 0.3),
               ),
               child: Text(
                 'Transaksi Baru',

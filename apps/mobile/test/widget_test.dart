@@ -7,7 +7,7 @@
 
 import 'package:flutter_test/flutter_test.dart';
 
-import 'package:tiga_angkatan/main.dart';
+import 'package:AISISTENKU/main.dart';
 
 void main() {
   testWidgets('App renders ShellScreen and Home tab without crash', (WidgetTester tester) async {

@@ -87,26 +87,23 @@ class ProductGrid extends StatelessWidget {
       );
     }
 
-    return GridView.builder(
-      padding: const EdgeInsets.fromLTRB(16, 8, 16, 24),
+    return ListView.builder(
+      padding: const EdgeInsets.fromLTRB(16, 8, 16, 220), // Increased to clear both floating bars
       physics: const BouncingScrollPhysics(),
-      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: 2,
-        mainAxisSpacing: 14,
-        crossAxisSpacing: 14,
-        childAspectRatio: 0.72,
-      ),
       itemCount: products.length,
       itemBuilder: (context, index) {
         final product = products[index];
         final qty = getQuantity(product.id);
-        return ProductCard(
-          product: product,
-          quantity: qty,
-          onTap: () => onAdd(product),
-          onIncrement: () => onAdd(product),
-          onDecrement: () => onRemove(product),
-          onLongPress: qty > 0 ? () => onRemove(product) : null,
+        return Padding(
+          padding: const EdgeInsets.only(bottom: 12),
+          child: ProductCard(
+            product: product,
+            quantity: qty,
+            onTap: () => onAdd(product),
+            onIncrement: () => onAdd(product),
+            onDecrement: () => onRemove(product),
+            onLongPress: qty > 0 ? () => onRemove(product) : null,
+          ),
         );
       },
     );

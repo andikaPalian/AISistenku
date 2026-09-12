@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
-import '../../../core/theme/app_colors.dart';
 import '../../../models/stock_model.dart';
 
 /// Modal bottom sheet for Stock Opname / Manual Stock Adjustment.
@@ -94,13 +93,21 @@ class _AdjustStockModalState extends State<AdjustStockModal> {
 
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text(
-          'Stok ${widget.item.name} berhasil disesuaikan ($diffStr)',
-          style: GoogleFonts.inter(fontWeight: FontWeight.w500),
+        content: Row(
+          children: [
+            const Icon(Icons.check_circle_rounded, color: Color(0xFF22C55E)),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Text(
+                'Stok ${widget.item.name} berhasil disesuaikan ($diffStr)',
+                style: GoogleFonts.plusJakartaSans(fontWeight: FontWeight.w600, color: Colors.white),
+              ),
+            ),
+          ],
         ),
-        backgroundColor: AppColors.primaryTeal,
+        backgroundColor: const Color(0xFF111111),
         behavior: SnackBarBehavior.floating,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
       ),
     );
   }
@@ -134,7 +141,7 @@ class _AdjustStockModalState extends State<AdjustStockModal> {
                     width: 44,
                     height: 4,
                     decoration: BoxDecoration(
-                      color: Color(0xFFE2E8F0),
+                      color: const Color(0xFFE2E8F0),
                       borderRadius: BorderRadius.circular(2),
                     ),
                   ),
@@ -147,12 +154,12 @@ class _AdjustStockModalState extends State<AdjustStockModal> {
                     Container(
                       padding: const EdgeInsets.all(10),
                       decoration: BoxDecoration(
-                        color: AppColors.infoBg,
+                        color: const Color(0xFF111111),
                         borderRadius: BorderRadius.circular(12),
                       ),
                       child: const Icon(
                         Icons.tune_rounded,
-                        color: AppColors.infoBlue,
+                        color: Color(0xFF22C55E),
                         size: 22,
                       ),
                     ),
@@ -163,17 +170,18 @@ class _AdjustStockModalState extends State<AdjustStockModal> {
                         children: [
                           Text(
                             'Penyesuaian Stok (Opname)',
-                            style: GoogleFonts.poppins(
+                            style: GoogleFonts.plusJakartaSans(
                               fontSize: 18,
-                              fontWeight: FontWeight.w700,
-                              color: AppColors.darkText,
+                              fontWeight: FontWeight.w800,
+                              color: const Color(0xFF111111),
+                              letterSpacing: -0.3,
                             ),
                           ),
                           Text(
                             item.name,
-                            style: GoogleFonts.inter(
+                            style: GoogleFonts.plusJakartaSans(
                               fontSize: 13,
-                              color: AppColors.mutedText,
+                              color: const Color(0xFF64748B),
                             ),
                           ),
                         ],
@@ -181,7 +189,7 @@ class _AdjustStockModalState extends State<AdjustStockModal> {
                     ),
                     IconButton(
                       onPressed: () => Navigator.pop(context),
-                      icon: const Icon(Icons.close_rounded, color: AppColors.mutedText),
+                      icon: const Icon(Icons.close_rounded, color: Color(0xFF64748B)),
                     ),
                   ],
                 ),
@@ -191,9 +199,16 @@ class _AdjustStockModalState extends State<AdjustStockModal> {
                 Container(
                   padding: const EdgeInsets.all(16),
                   decoration: BoxDecoration(
-                    color: const Color(0xFFF8FAFC),
+                    color: Colors.white,
                     borderRadius: BorderRadius.circular(16),
-                    // No border
+                    border: Border.all(color: const Color(0xFFE2E8F0), width: 1.2),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withValues(alpha: 0.03),
+                        blurRadius: 10,
+                        offset: const Offset(0, 3),
+                      ),
+                    ],
                   ),
                   child: Row(
                     children: [
@@ -203,18 +218,18 @@ class _AdjustStockModalState extends State<AdjustStockModal> {
                           children: [
                             Text(
                               'Tercatat di Sistem',
-                              style: GoogleFonts.inter(
+                              style: GoogleFonts.plusJakartaSans(
                                 fontSize: 12,
-                                color: AppColors.mutedText,
+                                color: const Color(0xFF64748B),
                               ),
                             ),
                             const SizedBox(height: 4),
                             Text(
                               item.formattedCurrentStock,
-                              style: GoogleFonts.poppins(
+                              style: GoogleFonts.plusJakartaSans(
                                 fontSize: 18,
-                                fontWeight: FontWeight.w700,
-                                color: AppColors.darkText,
+                                fontWeight: FontWeight.w800,
+                                color: const Color(0xFF111111),
                               ),
                             ),
                           ],
@@ -223,7 +238,7 @@ class _AdjustStockModalState extends State<AdjustStockModal> {
                       Container(
                         width: 1,
                         height: 40,
-                        color: Color(0xFFE2E8F0),
+                        color: const Color(0xFFE2E8F0),
                       ),
                       Expanded(
                         child: Padding(
@@ -233,9 +248,9 @@ class _AdjustStockModalState extends State<AdjustStockModal> {
                             children: [
                               Text(
                                 'Selisih (Discrepancy)',
-                                style: GoogleFonts.inter(
+                                style: GoogleFonts.plusJakartaSans(
                                   fontSize: 12,
-                                  color: AppColors.mutedText,
+                                  color: const Color(0xFF64748B),
                                 ),
                               ),
                               const SizedBox(height: 4),
@@ -243,14 +258,14 @@ class _AdjustStockModalState extends State<AdjustStockModal> {
                                 isZero
                                     ? '0 ${item.unit}'
                                     : '${diff > 0 ? '+' : ''}${diff.toStringAsFixed(diff == diff.roundToDouble() ? 0 : 1)} ${item.unit}',
-                                style: GoogleFonts.poppins(
+                                style: GoogleFonts.plusJakartaSans(
                                   fontSize: 18,
-                                  fontWeight: FontWeight.w700,
+                                  fontWeight: FontWeight.w800,
                                   color: isZero
-                                      ? AppColors.mutedText
+                                      ? const Color(0xFF64748B)
                                       : isNegative
-                                          ? AppColors.destructive
-                                          : AppColors.successGreen,
+                                          ? const Color(0xFFEF4444)
+                                          : const Color(0xFF16A34A),
                                 ),
                               ),
                             ],
@@ -265,10 +280,10 @@ class _AdjustStockModalState extends State<AdjustStockModal> {
                 // Actual Count Input
                 Text(
                   'Hasil Hitung Fisik Sebenarnya (${item.unit})',
-                  style: GoogleFonts.inter(
+                  style: GoogleFonts.plusJakartaSans(
                     fontSize: 13,
                     fontWeight: FontWeight.w600,
-                    color: AppColors.darkText,
+                    color: const Color(0xFF111111),
                   ),
                 ),
                 const SizedBox(height: 8),
@@ -278,32 +293,32 @@ class _AdjustStockModalState extends State<AdjustStockModal> {
                   inputFormatters: [
                     FilteringTextInputFormatter.allow(RegExp(r'^\d+\.?\d{0,2}')),
                   ],
-                  style: GoogleFonts.poppins(
+                  style: GoogleFonts.plusJakartaSans(
                     fontSize: 22,
-                    fontWeight: FontWeight.w700,
-                    color: const Color(0xFF0F172A),
+                    fontWeight: FontWeight.w800,
+                    color: const Color(0xFF111111),
                   ),
                   decoration: InputDecoration(
                     filled: true,
-                    fillColor: const Color(0xFFF1F5F9),
+                    fillColor: Colors.white,
                     suffixText: item.unit,
-                    suffixStyle: GoogleFonts.inter(
-                      fontSize: 15,
+                    suffixStyle: GoogleFonts.plusJakartaSans(
+                      fontSize: 14,
                       fontWeight: FontWeight.w600,
-                      color: AppColors.mutedText,
+                      color: const Color(0xFF64748B),
                     ),
                     contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
                     border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                      borderSide: BorderSide.none,
+                      borderRadius: BorderRadius.circular(14),
+                      borderSide: const BorderSide(color: Color(0xFFE2E8F0), width: 1.2),
                     ),
                     enabledBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                      borderSide: BorderSide.none,
+                      borderRadius: BorderRadius.circular(14),
+                      borderSide: const BorderSide(color: Color(0xFFE2E8F0), width: 1.2),
                     ),
                     focusedBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                      borderSide: const BorderSide(color: Color(0xFF0F172A), width: 1.5),
+                      borderRadius: BorderRadius.circular(14),
+                      borderSide: const BorderSide(color: Color(0xFF111111), width: 1.5),
                     ),
                   ),
                   validator: (val) {
@@ -317,34 +332,34 @@ class _AdjustStockModalState extends State<AdjustStockModal> {
                 // Reason for Adjustment
                 Text(
                   'Alasan Penyesuaian',
-                  style: GoogleFonts.inter(
+                  style: GoogleFonts.plusJakartaSans(
                     fontSize: 13,
                     fontWeight: FontWeight.w600,
-                    color: AppColors.darkText,
+                    color: const Color(0xFF111111),
                   ),
                 ),
                 const SizedBox(height: 8),
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 4),
                   decoration: BoxDecoration(
-                    color: const Color(0xFFF1F5F9),
-                    borderRadius: BorderRadius.circular(12),
-                    // No border
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(14),
+                    border: Border.all(color: const Color(0xFFE2E8F0), width: 1.2),
                   ),
                   child: DropdownButtonHideUnderline(
                     child: DropdownButton<String>(
                       isExpanded: true,
                       value: _selectedReason,
-                      icon: const Icon(Icons.keyboard_arrow_down_rounded, color: Color(0xFF0F172A)),
+                      icon: const Icon(Icons.keyboard_arrow_down_rounded, color: Color(0xFF111111)),
                       items: _reasons.map((r) {
                         return DropdownMenuItem<String>(
                           value: r,
                           child: Text(
                             r,
-                            style: GoogleFonts.inter(
+                            style: GoogleFonts.plusJakartaSans(
                               fontSize: 14,
-                              fontWeight: FontWeight.w500,
-                              color: AppColors.darkText,
+                              fontWeight: FontWeight.w600,
+                              color: const Color(0xFF111111),
                             ),
                           ),
                         );
@@ -360,58 +375,59 @@ class _AdjustStockModalState extends State<AdjustStockModal> {
                 // Notes
                 Text(
                   'Catatan Tambahan (Opsional)',
-                  style: GoogleFonts.inter(
+                  style: GoogleFonts.plusJakartaSans(
                     fontSize: 13,
                     fontWeight: FontWeight.w600,
-                    color: AppColors.darkText,
+                    color: const Color(0xFF111111),
                   ),
                 ),
                 const SizedBox(height: 8),
                 TextFormField(
                   controller: _notesController,
                   maxLines: 2,
-                  style: GoogleFonts.inter(fontSize: 14),
+                  style: GoogleFonts.plusJakartaSans(fontSize: 14, color: const Color(0xFF111111)),
                   decoration: InputDecoration(
                     hintText: 'Contoh: Kemasan bocor saat penyimpanan',
+                    hintStyle: GoogleFonts.plusJakartaSans(fontSize: 13, color: const Color(0xFF94A3B8)),
                     filled: true,
-                    fillColor: const Color(0xFFF1F5F9),
+                    fillColor: Colors.white,
                     contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
                     border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                      borderSide: BorderSide.none,
+                      borderRadius: BorderRadius.circular(14),
+                      borderSide: const BorderSide(color: Color(0xFFE2E8F0), width: 1.2),
                     ),
                     enabledBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                      borderSide: BorderSide.none,
+                      borderRadius: BorderRadius.circular(14),
+                      borderSide: const BorderSide(color: Color(0xFFE2E8F0), width: 1.2),
                     ),
                     focusedBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                      borderSide: const BorderSide(color: Color(0xFF0F172A), width: 1.5),
+                      borderRadius: BorderRadius.circular(14),
+                      borderSide: const BorderSide(color: Color(0xFF111111), width: 1.5),
                     ),
                   ),
                 ),
                 const SizedBox(height: 24),
 
-                // Submit Button
+                // Submit Button (Solid Black)
                 SizedBox(
                   width: double.infinity,
                   height: 52,
                   child: ElevatedButton(
                     onPressed: _handleSubmit,
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: isNegative ? AppColors.destructive : AppColors.primaryTeal,
+                      backgroundColor: const Color(0xFF111111),
                       foregroundColor: Colors.white,
                       shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(14),
+                        borderRadius: BorderRadius.circular(16),
                       ),
-                      elevation: 6,
-                      shadowColor: AppColors.primaryTeal.withValues(alpha: 0.4),
+                      elevation: 4,
+                      shadowColor: Colors.black.withValues(alpha: 0.25),
                     ),
                     child: Text(
                       'Simpan Hasil Penyesuaian',
-                      style: GoogleFonts.poppins(
+                      style: GoogleFonts.plusJakartaSans(
                         fontSize: 15,
-                        fontWeight: FontWeight.w600,
+                        fontWeight: FontWeight.w700,
                       ),
                     ),
                   ),

@@ -16,14 +16,14 @@ enum StockStatus {
 /// Category of raw material.
 enum StockCategory {
   all('Semua'),
-  kopi('Biji Kopi'),
-  dairy('Susu & Dairy'),
-  pemanis('Gula & Pemanis'),
-  sirup('Sirup & Perisa'),
-  kemasan('Cup & Kemasan'),
-  topping('Topping & Lainnya'),
-  makanan('Makanan & Snack'),
-  bahanBaku('Bahan Baku Lainnya'),
+  kopi('Kopi'),
+  dairy('Dairy & Susu'),
+  pemanis('Pemanis & Gula'),
+  sirup('Sirup'),
+  kemasan('Kemasan'),
+  topping('Topping'),
+  makanan('Makanan'),
+  bahanBaku('Lainnya'),
   merchandise('Merchandise');
 
   final String label;
@@ -104,6 +104,18 @@ class StockItem {
     return (currentStock / (minStock * 2)).clamp(0.0, 1.0);
   }
 
+  /// Ratio relative to minimum safety stock threshold (0.0 to 1.0).
+  double get minThresholdRatio {
+    if (minStock <= 0) return 1.0;
+    return (currentStock / minStock).clamp(0.0, 1.0);
+  }
+
+  /// Percentage relative to minimum safety stock threshold.
+  int get minThresholdPercentage {
+    if (minStock <= 0) return 100;
+    return (currentStock / minStock * 100).round();
+  }
+
   /// Estimated total asset value.
   int get totalValue => (currentStock * costPerUnit).round();
 
@@ -131,7 +143,7 @@ class StockItem {
       if (i > 0 && (str.length - i) % 3 == 0) buffer.write('.');
       buffer.write(str[i]);
     }
-    return 'Rp$buffer';
+    return 'Rp $buffer';
   }
 
   StockItem copyWith({

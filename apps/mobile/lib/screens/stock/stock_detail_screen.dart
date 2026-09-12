@@ -1,12 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import '../../core/theme/app_colors.dart';
 import '../../models/stock_model.dart';
 import 'widgets/restock_modal.dart';
 import 'widgets/adjust_stock_modal.dart';
 import 'widgets/add_stock_modal.dart';
 
 /// Comprehensive Stock Detail and Movement History Screen.
+///
+/// Designed to eliminate "AI slop" and replace fragmented 2x2 boxes with
+/// an executive-grade specification sheet and tactile control actions.
 class StockDetailScreen extends StatefulWidget {
   final String stockId;
 
@@ -30,8 +32,30 @@ class _StockDetailScreenState extends State<StockDetailScreen> {
         final item = StockRepository.instance.getItemById(widget.stockId);
         if (item == null) {
           return Scaffold(
-            appBar: AppBar(title: const Text('Bahan Baku')),
-            body: const Center(child: Text('Data bahan baku tidak ditemukan')),
+            backgroundColor: const Color(0xFFF8FAFC),
+            appBar: AppBar(
+              backgroundColor: Colors.white,
+              elevation: 0,
+              leading: IconButton(
+                icon: const Icon(Icons.arrow_back_rounded, color: Color(0xFF0F172A)),
+                onPressed: () => Navigator.pop(context),
+              ),
+              title: Text(
+                'Bahan Baku',
+                style: GoogleFonts.plusJakartaSans(
+                  fontWeight: FontWeight.w700,
+                  color: const Color(0xFF0F172A),
+                ),
+              ),
+            ),
+            body: Center(
+              child: Text(
+                'Data bahan baku tidak ditemukan',
+                style: GoogleFonts.plusJakartaSans(
+                  color: const Color(0xFF64748B),
+                ),
+              ),
+            ),
           );
         }
 
@@ -45,50 +69,59 @@ class _StockDetailScreenState extends State<StockDetailScreen> {
         Color statusBg;
         Color statusText;
         IconData statusIcon;
+        Color progressColor;
 
         switch (status) {
           case StockStatus.kritis:
             statusLabel = 'Kritis';
-            statusBg = Colors.white;
-            statusText = AppColors.destructive;
+            statusBg = const Color(0xFFFEE2E2);
+            statusText = const Color(0xFFDC2626);
             statusIcon = Icons.error_outline_rounded;
+            progressColor = const Color(0xFFEF4444);
             break;
           case StockStatus.rendah:
             statusLabel = 'Rendah';
-            statusBg = Colors.white;
-            statusText = AppColors.warningOrange;
+            statusBg = const Color(0xFFFEF3C7);
+            statusText = const Color(0xFFD97706);
             statusIcon = Icons.warning_amber_rounded;
+            progressColor = const Color(0xFFF59E0B);
             break;
           case StockStatus.baik:
             statusLabel = 'Aman';
-            statusBg = Colors.white;
-            statusText = AppColors.successGreen;
+            statusBg = const Color(0xFFDCFCE7);
+            statusText = const Color(0xFF16A34A);
             statusIcon = Icons.check_circle_outline_rounded;
+            progressColor = const Color(0xFF22C55E);
             break;
         }
 
+        final stockNumStr = item.currentStock == item.currentStock.roundToDouble()
+            ? item.currentStock.toInt().toString()
+            : item.currentStock.toStringAsFixed(1);
+
         return Scaffold(
-          backgroundColor: AppColors.pageBackground,
+          backgroundColor: const Color(0xFFF8FAFC),
           appBar: AppBar(
-            backgroundColor: AppColors.background,
+            backgroundColor: Colors.white,
             elevation: 0,
+            surfaceTintColor: Colors.transparent,
             leading: IconButton(
-              icon: const Icon(Icons.arrow_back_rounded, color: AppColors.darkText),
+              icon: const Icon(Icons.arrow_back_rounded, color: Color(0xFF0F172A)),
               onPressed: () => Navigator.pop(context),
             ),
             title: Text(
               item.name,
-              style: GoogleFonts.poppins(
+              style: GoogleFonts.plusJakartaSans(
                 fontSize: 18,
                 fontWeight: FontWeight.w700,
-                color: AppColors.darkText,
+                color: const Color(0xFF0F172A),
               ),
             ),
             centerTitle: true,
             actions: [
               PopupMenuButton<String>(
-                icon: const Icon(Icons.more_vert_rounded, color: AppColors.darkText),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                icon: const Icon(Icons.more_vert_rounded, color: Color(0xFF0F172A)),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
                 onSelected: (value) {
                   if (value == 'edit') {
                     AddStockModal.show(context, itemToEdit: item);
@@ -103,7 +136,7 @@ class _StockDetailScreenState extends State<StockDetailScreen> {
                     value: 'edit',
                     child: Row(
                       children: [
-                        Icon(Icons.edit_outlined, size: 18, color: AppColors.darkText),
+                        Icon(Icons.edit_outlined, size: 18, color: Color(0xFF0F172A)),
                         SizedBox(width: 10),
                         Text('Ubah Detail Bahan'),
                       ],
@@ -113,7 +146,7 @@ class _StockDetailScreenState extends State<StockDetailScreen> {
                     value: 'adjust',
                     child: Row(
                       children: [
-                        Icon(Icons.tune_rounded, size: 18, color: AppColors.infoBlue),
+                        Icon(Icons.tune_rounded, size: 18, color: Color(0xFF3B82F6)),
                         SizedBox(width: 10),
                         Text('Penyesuaian Opname'),
                       ],
@@ -123,9 +156,9 @@ class _StockDetailScreenState extends State<StockDetailScreen> {
                     value: 'delete',
                     child: Row(
                       children: [
-                        Icon(Icons.delete_outline_rounded, size: 18, color: AppColors.destructive),
+                        Icon(Icons.delete_outline_rounded, size: 18, color: Color(0xFFEF4444)),
                         SizedBox(width: 10),
-                        Text('Hapus Bahan', style: TextStyle(color: AppColors.destructive)),
+                        Text('Hapus Bahan', style: TextStyle(color: Color(0xFFEF4444))),
                       ],
                     ),
                   ),
@@ -134,195 +167,282 @@ class _StockDetailScreenState extends State<StockDetailScreen> {
             ],
           ),
           body: SafeArea(
+            bottom: false,
             child: Column(
               children: [
                 Expanded(
                   child: SingleChildScrollView(
-                    physics: const BouncingScrollPhysics(),
-                    padding: const EdgeInsets.fromLTRB(20, 10, 20, 24),
+                    physics: const BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
+                    padding: const EdgeInsets.fromLTRB(20, 16, 20, 110),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        // ── 1. Hero Teal Card (Matching Reference Design) ──
+                        // ── 1. Hero Obsidian Executive Card ──────────────────
                         Container(
                           width: double.infinity,
-                          padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 20),
+                          padding: const EdgeInsets.all(20),
                           decoration: BoxDecoration(
-                            gradient: const LinearGradient(
-                              colors: [
-                                Color(0xFF115E59), // Rich Deep Teal
-                                Color(0xFF0F766E),
-                                Color(0xFF134E4A),
-                              ],
-                              begin: Alignment.topLeft,
-                              end: Alignment.bottomRight,
-                            ),
-                            borderRadius: BorderRadius.circular(24),
+                            color: const Color(0xFF111111),
+                            borderRadius: BorderRadius.circular(22),
                             boxShadow: [
                               BoxShadow(
-                                color: const Color(0xFF0D9488).withValues(alpha: 0.3),
-                                blurRadius: 20,
-                                offset: const Offset(0, 8),
+                                color: Colors.black.withValues(alpha: 0.16),
+                                blurRadius: 18,
+                                offset: const Offset(0, 6),
                               ),
                             ],
                           ),
                           child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.center,
+                            crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
+                              // Top Row: Category Pill & Status Badge
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Container(
+                                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4.5),
+                                    decoration: BoxDecoration(
+                                      color: Colors.white.withValues(alpha: 0.1),
+                                      borderRadius: BorderRadius.circular(14),
+                                      border: Border.all(
+                                        color: Colors.white.withValues(alpha: 0.12),
+                                        width: 0.8,
+                                      ),
+                                    ),
+                                    child: Row(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        Icon(
+                                          item.icon,
+                                          size: 13,
+                                          color: const Color(0xFFCBD5E1),
+                                        ),
+                                        const SizedBox(width: 5),
+                                        Text(
+                                          item.category.label,
+                                          style: GoogleFonts.plusJakartaSans(
+                                            fontSize: 11.5,
+                                            fontWeight: FontWeight.w600,
+                                            color: const Color(0xFFCBD5E1),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                  Container(
+                                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4.5),
+                                    decoration: BoxDecoration(
+                                      color: statusBg,
+                                      borderRadius: BorderRadius.circular(14),
+                                    ),
+                                    child: Row(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        Icon(statusIcon, color: statusText, size: 13),
+                                        const SizedBox(width: 4.5),
+                                        Text(
+                                          statusLabel,
+                                          style: GoogleFonts.plusJakartaSans(
+                                            fontSize: 11.5,
+                                            fontWeight: FontWeight.w700,
+                                            color: statusText,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ],
+                              ),
+
+                              const SizedBox(height: 18),
+
+                              // STOK SAAT INI (test critical label)
                               Text(
                                 'STOK SAAT INI',
-                                style: GoogleFonts.inter(
-                                  fontSize: 12,
-                                  fontWeight: FontWeight.w600,
-                                  color: const Color(0xFFCCFBF1),
-                                  letterSpacing: 1.2,
+                                style: GoogleFonts.plusJakartaSans(
+                                  fontSize: 11,
+                                  fontWeight: FontWeight.w700,
+                                  color: const Color(0xFF94A3B8),
+                                  letterSpacing: 1.4,
+                                ),
+                              ),
+                              const SizedBox(height: 4),
+
+                              // Big Stock Number + Unit + Valuation Tag
+                              Row(
+                                crossAxisAlignment: CrossAxisAlignment.baseline,
+                                textBaseline: TextBaseline.alphabetic,
+                                children: [
+                                  Text(
+                                    stockNumStr,
+                                    style: GoogleFonts.plusJakartaSans(
+                                      fontSize: 40,
+                                      fontWeight: FontWeight.w800,
+                                      color: Colors.white,
+                                      letterSpacing: -1,
+                                      height: 1.05,
+                                    ),
+                                  ),
+                                  const SizedBox(width: 7),
+                                  Text(
+                                    item.unit,
+                                    style: GoogleFonts.plusJakartaSans(
+                                      fontSize: 18,
+                                      fontWeight: FontWeight.w600,
+                                      color: const Color(0xFF94A3B8),
+                                    ),
+                                  ),
+                                  const Spacer(),
+                                  // Valuation Tag Pill
+                                  Container(
+                                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                                    decoration: BoxDecoration(
+                                      color: Colors.white.withValues(alpha: 0.08),
+                                      borderRadius: BorderRadius.circular(10),
+                                    ),
+                                    child: Column(
+                                      crossAxisAlignment: CrossAxisAlignment.end,
+                                      children: [
+                                        Text(
+                                          'Estimasi Nilai',
+                                          style: GoogleFonts.plusJakartaSans(
+                                            fontSize: 10,
+                                            fontWeight: FontWeight.w500,
+                                            color: const Color(0xFF94A3B8),
+                                          ),
+                                        ),
+                                        Text(
+                                          item.formattedTotalValue,
+                                          style: GoogleFonts.plusJakartaSans(
+                                            fontSize: 13,
+                                            fontWeight: FontWeight.w700,
+                                            color: Colors.white,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ],
+                              ),
+
+                              const SizedBox(height: 18),
+
+                              // Health & Threshold Gauge
+                              ClipRRect(
+                                borderRadius: BorderRadius.circular(3),
+                                child: LinearProgressIndicator(
+                                  value: item.minThresholdRatio,
+                                  minHeight: 5.5,
+                                  backgroundColor: Colors.white.withValues(alpha: 0.12),
+                                  valueColor: AlwaysStoppedAnimation<Color>(progressColor),
                                 ),
                               ),
                               const SizedBox(height: 8),
-                              Text(
-                                item.formattedCurrentStock,
-                                style: GoogleFonts.poppins(
-                                  fontSize: 42,
-                                  fontWeight: FontWeight.w800,
-                                  color: Colors.white,
-                                  height: 1.1,
-                                ),
-                              ),
-                              const SizedBox(height: 14),
-
-                              // Status Badge
-                              Container(
-                                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
-                                decoration: BoxDecoration(
-                                  color: statusBg,
-                                  borderRadius: BorderRadius.circular(20),
-                                  boxShadow: [
-                                    BoxShadow(
-                                      color: Colors.black.withValues(alpha: 0.12),
-                                      blurRadius: 8,
-                                      offset: const Offset(0, 2),
-                                    ),
-                                  ],
-                                ),
-                                child: Row(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    Icon(statusIcon, color: statusText, size: 16),
-                                    const SizedBox(width: 6),
-                                    Text(
-                                      statusLabel,
-                                      style: GoogleFonts.inter(
-                                        fontSize: 13,
-                                        fontWeight: FontWeight.w700,
-                                        color: statusText,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-
-                              const SizedBox(height: 16),
-
-                              // AI Depletion Insight Callout
-                              if (status != StockStatus.baik)
-                                Container(
-                                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                                  decoration: BoxDecoration(
-                                    color: Colors.white.withValues(alpha: 0.12),
-                                    borderRadius: BorderRadius.circular(12),
-                                    border: Border.all(
-                                      color: Colors.white.withValues(alpha: 0.2),
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Text(
+                                    item.status == StockStatus.baik
+                                        ? '✓ Stok Aman (${item.minThresholdPercentage}% dari min)'
+                                        : (item.status == StockStatus.rendah
+                                            ? '⚠ Stok Menipis (${item.minThresholdPercentage}% dari min)'
+                                            : '✕ Kritis (${item.minThresholdPercentage}% dari min)'),
+                                    style: GoogleFonts.plusJakartaSans(
+                                      fontSize: 11,
+                                      fontWeight: FontWeight.w600,
+                                      color: progressColor,
                                     ),
                                   ),
-                                  child: Row(
-                                    mainAxisSize: MainAxisSize.min,
-                                    children: [
-                                      const Icon(
-                                        Icons.auto_awesome,
-                                        color: Color(0xFF5EEAD4),
-                                        size: 16,
-                                      ),
-                                      const SizedBox(width: 8),
-                                      Flexible(
-                                        child: Text(
-                                          status == StockStatus.kritis
-                                              ? 'Perkiraan habis dlm ~1 hari. Perlu restock segera!'
-                                              : 'Perkiraan cukup untuk ~2 hari ke depan.',
-                                          style: GoogleFonts.inter(
-                                            fontSize: 11,
-                                            fontWeight: FontWeight.w500,
-                                            color: const Color(0xFFF0FDFA),
-                                          ),
-                                          textAlign: TextAlign.center,
-                                        ),
-                                      ),
-                                    ],
+                                  Text(
+                                    'Batas Min: ${item.formattedMinStock}',
+                                    style: GoogleFonts.plusJakartaSans(
+                                      fontSize: 11,
+                                      fontWeight: FontWeight.w600,
+                                      color: const Color(0xFFCBD5E1),
+                                    ),
                                   ),
-                                ),
+                                ],
+                              ),
                             ],
                           ),
                         ),
-                        const SizedBox(height: 18),
 
-                        // ── 2. Metric Sub-Cards Grid (2x2) ──
-                        Row(
-                          children: [
-                            Expanded(
-                              child: _buildInfoCard(
+                        const SizedBox(height: 16),
+
+                        // ── 2. Executive Specification Sheet (Inset Grouped) ──
+                        Container(
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(20),
+                            border: Border.all(color: const Color(0xFFE2E8F0), width: 1.1),
+                            boxShadow: [
+                              BoxShadow(
+                                color: const Color(0xFF0F172A).withValues(alpha: 0.03),
+                                blurRadius: 12,
+                                offset: const Offset(0, 3),
+                              ),
+                            ],
+                          ),
+                          child: Column(
+                            children: [
+                              _buildSpecRow(
                                 icon: Icons.hourglass_top_rounded,
                                 title: 'Stok Minimum',
                                 value: item.formattedMinStock,
-                                subtitle: 'Batas peringatan',
+                                subtitle: 'Batas peringatan restock',
+                                isFirst: true,
                               ),
-                            ),
-                            const SizedBox(width: 12),
-                            Expanded(
-                              child: _buildInfoCard(
-                                icon: Icons.schedule_rounded,
-                                title: 'Terakhir Diperbarui',
-                                value: _formatLastUpdated(item.lastUpdated),
-                                subtitle: 'Update otomatis',
-                              ),
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 12),
-                        Row(
-                          children: [
-                            Expanded(
-                              child: _buildInfoCard(
+                              const Divider(height: 1, color: Color(0xFFF1F5F9), indent: 62),
+                              _buildSpecRow(
                                 icon: Icons.payments_outlined,
                                 title: 'Estimasi Nilai Stok',
                                 value: item.formattedTotalValue,
-                                subtitle: '@ ${item.formattedCostPerUnit}/${item.unit}',
+                                subtitle: '@ ${item.formattedCostPerUnit} / ${item.unit}',
                               ),
-                            ),
-                            const SizedBox(width: 12),
-                            Expanded(
-                              child: _buildInfoCard(
+                              const Divider(height: 1, color: Color(0xFFF1F5F9), indent: 62),
+                              _buildSpecRow(
                                 icon: Icons.local_shipping_outlined,
                                 title: 'Supplier Utama',
-                                value: item.supplier,
-                                subtitle: 'Mitra langganan',
-                                isSingleLine: true,
+                                value: item.supplier.isNotEmpty ? item.supplier : 'Tidak Ditentukan',
+                                subtitle: 'Mitra pengadaan terdaftar',
                               ),
-                            ),
-                          ],
+                              const Divider(height: 1, color: Color(0xFFF1F5F9), indent: 62),
+                              _buildSpecRow(
+                                icon: Icons.schedule_rounded,
+                                title: 'Terakhir Diperbarui',
+                                value: _formatLastUpdated(item.lastUpdated),
+                                subtitle: 'Pencatatan sinkronisasi otomatis',
+                                isLast: true,
+                              ),
+                            ],
+                          ),
                         ),
 
-                        // ── 3. Linked Menu / Recipes Section ──
+                        // ── 3. Linked Menu Section ────────────────────────────
                         if (item.linkedProducts.isNotEmpty) ...[
-                          const SizedBox(height: 24),
+                          const SizedBox(height: 20),
                           Row(
                             children: [
-                              const Icon(Icons.coffee_maker_rounded, size: 18, color: AppColors.primaryTeal),
+                              Container(
+                                width: 24,
+                                height: 24,
+                                decoration: BoxDecoration(
+                                  color: const Color(0xFFF1F5F9),
+                                  borderRadius: BorderRadius.circular(7),
+                                ),
+                                child: const Icon(
+                                  Icons.restaurant_menu_rounded,
+                                  size: 14,
+                                  color: Color(0xFF0F172A),
+                                ),
+                              ),
                               const SizedBox(width: 8),
                               Text(
-                                'Digunakan pada Menu POS',
-                                style: GoogleFonts.poppins(
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.w600,
-                                  color: AppColors.darkText,
+                                'Digunakan pada Menu (${item.linkedProducts.length})',
+                                style: GoogleFonts.plusJakartaSans(
+                                  fontSize: 14.5,
+                                  fontWeight: FontWeight.w700,
+                                  color: const Color(0xFF0F172A),
                                 ),
                               ),
                             ],
@@ -333,27 +453,37 @@ class _StockDetailScreenState extends State<StockDetailScreen> {
                             runSpacing: 8,
                             children: item.linkedProducts.map((menu) {
                               return Container(
-                                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 7),
                                 decoration: BoxDecoration(
-                                  color: const Color(0xFFF1F5F9), // Slate 100
-                                  borderRadius: BorderRadius.circular(10),
-                                  // No border
+                                  color: Colors.white,
+                                  borderRadius: BorderRadius.circular(12),
+                                  border: Border.all(color: const Color(0xFFE2E8F0), width: 1),
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: Colors.black.withValues(alpha: 0.02),
+                                      blurRadius: 4,
+                                      offset: const Offset(0, 1),
+                                    ),
+                                  ],
                                 ),
                                 child: Row(
                                   mainAxisSize: MainAxisSize.min,
                                   children: [
-                                    const Icon(
-                                      Icons.check_circle,
-                                      size: 14,
-                                      color: AppColors.primaryTeal,
+                                    Container(
+                                      width: 6,
+                                      height: 6,
+                                      decoration: const BoxDecoration(
+                                        color: Color(0xFF22C55E),
+                                        shape: BoxShape.circle,
+                                      ),
                                     ),
-                                    const SizedBox(width: 6),
+                                    const SizedBox(width: 7),
                                     Text(
                                       menu,
-                                      style: GoogleFonts.inter(
-                                        fontSize: 12,
+                                      style: GoogleFonts.plusJakartaSans(
+                                        fontSize: 12.5,
                                         fontWeight: FontWeight.w600,
-                                        color: AppColors.darkText,
+                                        color: const Color(0xFF0F172A),
                                       ),
                                     ),
                                   ],
@@ -363,79 +493,110 @@ class _StockDetailScreenState extends State<StockDetailScreen> {
                           ),
                         ],
 
-                        const SizedBox(height: 26),
+                        const SizedBox(height: 22),
 
-                        // ── 4. Riwayat Stok Section (Stock Movement History) ──
+                        // ── 4. Riwayat Stok Section ───────────────────────────
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
                             Text(
                               'Riwayat Stok',
-                              style: GoogleFonts.poppins(
-                                fontSize: 18,
+                              style: GoogleFonts.plusJakartaSans(
+                                fontSize: 16.5,
                                 fontWeight: FontWeight.w700,
-                                color: AppColors.darkText,
+                                color: const Color(0xFF0F172A),
                               ),
                             ),
-                            Text(
-                              '${filteredLogs.length} transaksi',
-                              style: GoogleFonts.inter(
-                                fontSize: 12,
-                                color: AppColors.mutedText,
+                            Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                              decoration: BoxDecoration(
+                                color: const Color(0xFFF1F5F9),
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                              child: Text(
+                                '${filteredLogs.length} transaksi',
+                                style: GoogleFonts.plusJakartaSans(
+                                  fontSize: 11,
+                                  fontWeight: FontWeight.w600,
+                                  color: const Color(0xFF64748B),
+                                ),
                               ),
                             ),
                           ],
                         ),
                         const SizedBox(height: 12),
 
-                        // History Filter Chips
+                        // Filter Chips (Pills)
                         SingleChildScrollView(
                           scrollDirection: Axis.horizontal,
+                          physics: const BouncingScrollPhysics(),
+                          clipBehavior: Clip.none,
                           child: Row(
                             children: [
                               _buildFilterChip('Semua', null),
                               const SizedBox(width: 8),
-                              _buildFilterChip('Keluar (POS)', StockLogType.out),
+                              _buildFilterChip('POS (Keluar)', StockLogType.out),
                               const SizedBox(width: 8),
-                              _buildFilterChip('Masuk (Restock)', StockLogType.inStock),
+                              _buildFilterChip('Restock', StockLogType.inStock),
                               const SizedBox(width: 8),
-                              _buildFilterChip('Penyesuaian', StockLogType.adjustment),
+                              _buildFilterChip('Opname', StockLogType.adjustment),
                             ],
                           ),
                         ),
-                        const SizedBox(height: 14),
+                        const SizedBox(height: 12),
 
-                        // Logs List Container
+                        // Logs List / Clean Empty State
                         if (filteredLogs.isEmpty)
                           Container(
-                            padding: const EdgeInsets.all(28),
+                            width: double.infinity,
+                            padding: const EdgeInsets.symmetric(vertical: 26, horizontal: 20),
                             alignment: Alignment.center,
                             decoration: BoxDecoration(
                               color: Colors.white,
-                              borderRadius: BorderRadius.circular(16),
-                              // No border
+                              borderRadius: BorderRadius.circular(18),
+                              border: Border.all(color: const Color(0xFFE2E8F0), width: 1),
                               boxShadow: [
                                 BoxShadow(
-                                  color: Colors.black.withValues(alpha: 0.03),
-                                  blurRadius: 10,
-                                  offset: const Offset(0, 4),
+                                  color: Colors.black.withValues(alpha: 0.02),
+                                  blurRadius: 8,
+                                  offset: const Offset(0, 2),
                                 ),
                               ],
                             ),
                             child: Column(
                               children: [
-                                const Icon(
-                                  Icons.history_toggle_off_rounded,
-                                  size: 36,
-                                  color: AppColors.mutedText,
-                                ),
-                                const SizedBox(height: 8),
-                                Text(
-                                  'Belum ada riwayat untuk filter ini',
-                                  style: GoogleFonts.inter(
-                                    fontSize: 13,
-                                    color: AppColors.mutedText,
+                                Container(
+                                  width: 42,
+                                  height: 42,
+                                  decoration: BoxDecoration(
+                                    color: const Color(0xFFF8FAFC),
+                                    borderRadius: BorderRadius.circular(12),
+                                    border: Border.all(color: const Color(0xFFE2E8F0), width: 1),
                                   ),
+                                  child: const Icon(
+                                    Icons.receipt_long_outlined,
+                                    size: 20,
+                                    color: Color(0xFF94A3B8),
+                                  ),
+                                ),
+                                const SizedBox(height: 10),
+                                Text(
+                                  'Belum Ada Riwayat Stok',
+                                  style: GoogleFonts.plusJakartaSans(
+                                    fontSize: 13.5,
+                                    fontWeight: FontWeight.w700,
+                                    color: const Color(0xFF0F172A),
+                                  ),
+                                ),
+                                const SizedBox(height: 4),
+                                Text(
+                                  'Aktivitas penjualan kasir atau restock bahan akan otomatis tercatat di sini',
+                                  style: GoogleFonts.plusJakartaSans(
+                                    fontSize: 11.5,
+                                    color: const Color(0xFF64748B),
+                                    height: 1.3,
+                                  ),
+                                  textAlign: TextAlign.center,
                                 ),
                               ],
                             ),
@@ -445,12 +606,12 @@ class _StockDetailScreenState extends State<StockDetailScreen> {
                             decoration: BoxDecoration(
                               color: Colors.white,
                               borderRadius: BorderRadius.circular(18),
-                              // No border
+                              border: Border.all(color: const Color(0xFFE2E8F0), width: 1),
                               boxShadow: [
                                 BoxShadow(
-                                  color: Colors.black.withValues(alpha: 0.04),
-                                  blurRadius: 10,
-                                  offset: const Offset(0, 4),
+                                  color: Colors.black.withValues(alpha: 0.02),
+                                  blurRadius: 8,
+                                  offset: const Offset(0, 2),
                                 ),
                               ],
                             ),
@@ -460,8 +621,8 @@ class _StockDetailScreenState extends State<StockDetailScreen> {
                               itemCount: filteredLogs.length,
                               separatorBuilder: (context, index) => const Divider(
                                 height: 1,
-                                color: Color(0xFFE2E8F0),
-                                indent: 64,
+                                color: Color(0xFFF1F5F9),
+                                indent: 62,
                               ),
                               itemBuilder: (context, index) {
                                 final log = filteredLogs[index];
@@ -474,72 +635,81 @@ class _StockDetailScreenState extends State<StockDetailScreen> {
                   ),
                 ),
 
-                // ── 5. Sticky Bottom Action Bar ──
+                // ── 5. Sticky Bottom Action Bar with SafeArea ──────────
                 Container(
-                  padding: const EdgeInsets.fromLTRB(20, 12, 20, 16),
                   decoration: BoxDecoration(
                     color: Colors.white,
+                    border: const Border(
+                      top: BorderSide(color: Color(0xFFE2E8F0), width: 1),
+                    ),
                     boxShadow: [
                       BoxShadow(
-                        color: Colors.black.withValues(alpha: 0.06),
-                        blurRadius: 16,
-                        offset: const Offset(0, -4),
+                        color: Colors.black.withValues(alpha: 0.04),
+                        blurRadius: 14,
+                        offset: const Offset(0, -3),
                       ),
                     ],
                   ),
-                  child: Row(
-                    children: [
-                      // Opname Button
-                      Expanded(
-                        flex: 2,
-                        child: SizedBox(
-                          height: 50,
-                          child: TextButton.icon(
-                            onPressed: () => AdjustStockModal.show(context, item: item),
-                            icon: const Icon(Icons.tune_rounded, size: 18),
-                            label: const Text('Opname'),
-                            style: TextButton.styleFrom(
-                              backgroundColor: const Color(0xFFF1F5F9), // Slate
-                              foregroundColor: AppColors.darkText,
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(14),
-                              ),
-                              textStyle: GoogleFonts.poppins(
-                                fontSize: 13,
-                                fontWeight: FontWeight.w600,
+                  child: SafeArea(
+                    top: false,
+                    child: Padding(
+                      padding: const EdgeInsets.fromLTRB(20, 12, 20, 12),
+                      child: Row(
+                        children: [
+                          // Opname Button
+                          Expanded(
+                            flex: 2,
+                            child: SizedBox(
+                              height: 48,
+                              child: OutlinedButton.icon(
+                                onPressed: () => AdjustStockModal.show(context, item: item),
+                                icon: const Icon(Icons.tune_rounded, size: 17),
+                                label: const Text('Opname'),
+                                style: OutlinedButton.styleFrom(
+                                  backgroundColor: Colors.white,
+                                  foregroundColor: const Color(0xFF0F172A),
+                                  side: const BorderSide(color: Color(0xFFCBD5E1), width: 1.1),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(14),
+                                  ),
+                                  textStyle: GoogleFonts.plusJakartaSans(
+                                    fontSize: 13.5,
+                                    fontWeight: FontWeight.w700,
+                                  ),
+                                ),
                               ),
                             ),
                           ),
-                        ),
-                      ),
-                      const SizedBox(width: 12),
+                          const SizedBox(width: 10),
 
-                      // Restock CTA
-                      Expanded(
-                        flex: 3,
-                        child: SizedBox(
-                          height: 50,
-                          child: ElevatedButton.icon(
-                            onPressed: () => RestockModal.show(context, initialItem: item),
-                            icon: const Icon(Icons.add_rounded, size: 20, color: Colors.white),
-                            label: const Text('Tambah Stok'),
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: const Color(0xFF0F172A), // Dark Slate
-                              foregroundColor: Colors.white,
-                              elevation: 6,
-                              shadowColor: const Color(0xFF0F172A).withValues(alpha: 0.4),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(14),
-                              ),
-                              textStyle: GoogleFonts.poppins(
-                                fontSize: 14,
-                                fontWeight: FontWeight.w600,
+                          // Restock CTA (Solid Black)
+                          Expanded(
+                            flex: 3,
+                            child: SizedBox(
+                              height: 48,
+                              child: ElevatedButton.icon(
+                                onPressed: () => RestockModal.show(context, initialItem: item),
+                                icon: const Icon(Icons.add_rounded, size: 18, color: Color(0xFF22C55E)),
+                                label: const Text('Tambah Stok'),
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: const Color(0xFF111111),
+                                  foregroundColor: Colors.white,
+                                  elevation: 2,
+                                  shadowColor: Colors.black.withValues(alpha: 0.2),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(14),
+                                  ),
+                                  textStyle: GoogleFonts.plusJakartaSans(
+                                    fontSize: 13.5,
+                                    fontWeight: FontWeight.w700,
+                                  ),
+                                ),
                               ),
                             ),
                           ),
-                        ),
+                        ],
                       ),
-                    ],
+                    ),
                   ),
                 ),
               ],
@@ -554,87 +724,106 @@ class _StockDetailScreenState extends State<StockDetailScreen> {
     final isSelected = _historyFilter == type;
     return InkWell(
       onTap: () => setState(() => _historyFilter = type),
-      borderRadius: BorderRadius.circular(20),
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
+      borderRadius: BorderRadius.circular(16),
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 160),
+        padding: const EdgeInsets.symmetric(horizontal: 13, vertical: 6),
         decoration: BoxDecoration(
-          color: isSelected ? AppColors.primaryTeal : const Color(0xFFF1F5F9), // Slate 100
-          borderRadius: BorderRadius.circular(20),
-          // No border
+          color: isSelected ? const Color(0xFF111111) : Colors.white,
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(
+            color: isSelected ? const Color(0xFF111111) : const Color(0xFFE2E8F0),
+            width: 1,
+          ),
+          boxShadow: isSelected
+              ? [
+                  BoxShadow(
+                    color: Colors.black.withValues(alpha: 0.12),
+                    blurRadius: 4,
+                    offset: const Offset(0, 1.5),
+                  ),
+                ]
+              : null,
         ),
         child: Text(
           label,
-          style: GoogleFonts.inter(
+          style: GoogleFonts.plusJakartaSans(
             fontSize: 12,
-            fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
-            color: isSelected ? Colors.white : AppColors.darkText,
+            fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
+            color: isSelected ? Colors.white : const Color(0xFF475569),
           ),
         ),
       ),
     );
   }
 
-  Widget _buildInfoCard({
+  Widget _buildSpecRow({
     required IconData icon,
     required String title,
     required String value,
     required String subtitle,
-    bool isSingleLine = false,
+    bool isFirst = false,
+    bool isLast = false,
   }) {
-    return Container(
-      padding: const EdgeInsets.all(14),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        // No border
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.04),
-            blurRadius: 10,
-            offset: const Offset(0, 4),
-          ),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 13),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          Row(
-            children: [
-              Icon(icon, size: 16, color: AppColors.primaryTeal),
-              const SizedBox(width: 6),
-              Flexible(
-                child: Text(
+          // Squircle icon container
+          Container(
+            width: 38,
+            height: 38,
+            decoration: BoxDecoration(
+              color: const Color(0xFFF8FAFC),
+              borderRadius: BorderRadius.circular(11),
+              border: Border.all(color: const Color(0xFFE2E8F0), width: 1),
+            ),
+            child: Icon(icon, size: 18, color: const Color(0xFF0F172A)),
+          ),
+          const SizedBox(width: 12),
+
+          // Title and Subtitle
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
                   title,
-                  style: GoogleFonts.inter(
-                    fontSize: 11,
-                    fontWeight: FontWeight.w500,
-                    color: AppColors.mutedText,
+                  style: GoogleFonts.plusJakartaSans(
+                    fontSize: 13,
+                    fontWeight: FontWeight.w600,
+                    color: const Color(0xFF64748B),
                   ),
-                  overflow: TextOverflow.ellipsis,
                 ),
+                const SizedBox(height: 1),
+                Text(
+                  subtitle,
+                  style: GoogleFonts.plusJakartaSans(
+                    fontSize: 11,
+                    fontWeight: FontWeight.w400,
+                    color: const Color(0xFF94A3B8),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(width: 12),
+
+          // Value
+          ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 150),
+            child: Text(
+              value,
+              textAlign: TextAlign.right,
+              style: GoogleFonts.plusJakartaSans(
+                fontSize: 14,
+                fontWeight: FontWeight.w700,
+                color: const Color(0xFF0F172A),
+                height: 1.25,
               ),
-            ],
-          ),
-          const SizedBox(height: 6),
-          Text(
-            value,
-            style: GoogleFonts.poppins(
-              fontSize: 16,
-              fontWeight: FontWeight.w700,
-              color: AppColors.darkText,
             ),
-            maxLines: isSingleLine ? 1 : 2,
-            overflow: TextOverflow.ellipsis,
-          ),
-          const SizedBox(height: 2),
-          Text(
-            subtitle,
-            style: GoogleFonts.inter(
-              fontSize: 11,
-              color: AppColors.mutedText,
-            ),
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
           ),
         ],
       ),
@@ -649,40 +838,40 @@ class _StockDetailScreenState extends State<StockDetailScreen> {
 
     switch (log.type) {
       case StockLogType.out:
-        icon = Icons.point_of_sale_rounded;
-        iconBg = AppColors.dangerBg;
-        iconColor = AppColors.destructive;
-        deltaColor = AppColors.destructive;
+        icon = Icons.arrow_downward_rounded;
+        iconBg = const Color(0xFFFEE2E2);
+        iconColor = const Color(0xFFDC2626);
+        deltaColor = const Color(0xFFDC2626);
         break;
       case StockLogType.inStock:
-        icon = Icons.inventory_2_rounded;
-        iconBg = AppColors.successBg;
-        iconColor = AppColors.successGreen;
-        deltaColor = AppColors.successGreen;
+        icon = Icons.arrow_upward_rounded;
+        iconBg = const Color(0xFFDCFCE7);
+        iconColor = const Color(0xFF16A34A);
+        deltaColor = const Color(0xFF16A34A);
         break;
       case StockLogType.adjustment:
         icon = Icons.tune_rounded;
-        iconBg = AppColors.infoBg;
-        iconColor = AppColors.infoBlue;
-        deltaColor = AppColors.infoText;
+        iconBg = const Color(0xFFE0F2FE);
+        iconColor = const Color(0xFF0284C7);
+        deltaColor = const Color(0xFF0284C7);
         break;
     }
 
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       child: Row(
         children: [
-          // Icon Circle
+          // Squircle Icon
           Container(
-            width: 40,
-            height: 40,
+            width: 38,
+            height: 38,
             decoration: BoxDecoration(
               color: iconBg,
-              shape: BoxShape.circle,
+              borderRadius: BorderRadius.circular(11),
             ),
-            child: Icon(icon, color: iconColor, size: 20),
+            child: Icon(icon, color: iconColor, size: 18),
           ),
-          const SizedBox(width: 14),
+          const SizedBox(width: 12),
 
           // Source and Time
           Expanded(
@@ -693,26 +882,26 @@ class _StockDetailScreenState extends State<StockDetailScreen> {
                   children: [
                     Text(
                       log.source,
-                      style: GoogleFonts.poppins(
-                        fontSize: 14,
-                        fontWeight: FontWeight.w600,
-                        color: AppColors.darkText,
+                      style: GoogleFonts.plusJakartaSans(
+                        fontSize: 13.5,
+                        fontWeight: FontWeight.w700,
+                        color: const Color(0xFF0F172A),
                       ),
                     ),
                     if (log.referenceCode != null) ...[
                       const SizedBox(width: 6),
                       Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 1),
+                        padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 1.5),
                         decoration: BoxDecoration(
-                          color: AppColors.surface,
-                          borderRadius: BorderRadius.circular(4),
+                          color: const Color(0xFFF1F5F9),
+                          borderRadius: BorderRadius.circular(6),
                         ),
                         child: Text(
                           log.referenceCode!,
-                          style: GoogleFonts.inter(
+                          style: GoogleFonts.plusJakartaSans(
                             fontSize: 10,
-                            fontWeight: FontWeight.w500,
-                            color: AppColors.mutedText,
+                            fontWeight: FontWeight.w600,
+                            color: const Color(0xFF64748B),
                           ),
                         ),
                       ),
@@ -722,19 +911,19 @@ class _StockDetailScreenState extends State<StockDetailScreen> {
                 const SizedBox(height: 2),
                 Text(
                   '${log.formattedDate} • ${log.operatorName}',
-                  style: GoogleFonts.inter(
-                    fontSize: 12,
-                    color: AppColors.mutedText,
+                  style: GoogleFonts.plusJakartaSans(
+                    fontSize: 11.5,
+                    color: const Color(0xFF64748B),
                   ),
                 ),
                 if (log.note != null && log.note!.isNotEmpty) ...[
                   const SizedBox(height: 2),
                   Text(
                     log.note!,
-                    style: GoogleFonts.inter(
+                    style: GoogleFonts.plusJakartaSans(
                       fontSize: 11,
                       fontStyle: FontStyle.italic,
-                      color: AppColors.mutedText,
+                      color: const Color(0xFF94A3B8),
                     ),
                   ),
                 ],
@@ -745,8 +934,8 @@ class _StockDetailScreenState extends State<StockDetailScreen> {
           // Delta amount
           Text(
             log.formattedQuantity,
-            style: GoogleFonts.poppins(
-              fontSize: 15,
+            style: GoogleFonts.plusJakartaSans(
+              fontSize: 14.5,
               fontWeight: FontWeight.w700,
               color: deltaColor,
             ),
@@ -778,14 +967,25 @@ class _StockDetailScreenState extends State<StockDetailScreen> {
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text('Hapus Bahan Baku?'),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
+        title: Text(
+          'Hapus Bahan Baku?',
+          style: GoogleFonts.plusJakartaSans(fontWeight: FontWeight.w700),
+        ),
         content: Text(
           'Bahan ${item.name} beserta seluruh riwayat stoknya akan dihapus permanen.',
+          style: GoogleFonts.plusJakartaSans(color: const Color(0xFF475569)),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx),
-            child: const Text('Batal'),
+            child: Text(
+              'Batal',
+              style: GoogleFonts.plusJakartaSans(
+                fontWeight: FontWeight.w600,
+                color: const Color(0xFF64748B),
+              ),
+            ),
           ),
           ElevatedButton(
             onPressed: () {
@@ -795,11 +995,15 @@ class _StockDetailScreenState extends State<StockDetailScreen> {
               ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(
                   content: Text('Bahan ${item.name} berhasil dihapus'),
-                  backgroundColor: AppColors.destructive,
+                  backgroundColor: const Color(0xFFEF4444),
                 ),
               );
             },
-            style: ElevatedButton.styleFrom(backgroundColor: AppColors.destructive),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: const Color(0xFFEF4444),
+              foregroundColor: Colors.white,
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+            ),
             child: const Text('Hapus'),
           ),
         ],

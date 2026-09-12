@@ -50,7 +50,7 @@ class _AiChatInputBarState extends State<AiChatInputBar> {
               Text('Mendengarkan suara: "Beli susu UHT 5 liter seharga 95rb"...'),
             ],
           ),
-          backgroundColor: const Color(0xFF0F766E),
+          backgroundColor: const Color(0xFF111111),
           duration: const Duration(seconds: 2),
         ),
       );
@@ -108,7 +108,7 @@ class _AiChatInputBarState extends State<AiChatInputBar> {
                   border: Border.all(
                     color: _isListening
                         ? AppColors.destructive
-                        : Colors.transparent, // No border
+                        : const Color(0xFFE2E8F0),
                     width: 1.2,
                   ),
                 ),
@@ -118,7 +118,7 @@ class _AiChatInputBarState extends State<AiChatInputBar> {
                       : Icons.mic_none_rounded,
                   color: _isListening
                       ? AppColors.destructive
-                      : AppColors.primaryTeal,
+                      : const Color(0xFF111111),
                   size: 22,
                 ),
               ),
@@ -128,11 +128,11 @@ class _AiChatInputBarState extends State<AiChatInputBar> {
             // Rounded Input Field
             Expanded(
               child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 16),
+                padding: const EdgeInsets.symmetric(horizontal: 18),
                 decoration: BoxDecoration(
-                  color: const Color(0xFFF1F5F9), // Clean slate
-                  borderRadius: BorderRadius.circular(24),
-                  // No border
+                  color: const Color(0xFFF8FAFC),
+                  borderRadius: BorderRadius.circular(28),
+                  border: Border.all(color: const Color(0xFFE2E8F0)),
                 ),
                 child: TextField(
                   controller: _controller,
@@ -143,7 +143,7 @@ class _AiChatInputBarState extends State<AiChatInputBar> {
                     color: AppColors.darkText,
                   ),
                   decoration: InputDecoration(
-                    hintText: 'Tanya apa saja ke AIsistenku...',
+                    hintText: 'Ketik pesan atau instruksi bisnis...',
                     hintStyle: GoogleFonts.inter(
                       fontSize: 13,
                       color: AppColors.mutedText,
@@ -157,18 +157,18 @@ class _AiChatInputBarState extends State<AiChatInputBar> {
             ),
             const SizedBox(width: 10),
 
-            // Send Button (Premium Dark Slate Circle)
+            // Send Button (Solid Black Circle)
             GestureDetector(
               onTap: _handleSend,
               child: Container(
                 width: 44,
                 height: 44,
                 decoration: BoxDecoration(
-                  color: const Color(0xFF0F172A), // Dark slate
+                  color: const Color(0xFF111111), // Solid Black circle
                   shape: BoxShape.circle,
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.black.withValues(alpha: 0.15),
+                      color: const Color(0xFF111111).withValues(alpha: 0.2),
                       blurRadius: 8,
                       offset: const Offset(0, 2),
                     ),

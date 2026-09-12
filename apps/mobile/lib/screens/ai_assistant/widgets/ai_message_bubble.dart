@@ -35,18 +35,18 @@ class AiMessageBubble extends StatelessWidget {
         margin: const EdgeInsets.only(bottom: 16, left: 48),
         padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 12),
         decoration: BoxDecoration(
-          color: const Color(0xFF0F172A), // Premium dark slate for user bubble
+          color: const Color(0xFF111111), // Solid Black Pill
           borderRadius: const BorderRadius.only(
-            topLeft: Radius.circular(18),
+            topLeft: Radius.circular(20),
             topRight: Radius.circular(4),
-            bottomLeft: Radius.circular(18),
-            bottomRight: Radius.circular(18),
+            bottomLeft: Radius.circular(20),
+            bottomRight: Radius.circular(20),
           ),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withValues(alpha: 0.1),
+              color: Colors.black.withValues(alpha: 0.08),
               blurRadius: 8,
-              offset: const Offset(0, 3),
+              offset: const Offset(0, 2),
             ),
           ],
         ),
@@ -56,7 +56,7 @@ class AiMessageBubble extends StatelessWidget {
             fontSize: 13.5,
             fontWeight: FontWeight.w400,
             color: Colors.white,
-            height: 1.4,
+            height: 1.45,
           ),
         ),
       ),
@@ -71,15 +71,15 @@ class AiMessageBubble extends StatelessWidget {
         children: [
           // Official AIsistenku Avatar Logo
           Container(
-            width: 36,
-            height: 36,
+            width: 34,
+            height: 34,
             padding: const EdgeInsets.all(5),
             decoration: BoxDecoration(
-              color: AppColors.primaryTeal, // Solid background
+              color: const Color(0xFF111111), // Solid black circle
               shape: BoxShape.circle,
               boxShadow: [
                 BoxShadow(
-                  color: AppColors.primaryTeal.withValues(alpha: 0.15),
+                  color: Colors.black.withValues(alpha: 0.1),
                   blurRadius: 6,
                   offset: const Offset(0, 2),
                 ),
@@ -97,14 +97,21 @@ class AiMessageBubble extends StatelessWidget {
             child: Container(
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
-                color: const Color(0xFFF1F5F9), // Clean slate background for AI message
+                color: Colors.white, // Crisp white card
                 borderRadius: const BorderRadius.only(
                   topLeft: Radius.circular(4),
                   topRight: Radius.circular(20),
                   bottomLeft: Radius.circular(20),
                   bottomRight: Radius.circular(20),
                 ),
-                // No border
+                border: Border.all(color: const Color(0xFFE2E8F0)),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withValues(alpha: 0.03),
+                    blurRadius: 10,
+                    offset: const Offset(0, 2),
+                  ),
+                ],
               ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,

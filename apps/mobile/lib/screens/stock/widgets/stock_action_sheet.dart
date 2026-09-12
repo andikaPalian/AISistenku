@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import '../../../core/theme/app_colors.dart';
 import 'restock_modal.dart';
 import 'add_stock_modal.dart';
 
@@ -45,18 +44,19 @@ class StockActionSheet extends StatelessWidget {
 
             Text(
               'Aksi Kelola Stok',
-              style: GoogleFonts.poppins(
+              style: GoogleFonts.plusJakartaSans(
                 fontSize: 18,
-                fontWeight: FontWeight.w700,
-                color: AppColors.darkText,
+                fontWeight: FontWeight.w800,
+                color: const Color(0xFF111111),
+                letterSpacing: -0.3,
               ),
             ),
             const SizedBox(height: 4),
             Text(
               'Pilih jenis pencatatan inventaris yang ingin dilakukan',
-              style: GoogleFonts.inter(
+              style: GoogleFonts.plusJakartaSans(
                 fontSize: 13,
-                color: AppColors.mutedText,
+                color: const Color(0xFF64748B),
               ),
             ),
             const SizedBox(height: 20),
@@ -65,7 +65,7 @@ class StockActionSheet extends StatelessWidget {
             _buildActionItem(
               context: context,
               icon: Icons.add_shopping_cart_rounded,
-              iconColor: AppColors.primaryTeal,
+              iconColor: const Color(0xFF22C55E),
               title: 'Catat Stok Masuk (Restock)',
               subtitle: 'Tambah stok bahan yang sudah ada dari supplier',
               onTap: () {
@@ -79,7 +79,7 @@ class StockActionSheet extends StatelessWidget {
             _buildActionItem(
               context: context,
               icon: Icons.add_box_rounded,
-              iconColor: AppColors.infoBlue,
+              iconColor: const Color(0xFF111111),
               title: 'Tambah Bahan Baku Baru',
               subtitle: 'Daftarkan varian bahan baku baru ke dalam katalog',
               onTap: () {
@@ -103,28 +103,28 @@ class StockActionSheet extends StatelessWidget {
   }) {
     return InkWell(
       onTap: onTap,
-      borderRadius: BorderRadius.circular(16),
+      borderRadius: BorderRadius.circular(18),
       child: Container(
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          color: const Color(0xFFF8FAFC), // Slate 50
-          borderRadius: BorderRadius.circular(16),
-          // No border
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(18),
+          border: Border.all(color: const Color(0xFFE2E8F0), width: 1.2),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.03),
+              blurRadius: 10,
+              offset: const Offset(0, 3),
+            ),
+          ],
         ),
         child: Row(
           children: [
             Container(
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
-                color: Colors.white, // White circle
+                color: iconColor.withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(14),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withValues(alpha: 0.04),
-                    blurRadius: 8,
-                    offset: const Offset(0, 2),
-                  ),
-                ],
               ),
               child: Icon(icon, color: iconColor, size: 24),
             ),
@@ -135,18 +135,18 @@ class StockActionSheet extends StatelessWidget {
                 children: [
                   Text(
                     title,
-                    style: GoogleFonts.poppins(
+                    style: GoogleFonts.plusJakartaSans(
                       fontSize: 15,
-                      fontWeight: FontWeight.w600,
-                      color: AppColors.darkText,
+                      fontWeight: FontWeight.w700,
+                      color: const Color(0xFF111111),
                     ),
                   ),
-                  const SizedBox(height: 2),
+                  const SizedBox(height: 3),
                   Text(
                     subtitle,
-                    style: GoogleFonts.inter(
+                    style: GoogleFonts.plusJakartaSans(
                       fontSize: 12,
-                      color: AppColors.mutedText,
+                      color: const Color(0xFF64748B),
                     ),
                   ),
                 ],
@@ -154,7 +154,7 @@ class StockActionSheet extends StatelessWidget {
             ),
             const Icon(
               Icons.chevron_right_rounded,
-              color: AppColors.mutedText,
+              color: Color(0xFF94A3B8),
               size: 22,
             ),
           ],

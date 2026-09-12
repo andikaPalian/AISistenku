@@ -1,11 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import '../../../core/theme/app_colors.dart';
 import '../../../models/finance_model.dart';
 import 'transaction_detail_modal.dart';
 
 /// Section showing recent transactions with All/Income/Expense filter pills
-/// matching the reference UI mockup.
+/// matching Neo-Clean design system.
 class RecentTransactionsSection extends StatefulWidget {
   final List<FinanceTransaction> transactions;
   final VoidCallback? onViewAllTap;
@@ -40,22 +39,37 @@ class _RecentTransactionsSectionState
         // ── Section Header & Filter Pills ───────────────────────────
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            Text(
-              'Transaksi\nTerbaru',
-              style: GoogleFonts.poppins(
-                fontSize: 18,
-                fontWeight: FontWeight.w700,
-                color: AppColors.darkText,
-                height: 1.15,
-              ),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Transaksi Terbaru',
+                  style: GoogleFonts.plusJakartaSans(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w800,
+                    color: const Color(0xFF0F172A),
+                    letterSpacing: -0.2,
+                  ),
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  'Aktivitas finansial mutakhir',
+                  style: GoogleFonts.plusJakartaSans(
+                    fontSize: 11,
+                    fontWeight: FontWeight.w500,
+                    color: const Color(0xFF64748B),
+                  ),
+                ),
+              ],
             ),
             Row(
               children: [
                 _buildFilterPill('Semua', null),
-                const SizedBox(width: 6),
+                const SizedBox(width: 5),
                 _buildFilterPill('Masuk', TransactionType.income),
-                const SizedBox(width: 6),
+                const SizedBox(width: 5),
                 _buildFilterPill('Keluar', TransactionType.expense),
               ],
             ),
@@ -71,14 +85,14 @@ class _RecentTransactionsSectionState
             color: Colors.white,
             borderRadius: BorderRadius.circular(20),
             border: Border.all(
-              color: AppColors.lightTealBorder,
+              color: const Color(0xFFE2E8F0),
               width: 1.2,
             ),
-            boxShadow: [
+            boxShadow: const [
               BoxShadow(
-                color: AppColors.primaryTeal.withValues(alpha: 0.04),
-                blurRadius: 12,
-                offset: const Offset(0, 4),
+                color: Color(0x060F172A),
+                blurRadius: 14,
+                offset: Offset(0, 4),
               ),
             ],
           ),
@@ -86,21 +100,30 @@ class _RecentTransactionsSectionState
             children: [
               if (displayedTransactions.isEmpty) ...[
                 Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 32),
+                  padding: const EdgeInsets.symmetric(vertical: 36),
                   child: Center(
                     child: Column(
                       children: [
-                        Icon(
-                          Icons.receipt_long_outlined,
-                          size: 40,
-                          color: AppColors.mutedText.withValues(alpha: 0.5),
+                        Container(
+                          width: 46,
+                          height: 46,
+                          decoration: const BoxDecoration(
+                            color: Color(0xFFF1F5F9),
+                            shape: BoxShape.circle,
+                          ),
+                          child: const Icon(
+                            Icons.receipt_long_outlined,
+                            size: 24,
+                            color: Color(0xFF94A3B8),
+                          ),
                         ),
-                        const SizedBox(height: 8),
+                        const SizedBox(height: 10),
                         Text(
                           'Belum ada transaksi di periode ini',
-                          style: GoogleFonts.inter(
+                          style: GoogleFonts.plusJakartaSans(
                             fontSize: 13,
-                            color: AppColors.mutedText,
+                            fontWeight: FontWeight.w500,
+                            color: const Color(0xFF64748B),
                           ),
                         ),
                       ],
@@ -117,12 +140,12 @@ class _RecentTransactionsSectionState
                     children: [
                       _buildTransactionItem(context, tx),
                       if (!isLast)
-                        Divider(
+                        const Divider(
                           height: 1,
                           thickness: 1,
                           indent: 68,
                           endIndent: 16,
-                          color: AppColors.lightTealBorder.withValues(alpha: 0.6),
+                          color: Color(0xFFF1F5F9),
                         ),
                     ],
                   );
@@ -130,7 +153,7 @@ class _RecentTransactionsSectionState
               ],
 
               // ── "Lihat Semua Transaksi" Button ─────────────────────
-              Divider(height: 1, color: AppColors.lightTealBorder),
+              const Divider(height: 1, color: Color(0xFFF1F5F9)),
               InkWell(
                 onTap: widget.onViewAllTap,
                 borderRadius: const BorderRadius.vertical(
@@ -140,13 +163,24 @@ class _RecentTransactionsSectionState
                   width: double.infinity,
                   padding: const EdgeInsets.symmetric(vertical: 14),
                   alignment: Alignment.center,
-                  child: Text(
-                    'Lihat Semua Transaksi',
-                    style: GoogleFonts.inter(
-                      fontSize: 13,
-                      fontWeight: FontWeight.w600,
-                      color: AppColors.primaryTeal,
-                    ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text(
+                        'Lihat Semua Transaksi',
+                        style: GoogleFonts.plusJakartaSans(
+                          fontSize: 13,
+                          fontWeight: FontWeight.w700,
+                          color: const Color(0xFF0F172A),
+                        ),
+                      ),
+                      const SizedBox(width: 5),
+                      const Icon(
+                        Icons.arrow_forward_ios_rounded,
+                        size: 11,
+                        color: Color(0xFF0F172A),
+                      ),
+                    ],
                   ),
                 ),
               ),
@@ -167,21 +201,21 @@ class _RecentTransactionsSectionState
       },
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 180),
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+        padding: const EdgeInsets.symmetric(horizontal: 11, vertical: 6),
         decoration: BoxDecoration(
-          color: isSelected ? AppColors.primaryTeal : AppColors.tealBackgrounds,
-          borderRadius: BorderRadius.circular(20),
+          color: isSelected ? const Color(0xFF111111) : const Color(0xFFF1F5F9),
+          borderRadius: BorderRadius.circular(12),
           border: Border.all(
-            color: isSelected ? AppColors.primaryTeal : AppColors.lightTealBorder,
-            width: 1.1,
+            color: isSelected ? const Color(0xFF111111) : const Color(0xFFE2E8F0),
+            width: 1.0,
           ),
         ),
         child: Text(
           label,
-          style: GoogleFonts.inter(
-            fontSize: 12,
-            fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
-            color: isSelected ? Colors.white : AppColors.darkText,
+          style: GoogleFonts.plusJakartaSans(
+            fontSize: 11.5,
+            fontWeight: isSelected ? FontWeight.w700 : FontWeight.w600,
+            color: isSelected ? Colors.white : const Color(0xFF64748B),
           ),
         ),
       ),
@@ -191,7 +225,7 @@ class _RecentTransactionsSectionState
   Widget _buildTransactionItem(BuildContext context, FinanceTransaction tx) {
     final isIncome = tx.type == TransactionType.income;
 
-    // Semantic icons matching mockup
+    // Semantic icons matching Neo-Clean mockup
     IconData iconData;
     Color iconBg;
     Color iconColor;
@@ -203,16 +237,16 @@ class _RecentTransactionsSectionState
         iconData = Icons.point_of_sale_rounded;
       }
       iconBg = const Color(0xFFDCFCE7);
-      iconColor = const Color(0xFF15803D);
+      iconColor = const Color(0xFF16A34A);
     } else {
       if (tx.category == FinanceCategory.ingredients) {
         if (tx.title.toLowerCase().contains('sugar') ||
             tx.title.toLowerCase().contains('gula')) {
-          iconData = Icons.store_rounded;
+          iconData = Icons.inventory_2_outlined;
           iconBg = const Color(0xFFFFEDD5);
           iconColor = const Color(0xFFEA580C);
         } else {
-          iconData = Icons.shopping_cart_outlined;
+          iconData = Icons.shopping_bag_outlined;
           iconBg = const Color(0xFFFEE2E2);
           iconColor = const Color(0xFFDC2626);
         }
@@ -222,8 +256,8 @@ class _RecentTransactionsSectionState
         iconColor = const Color(0xFFD97706);
       } else {
         iconData = Icons.receipt_long_rounded;
-        iconBg = AppColors.tealBackgrounds;
-        iconColor = AppColors.primaryTeal;
+        iconBg = const Color(0xFFF1F5F9);
+        iconColor = const Color(0xFF0F172A);
       }
     }
 
@@ -250,16 +284,16 @@ class _RecentTransactionsSectionState
         }
       },
       child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 13),
         child: Row(
           children: [
             // Circular Avatar Icon
             Container(
-              width: 42,
-              height: 42,
+              width: 40,
+              height: 40,
               decoration: BoxDecoration(
                 color: iconBg,
-                shape: BoxShape.circle,
+                borderRadius: BorderRadius.circular(12),
               ),
               child: Icon(
                 iconData,
@@ -267,7 +301,7 @@ class _RecentTransactionsSectionState
                 size: 20,
               ),
             ),
-            const SizedBox(width: 14),
+            const SizedBox(width: 13),
 
             // Title & Subtitle
             Expanded(
@@ -276,21 +310,21 @@ class _RecentTransactionsSectionState
                 children: [
                   Text(
                     tx.title,
-                    style: GoogleFonts.inter(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w600,
-                      color: AppColors.darkText,
+                    style: GoogleFonts.plusJakartaSans(
+                      fontSize: 13.5,
+                      fontWeight: FontWeight.w700,
+                      color: const Color(0xFF0F172A),
                     ),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                   ),
-                  const SizedBox(height: 3),
+                  const SizedBox(height: 2),
                   Text(
                     tx.listSubtitle,
-                    style: GoogleFonts.inter(
-                      fontSize: 12,
-                      fontWeight: FontWeight.w400,
-                      color: AppColors.mutedText,
+                    style: GoogleFonts.plusJakartaSans(
+                      fontSize: 11.5,
+                      fontWeight: FontWeight.w500,
+                      color: const Color(0xFF64748B),
                     ),
                   ),
                 ],
@@ -302,12 +336,12 @@ class _RecentTransactionsSectionState
             // Amount (+/-)
             Text(
               tx.formattedAmountWithSign,
-              style: GoogleFonts.poppins(
+              style: GoogleFonts.plusJakartaSans(
                 fontSize: 14,
-                fontWeight: FontWeight.w700,
+                fontWeight: FontWeight.w800,
                 color: isIncome
-                    ? const Color(0xFF10B981)
-                    : AppColors.destructive,
+                    ? const Color(0xFF16A34A)
+                    : const Color(0xFFDC2626),
               ),
             ),
           ],

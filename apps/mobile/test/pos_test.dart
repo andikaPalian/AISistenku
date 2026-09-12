@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:tiga_angkatan/models/product.dart';
-import 'package:tiga_angkatan/screens/pos/pos_screen.dart';
-import 'package:tiga_angkatan/screens/pos/widgets/product_card.dart';
+import 'package:AISISTENKU/models/product.dart';
+import 'package:AISISTENKU/screens/pos/pos_screen.dart';
+import 'package:AISISTENKU/screens/pos/widgets/product_card.dart';
 
 void main() {
   group('POS Product Model Tests', () {

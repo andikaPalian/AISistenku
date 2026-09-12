@@ -126,19 +126,19 @@ class _RestockModalState extends State<RestockModal> {
       SnackBar(
         content: Row(
           children: [
-            const Icon(Icons.check_circle_rounded, color: Colors.white),
+            const Icon(Icons.check_circle_rounded, color: Color(0xFF22C55E)),
             const SizedBox(width: 12),
             Expanded(
               child: Text(
                 'Stok ${_selectedItem!.name} berhasil ditambah +$_enteredQty ${_selectedItem!.unit}!',
-                style: GoogleFonts.inter(fontWeight: FontWeight.w500),
+                style: GoogleFonts.plusJakartaSans(fontWeight: FontWeight.w600, color: Colors.white),
               ),
             ),
           ],
         ),
-        backgroundColor: AppColors.primaryTeal,
+        backgroundColor: const Color(0xFF111111),
         behavior: SnackBarBehavior.floating,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
       ),
     );
   }
@@ -176,7 +176,7 @@ class _RestockModalState extends State<RestockModal> {
                     width: 44,
                     height: 4,
                     decoration: BoxDecoration(
-                      color: Color(0xFFE2E8F0),
+                      color: const Color(0xFFE2E8F0),
                       borderRadius: BorderRadius.circular(2),
                     ),
                   ),
@@ -189,12 +189,12 @@ class _RestockModalState extends State<RestockModal> {
                     Container(
                       padding: const EdgeInsets.all(10),
                       decoration: BoxDecoration(
-                        color: AppColors.primaryTeal.withValues(alpha: 0.12),
+                        color: const Color(0xFF111111),
                         borderRadius: BorderRadius.circular(12),
                       ),
                       child: const Icon(
                         Icons.add_shopping_cart_rounded,
-                        color: AppColors.primaryTeal,
+                        color: Color(0xFF22C55E),
                         size: 22,
                       ),
                     ),
@@ -205,17 +205,18 @@ class _RestockModalState extends State<RestockModal> {
                         children: [
                           Text(
                             'Catat Stok Masuk',
-                            style: GoogleFonts.poppins(
+                            style: GoogleFonts.plusJakartaSans(
                               fontSize: 18,
-                              fontWeight: FontWeight.w700,
-                              color: AppColors.darkText,
+                              fontWeight: FontWeight.w800,
+                              color: const Color(0xFF111111),
+                              letterSpacing: -0.3,
                             ),
                           ),
                           Text(
                             'Restock & catat pengeluaran bahan',
-                            style: GoogleFonts.inter(
+                            style: GoogleFonts.plusJakartaSans(
                               fontSize: 13,
-                              color: AppColors.mutedText,
+                              color: const Color(0xFF64748B),
                             ),
                           ),
                         ],
@@ -223,7 +224,7 @@ class _RestockModalState extends State<RestockModal> {
                     ),
                     IconButton(
                       onPressed: () => Navigator.pop(context),
-                      icon: const Icon(Icons.close_rounded, color: AppColors.mutedText),
+                      icon: const Icon(Icons.close_rounded, color: Color(0xFF64748B)),
                     ),
                   ],
                 ),
@@ -232,46 +233,46 @@ class _RestockModalState extends State<RestockModal> {
                 // Item Selector (if not pre-locked or allowing change)
                 Text(
                   'Bahan Baku',
-                  style: GoogleFonts.inter(
+                  style: GoogleFonts.plusJakartaSans(
                     fontSize: 13,
                     fontWeight: FontWeight.w600,
-                    color: AppColors.darkText,
+                    color: const Color(0xFF111111),
                   ),
                 ),
                 const SizedBox(height: 8),
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 4),
                   decoration: BoxDecoration(
-                    color: Color(0xFFF1F5F9),
-                    borderRadius: BorderRadius.circular(12),
-
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(14),
+                    border: Border.all(color: const Color(0xFFE2E8F0), width: 1.2),
                   ),
                   child: DropdownButtonHideUnderline(
                     child: DropdownButton<StockItem>(
                       isExpanded: true,
                       value: item,
-                      icon: const Icon(Icons.keyboard_arrow_down_rounded, color: AppColors.primaryTeal),
+                      icon: const Icon(Icons.keyboard_arrow_down_rounded, color: Color(0xFF111111)),
                       items: items.map((stock) {
                         return DropdownMenuItem<StockItem>(
                           value: stock,
                           child: Row(
                             children: [
-                              Icon(stock.icon, size: 18, color: AppColors.primaryTeal),
+                              Icon(stock.icon, size: 18, color: const Color(0xFF111111)),
                               const SizedBox(width: 10),
                               Text(
                                 stock.name,
-                                style: GoogleFonts.inter(
+                                style: GoogleFonts.plusJakartaSans(
                                   fontSize: 14,
                                   fontWeight: FontWeight.w600,
-                                  color: AppColors.darkText,
+                                  color: const Color(0xFF111111),
                                 ),
                               ),
                               const Spacer(),
                               Text(
                                 'Saat ini: ${stock.formattedCurrentStock}',
-                                style: GoogleFonts.inter(
+                                style: GoogleFonts.plusJakartaSans(
                                   fontSize: 12,
-                                  color: AppColors.mutedText,
+                                  color: const Color(0xFF64748B),
                                 ),
                               ),
                             ],
@@ -300,18 +301,18 @@ class _RestockModalState extends State<RestockModal> {
                   children: [
                     Text(
                       'Jumlah Masuk (${item?.unit ?? ''})',
-                      style: GoogleFonts.inter(
+                      style: GoogleFonts.plusJakartaSans(
                         fontSize: 13,
                         fontWeight: FontWeight.w600,
-                        color: AppColors.darkText,
+                        color: const Color(0xFF111111),
                       ),
                     ),
                     if (item != null)
                       Text(
                         'Min: ${item.formattedMinStock}',
-                        style: GoogleFonts.inter(
+                        style: GoogleFonts.plusJakartaSans(
                           fontSize: 12,
-                          color: AppColors.mutedText,
+                          color: const Color(0xFF64748B),
                         ),
                       ),
                   ],
@@ -323,33 +324,33 @@ class _RestockModalState extends State<RestockModal> {
                   inputFormatters: [
                     FilteringTextInputFormatter.allow(RegExp(r'^\d+\.?\d{0,2}')),
                   ],
-                  style: GoogleFonts.poppins(
+                  style: GoogleFonts.plusJakartaSans(
                     fontSize: 20,
-                    fontWeight: FontWeight.w700,
-                    color: AppColors.primaryTeal,
+                    fontWeight: FontWeight.w800,
+                    color: const Color(0xFF111111),
                   ),
                   decoration: InputDecoration(
                     hintText: '0',
                     filled: true,
-                    fillColor: Color(0xFFF1F5F9),
+                    fillColor: Colors.white,
                     suffixText: item?.unit ?? '',
-                    suffixStyle: GoogleFonts.inter(
+                    suffixStyle: GoogleFonts.plusJakartaSans(
                       fontSize: 14,
                       fontWeight: FontWeight.w600,
-                      color: AppColors.mutedText,
+                      color: const Color(0xFF64748B),
                     ),
                     contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
                     border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                      borderSide: BorderSide.none,
+                      borderRadius: BorderRadius.circular(14),
+                      borderSide: const BorderSide(color: Color(0xFFE2E8F0), width: 1.2),
                     ),
                     enabledBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                      borderSide: BorderSide.none,
+                      borderRadius: BorderRadius.circular(14),
+                      borderSide: const BorderSide(color: Color(0xFFE2E8F0), width: 1.2),
                     ),
                     focusedBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                      borderSide: const BorderSide(color: AppColors.primaryTeal, width: 1.5),
+                      borderRadius: BorderRadius.circular(14),
+                      borderSide: const BorderSide(color: Color(0xFF111111), width: 1.5),
                     ),
                   ),
                   validator: (val) {
@@ -376,16 +377,16 @@ class _RestockModalState extends State<RestockModal> {
                       child: Container(
                         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                         decoration: BoxDecoration(
-                          color: Color(0xFFF1F5F9),
+                          color: Colors.white,
                           borderRadius: BorderRadius.circular(20),
-
+                          border: Border.all(color: const Color(0xFFE2E8F0), width: 1),
                         ),
                         child: Text(
                           '+$label ${item?.unit ?? ''}',
-                          style: GoogleFonts.inter(
+                          style: GoogleFonts.plusJakartaSans(
                             fontSize: 12,
                             fontWeight: FontWeight.w600,
-                            color: AppColors.primaryTeal,
+                            color: const Color(0xFF111111),
                           ),
                         ),
                       ),
@@ -399,12 +400,12 @@ class _RestockModalState extends State<RestockModal> {
                   Container(
                     padding: const EdgeInsets.all(14),
                     decoration: BoxDecoration(
-                      color: willBeSafe ? AppColors.successBg : AppColors.warningBg,
+                      color: willBeSafe ? const Color(0xFFDCFCE7) : const Color(0xFFFEF3C7),
                       borderRadius: BorderRadius.circular(14),
                       border: Border.all(
                         color: willBeSafe
-                            ? AppColors.successGreen.withValues(alpha: 0.3)
-                            : AppColors.warningOrange.withValues(alpha: 0.3),
+                            ? const Color(0xFF22C55E).withValues(alpha: 0.3)
+                            : const Color(0xFFF59E0B).withValues(alpha: 0.3),
                       ),
                     ),
                     child: Row(
@@ -414,8 +415,8 @@ class _RestockModalState extends State<RestockModal> {
                               ? Icons.check_circle_outline_rounded
                               : Icons.info_outline_rounded,
                           color: willBeSafe
-                              ? AppColors.successText
-                              : AppColors.warningText,
+                              ? const Color(0xFF16A34A)
+                              : const Color(0xFFD97706),
                           size: 24,
                         ),
                         const SizedBox(width: 12),
@@ -425,23 +426,23 @@ class _RestockModalState extends State<RestockModal> {
                             children: [
                               Text(
                                 'Proyeksi Stok Setelah Restock',
-                                style: GoogleFonts.inter(
+                                style: GoogleFonts.plusJakartaSans(
                                   fontSize: 11,
-                                  fontWeight: FontWeight.w500,
+                                  fontWeight: FontWeight.w600,
                                   color: willBeSafe
-                                      ? AppColors.successText
-                                      : AppColors.warningText,
+                                      ? const Color(0xFF16A34A)
+                                      : const Color(0xFFD97706),
                                 ),
                               ),
                               const SizedBox(height: 2),
                               Text(
                                 '${item.formattedCurrentStock} + ${_enteredQty.toStringAsFixed(_enteredQty == _enteredQty.roundToDouble() ? 0 : 1)} ${item.unit} = ${newTotalStock.toStringAsFixed(newTotalStock == newTotalStock.roundToDouble() ? 0 : 1)} ${item.unit}',
-                                style: GoogleFonts.poppins(
+                                style: GoogleFonts.plusJakartaSans(
                                   fontSize: 14,
                                   fontWeight: FontWeight.w700,
                                   color: willBeSafe
-                                      ? AppColors.successText
-                                      : AppColors.warningText,
+                                      ? const Color(0xFF16A34A)
+                                      : const Color(0xFFD97706),
                                 ),
                               ),
                             ],
@@ -451,13 +452,13 @@ class _RestockModalState extends State<RestockModal> {
                           padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                           decoration: BoxDecoration(
                             color: willBeSafe
-                                ? AppColors.successGreen
-                                : AppColors.warningOrange,
+                                ? const Color(0xFF22C55E)
+                                : const Color(0xFFF59E0B),
                             borderRadius: BorderRadius.circular(8),
                           ),
                           child: Text(
                             willBeSafe ? 'Aman' : 'Mendekati Min',
-                            style: GoogleFonts.inter(
+                            style: GoogleFonts.plusJakartaSans(
                               fontSize: 11,
                               fontWeight: FontWeight.w700,
                               color: Colors.white,
@@ -479,37 +480,37 @@ class _RestockModalState extends State<RestockModal> {
                         children: [
                           Text(
                             'Harga Beli per ${item?.unit ?? 'Unit'}',
-                            style: GoogleFonts.inter(
+                            style: GoogleFonts.plusJakartaSans(
                               fontSize: 13,
                               fontWeight: FontWeight.w600,
-                              color: AppColors.darkText,
+                              color: const Color(0xFF111111),
                             ),
                           ),
                           const SizedBox(height: 8),
                           TextFormField(
                             controller: _costController,
                             keyboardType: TextInputType.number,
-                            style: GoogleFonts.inter(
+                            style: GoogleFonts.plusJakartaSans(
                               fontSize: 14,
                               fontWeight: FontWeight.w600,
-                              color: AppColors.darkText,
+                              color: const Color(0xFF111111),
                             ),
                             decoration: InputDecoration(
                               prefixText: 'Rp ',
                               filled: true,
-                              fillColor: Color(0xFFF1F5F9),
+                              fillColor: Colors.white,
                               contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
                               border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(12),
-                                borderSide: BorderSide.none,
+                                borderRadius: BorderRadius.circular(14),
+                                borderSide: const BorderSide(color: Color(0xFFE2E8F0), width: 1.2),
                               ),
                               enabledBorder: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(12),
-                                borderSide: BorderSide.none,
+                                borderRadius: BorderRadius.circular(14),
+                                borderSide: const BorderSide(color: Color(0xFFE2E8F0), width: 1.2),
                               ),
                               focusedBorder: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(12),
-                                borderSide: const BorderSide(color: AppColors.primaryTeal, width: 1.5),
+                                borderRadius: BorderRadius.circular(14),
+                                borderSide: const BorderSide(color: Color(0xFF111111), width: 1.5),
                               ),
                             ),
                             onChanged: (_) => setState(() {}),
@@ -524,10 +525,10 @@ class _RestockModalState extends State<RestockModal> {
                         children: [
                           Text(
                             'Total Pembelian',
-                            style: GoogleFonts.inter(
+                            style: GoogleFonts.plusJakartaSans(
                               fontSize: 13,
                               fontWeight: FontWeight.w600,
-                              color: AppColors.darkText,
+                              color: const Color(0xFF111111),
                             ),
                           ),
                           const SizedBox(height: 8),
@@ -535,17 +536,17 @@ class _RestockModalState extends State<RestockModal> {
                             height: 48,
                             padding: const EdgeInsets.symmetric(horizontal: 12),
                             decoration: BoxDecoration(
-                              color: Color(0xFFF1F5F9),
-                              borderRadius: BorderRadius.circular(12),
-
+                              color: const Color(0xFFF8FAFC),
+                              borderRadius: BorderRadius.circular(14),
+                              border: Border.all(color: const Color(0xFFE2E8F0), width: 1.2),
                             ),
                             alignment: Alignment.centerLeft,
                             child: Text(
                               StockItem.formatRupiah(totalExpense),
-                              style: GoogleFonts.poppins(
+                              style: GoogleFonts.plusJakartaSans(
                                 fontSize: 14,
-                                fontWeight: FontWeight.w700,
-                                color: AppColors.primaryTeal,
+                                fontWeight: FontWeight.w800,
+                                color: const Color(0xFF16A34A),
                               ),
                             ),
                           ),
@@ -559,32 +560,32 @@ class _RestockModalState extends State<RestockModal> {
                 // Supplier & Note
                 Text(
                   'Supplier / Pemasok',
-                  style: GoogleFonts.inter(
+                  style: GoogleFonts.plusJakartaSans(
                     fontSize: 13,
                     fontWeight: FontWeight.w600,
-                    color: AppColors.darkText,
+                    color: const Color(0xFF111111),
                   ),
                 ),
                 const SizedBox(height: 8),
                 TextFormField(
                   controller: _supplierController,
-                  style: GoogleFonts.inter(fontSize: 14),
+                  style: GoogleFonts.plusJakartaSans(fontSize: 14, color: const Color(0xFF111111)),
                   decoration: InputDecoration(
                     hintText: 'Nama toko atau supplier',
                     filled: true,
-                    fillColor: const Color(0xFFF1F5F9), // Slate
+                    fillColor: Colors.white,
                     contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
                     border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                      borderSide: BorderSide.none,
+                      borderRadius: BorderRadius.circular(14),
+                      borderSide: const BorderSide(color: Color(0xFFE2E8F0), width: 1.2),
                     ),
                     enabledBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                      borderSide: BorderSide.none,
+                      borderRadius: BorderRadius.circular(14),
+                      borderSide: const BorderSide(color: Color(0xFFE2E8F0), width: 1.2),
                     ),
                     focusedBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                      borderSide: const BorderSide(color: AppColors.primaryTeal, width: 1.5),
+                      borderRadius: BorderRadius.circular(14),
+                      borderSide: const BorderSide(color: Color(0xFF111111), width: 1.5),
                     ),
                   ),
                 ),
@@ -603,7 +604,7 @@ class _RestockModalState extends State<RestockModal> {
                           height: 24,
                           child: Checkbox(
                             value: _recordToFinance,
-                            activeColor: AppColors.primaryTeal,
+                            activeColor: const Color(0xFF111111),
                             onChanged: (val) => setState(() => _recordToFinance = val ?? true),
                           ),
                         ),
@@ -611,10 +612,10 @@ class _RestockModalState extends State<RestockModal> {
                         Expanded(
                           child: Text(
                             'Catat otomatis sebagai Pengeluaran Bahan di Keuangan',
-                            style: GoogleFonts.inter(
+                            style: GoogleFonts.plusJakartaSans(
                               fontSize: 12,
                               fontWeight: FontWeight.w500,
-                              color: AppColors.darkText,
+                              color: const Color(0xFF111111),
                             ),
                           ),
                         ),
@@ -624,26 +625,26 @@ class _RestockModalState extends State<RestockModal> {
                 ),
                 const SizedBox(height: 24),
 
-                // Submit Button
+                // Submit Button (Solid Black)
                 SizedBox(
                   width: double.infinity,
                   height: 52,
                   child: ElevatedButton(
                     onPressed: _handleSubmit,
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: AppColors.primaryTeal,
+                      backgroundColor: const Color(0xFF111111),
                       foregroundColor: Colors.white,
                       shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(14),
+                        borderRadius: BorderRadius.circular(16),
                       ),
-                      elevation: 6,
-                      shadowColor: AppColors.primaryTeal.withValues(alpha: 0.4),
+                      elevation: 4,
+                      shadowColor: Colors.black.withValues(alpha: 0.25),
                     ),
                     child: Text(
                       'Simpan Stok Masuk',
-                      style: GoogleFonts.poppins(
+                      style: GoogleFonts.plusJakartaSans(
                         fontSize: 15,
-                        fontWeight: FontWeight.w600,
+                        fontWeight: FontWeight.w700,
                       ),
                     ),
                   ),

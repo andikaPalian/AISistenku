@@ -1,4 +1,4 @@
-name: tiga_angkatan
+name: AISISTENKU
 description: Tiga Angkatan Mobile App
 publish_to: 'none'
 version: 1.0.0+1
@@ -16,6 +16,7 @@ dependencies:
   http: ^1.2.0
   image_picker: ^1.1.2
   qr_flutter: ^4.1.0
+  fl_chart: ^1.2.0
 
 dev_dependencies:
   flutter_test:

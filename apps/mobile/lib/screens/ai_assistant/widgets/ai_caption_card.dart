@@ -22,12 +22,12 @@ class AiCaptionCard extends StatelessWidget {
       const SnackBar(
         content: Row(
           children: [
-            Icon(Icons.check_circle_outline, color: Colors.white, size: 18),
+            Icon(Icons.check_circle_outline, color: Color(0xFF22C55E), size: 18),
             SizedBox(width: 8),
             Text('Caption berhasil disalin ke Clipboard!'),
           ],
         ),
-        backgroundColor: AppColors.primaryTeal,
+        backgroundColor: Color(0xFF111111),
         duration: Duration(seconds: 2),
       ),
     );
@@ -62,12 +62,12 @@ class AiCaptionCard extends StatelessWidget {
                   Container(
                     padding: const EdgeInsets.all(6),
                     decoration: BoxDecoration(
-                      color: AppColors.primaryTeal.withValues(alpha: 0.12),
+                      color: const Color(0xFF111111).withValues(alpha: 0.08),
                       shape: BoxShape.circle,
                     ),
                     child: const Icon(
                       Icons.camera_alt_outlined,
-                      color: AppColors.primaryTeal,
+                      color: Color(0xFF111111),
                       size: 16,
                     ),
                   ),
@@ -87,14 +87,13 @@ class AiCaptionCard extends StatelessWidget {
                 decoration: BoxDecoration(
                   color: const Color(0xFFF1F5F9), // Clean slate
                   borderRadius: BorderRadius.circular(8),
-                  // No border
                 ),
                 child: Text(
                   payload.platform ?? 'Instagram',
                   style: GoogleFonts.inter(
                     fontSize: 10,
                     fontWeight: FontWeight.w600,
-                    color: AppColors.primaryTeal,
+                    color: const Color(0xFF111111),
                   ),
                 ),
               ),
@@ -110,7 +109,6 @@ class AiCaptionCard extends StatelessWidget {
             decoration: BoxDecoration(
               color: const Color(0xFFF1F5F9), // Clean slate
               borderRadius: BorderRadius.circular(12),
-              // No border
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -136,7 +134,7 @@ class AiCaptionCard extends StatelessWidget {
                         style: GoogleFonts.inter(
                           fontSize: 11,
                           fontWeight: FontWeight.w600,
-                          color: AppColors.primaryTeal,
+                          color: const Color(0xFF16A34A),
                         ),
                       );
                     }).toList(),
@@ -151,7 +149,7 @@ class AiCaptionCard extends StatelessWidget {
           // Action: 1-Click Copy Button
           SizedBox(
             width: double.infinity,
-            height: 42,
+            height: 44,
             child: ElevatedButton.icon(
               onPressed: () => _copyCaption(context),
               icon: const Icon(
@@ -168,10 +166,10 @@ class AiCaptionCard extends StatelessWidget {
                 ),
               ),
               style: ElevatedButton.styleFrom(
-                backgroundColor: AppColors.primaryTeal,
+                backgroundColor: const Color(0xFF111111), // Solid Black Pill
                 elevation: 0,
                 shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
+                  borderRadius: BorderRadius.circular(24),
                 ),
               ),
             ),

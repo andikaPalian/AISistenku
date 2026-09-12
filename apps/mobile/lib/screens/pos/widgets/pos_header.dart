@@ -221,102 +221,128 @@ class PosHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(20, 14, 20, 14),
-      child: Row(
+    return Container(
+      padding: const EdgeInsets.fromLTRB(20, 14, 20, 12),
+      color: Colors.white,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Container(
-            padding: const EdgeInsets.all(9),
-            decoration: BoxDecoration(
-              color: const Color(0xFFF1F5F9), // Clean light slate
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: const Icon(
-              Icons.point_of_sale_rounded,
-              color: Color(0xFF0F172A),
-              size: 22,
-            ),
-          ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'Kasir POS',
-                  style: GoogleFonts.poppins(
-                    fontSize: 19,
-                    fontWeight: FontWeight.w700,
-                    color: AppColors.darkText,
-                    height: 1.15,
-                  ),
-                ),
-                const SizedBox(height: 2),
-                Text(
-                  'Layanan Cepat & Transaksi',
-                  style: GoogleFonts.inter(
-                    fontSize: 12,
-                    color: AppColors.mutedText,
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-              ],
-            ),
-          ),
-          // Add Menu Button (+ Menu)
-          GestureDetector(
-            onTap: () => AddEditProductModal.show(context),
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-              margin: const EdgeInsets.only(right: 8),
-              decoration: BoxDecoration(
-                color: AppColors.primaryTeal,
-                borderRadius: BorderRadius.circular(12),
-                boxShadow: [
-                  BoxShadow(
-                    color: AppColors.primaryTeal.withValues(alpha: 0.25),
-                    blurRadius: 6,
-                    offset: const Offset(0, 2),
-                  ),
-                ],
-              ),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  const Icon(
-                    Icons.add_rounded,
-                    color: Colors.white,
-                    size: 18,
-                  ),
-                  const SizedBox(width: 4),
-                  Text(
-                    'Menu Baru',
-                    style: GoogleFonts.inter(
-                      fontSize: 12.5,
-                      fontWeight: FontWeight.w600,
-                      color: Colors.white,
+          // Store info row with Rating Badge
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Tiga Angkatan - Kartasura',
+                      style: GoogleFonts.poppins(
+                        fontSize: 20,
+                        fontWeight: FontWeight.w800,
+                        color: AppColors.darkText,
+                        letterSpacing: -0.3,
+                      ),
                     ),
-                  ),
-                ],
+                    const SizedBox(height: 2),
+                    Text(
+                      'Outlet Utama • Siap Saji 15 Menit',
+                      style: GoogleFonts.inter(
+                        fontSize: 12.5,
+                        color: AppColors.mutedText,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  ],
+                ),
               ),
-            ),
+
+              // Rating Badge Pill (★ 4.9) matching Screen 2
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                decoration: BoxDecoration(
+                  color: const Color(0xFF111111), // Dark Pill
+                  borderRadius: BorderRadius.circular(16),
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const Icon(Icons.star_rounded, color: Color(0xFFFBBF24), size: 16),
+                    const SizedBox(width: 4),
+                    Text(
+                      '4.9',
+                      style: GoogleFonts.poppins(
+                        fontSize: 12.5,
+                        fontWeight: FontWeight.w700,
+                        color: Colors.white,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
           ),
-          // History button with interactive bottom sheet
-          GestureDetector(
-            onTap: () => _showOrderHistory(context),
-            behavior: HitTestBehavior.opaque,
-            child: Container(
-              padding: const EdgeInsets.all(9),
-              decoration: const BoxDecoration(
-                color: Color(0xFFF1F5F9), // Clean light slate
-                shape: BoxShape.circle,
+
+          const SizedBox(height: 12),
+
+          // Action row (+ Menu Baru & Riwayat)
+          Row(
+            children: [
+              // + Menu Baru pill button
+              GestureDetector(
+                onTap: () => AddEditProductModal.show(context),
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 7),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFF111111),
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      const Icon(Icons.add_rounded, color: Colors.white, size: 16),
+                      const SizedBox(width: 4),
+                      Text(
+                        'Tambah Menu',
+                        style: GoogleFonts.inter(
+                          fontSize: 12,
+                          fontWeight: FontWeight.w700,
+                          color: Colors.white,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
               ),
-              child: const Icon(
-                Icons.receipt_long_rounded,
-                color: Color(0xFF0F172A),
-                size: 20,
+              const SizedBox(width: 8),
+
+              // Riwayat Transaksi pill button
+              GestureDetector(
+                onTap: () => _showOrderHistory(context),
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 7),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFF1F5F9),
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      const Icon(Icons.history_rounded, color: Color(0xFF0F172A), size: 16),
+                      const SizedBox(width: 4),
+                      Text(
+                        'Riwayat Hari Ini',
+                        style: GoogleFonts.inter(
+                          fontSize: 12,
+                          fontWeight: FontWeight.w600,
+                          color: const Color(0xFF0F172A),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
               ),
-            ),
+            ],
           ),
         ],
       ),

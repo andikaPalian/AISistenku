@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:tiga_angkatan/screens/splash_screen.dart';
+import 'package:AISISTENKU/screens/splash_screen.dart';
 
 void main() {
   group('Splash Screen UI Widget Tests', () {

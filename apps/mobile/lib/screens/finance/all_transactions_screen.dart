@@ -1,11 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import '../../core/theme/app_colors.dart';
 import '../../models/finance_model.dart';
 import 'widgets/transaction_detail_modal.dart';
 import 'add_transaction_screen.dart';
 
-/// Full transaction history screen with search, category filtering, and export capability.
+/// Full transaction history screen with search, category filtering, and export capability in Neo-Clean style.
 class AllTransactionsScreen extends StatefulWidget {
   const AllTransactionsScreen({super.key});
 
@@ -47,45 +46,47 @@ class _AllTransactionsScreenState extends State<AllTransactionsScreen> {
         }).toList();
 
         return Scaffold(
-          backgroundColor: AppColors.pageBackground,
+          backgroundColor: const Color(0xFFF8FAFC),
           appBar: AppBar(
             backgroundColor: Colors.white,
             elevation: 0,
             leading: IconButton(
               icon: const Icon(
                 Icons.arrow_back_rounded,
-                color: AppColors.darkText,
+                color: Color(0xFF0F172A),
               ),
               onPressed: () => Navigator.pop(context),
             ),
             title: Text(
               'Riwayat Transaksi',
-              style: GoogleFonts.poppins(
-                fontSize: 18,
-                fontWeight: FontWeight.w700,
-                color: AppColors.darkText,
+              style: GoogleFonts.plusJakartaSans(
+                fontSize: 17,
+                fontWeight: FontWeight.w800,
+                color: const Color(0xFF0F172A),
+                letterSpacing: -0.2,
               ),
             ),
             centerTitle: true,
-            bottom: PreferredSize(
-              preferredSize: const Size.fromHeight(1),
-              child: Container(
-                color: AppColors.lightTealBorder,
+            bottom: const PreferredSize(
+              preferredSize: Size.fromHeight(1),
+              child: Divider(
                 height: 1,
+                thickness: 1,
+                color: Color(0xFFE2E8F0),
               ),
             ),
             actions: [
               IconButton(
                 icon: const Icon(
                   Icons.file_download_outlined,
-                  color: AppColors.primaryTeal,
+                  color: Color(0xFF0F172A),
                 ),
                 tooltip: 'Export Laporan',
                 onPressed: () {
                   ScaffoldMessenger.of(context).showSnackBar(
                     const SnackBar(
                       content: Text('Laporan transaksi siap diunduh (PDF/Excel)'),
-                      backgroundColor: AppColors.primaryTeal,
+                      backgroundColor: Color(0xFF111111),
                     ),
                   );
                 },
@@ -101,14 +102,16 @@ class _AllTransactionsScreenState extends State<AllTransactionsScreen> {
                 ),
               );
             },
-            backgroundColor: AppColors.primaryTeal,
-            elevation: 2,
+            backgroundColor: const Color(0xFF111111),
+            elevation: 3,
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
             icon: const Icon(Icons.add_rounded, color: Colors.white),
             label: Text(
               'Tambah Transaksi',
-              style: GoogleFonts.inter(
-                fontWeight: FontWeight.w600,
+              style: GoogleFonts.plusJakartaSans(
+                fontWeight: FontWeight.w700,
                 color: Colors.white,
+                fontSize: 13.5,
               ),
             ),
           ),
@@ -118,7 +121,7 @@ class _AllTransactionsScreenState extends State<AllTransactionsScreen> {
                 // ── Search & Filter Controls ─────────────────────────
                 Container(
                   color: Colors.white,
-                  padding: const EdgeInsets.fromLTRB(16, 12, 16, 16),
+                  padding: const EdgeInsets.fromLTRB(16, 12, 16, 14),
                   child: Column(
                     children: [
                       // Search Bar
@@ -126,33 +129,33 @@ class _AllTransactionsScreenState extends State<AllTransactionsScreen> {
                         height: 44,
                         padding: const EdgeInsets.symmetric(horizontal: 12),
                         decoration: BoxDecoration(
-                          color: AppColors.tealBackgrounds,
+                          color: const Color(0xFFF1F5F9),
                           borderRadius: BorderRadius.circular(12),
                           border: Border.all(
-                            color: AppColors.lightTealBorder,
-                            width: 1.1,
+                            color: const Color(0xFFE2E8F0),
+                            width: 1.0,
                           ),
                         ),
                         child: Row(
                           children: [
                             const Icon(
                               Icons.search_rounded,
-                              color: AppColors.primaryTeal,
-                              size: 20,
+                              color: Color(0xFF64748B),
+                              size: 19,
                             ),
                             const SizedBox(width: 8),
                             Expanded(
                               child: TextField(
                                 controller: _searchController,
-                                style: GoogleFonts.inter(
+                                style: GoogleFonts.plusJakartaSans(
                                   fontSize: 13,
-                                  color: AppColors.darkText,
+                                  color: const Color(0xFF0F172A),
                                 ),
                                 decoration: InputDecoration(
                                   hintText: 'Cari transaksi, menu, atau catatan...',
-                                  hintStyle: GoogleFonts.inter(
+                                  hintStyle: GoogleFonts.plusJakartaSans(
                                     fontSize: 13,
-                                    color: AppColors.mutedText,
+                                    color: const Color(0xFF94A3B8),
                                   ),
                                   border: InputBorder.none,
                                   isDense: true,
@@ -174,7 +177,7 @@ class _AllTransactionsScreenState extends State<AllTransactionsScreen> {
                                 },
                                 child: const Icon(
                                   Icons.close_rounded,
-                                  color: AppColors.mutedText,
+                                  color: Color(0xFF64748B),
                                   size: 18,
                                 ),
                               ),
@@ -202,7 +205,7 @@ class _AllTransactionsScreenState extends State<AllTransactionsScreen> {
                   ),
                 ),
 
-                Divider(height: 1, color: AppColors.lightTealBorder),
+                const Divider(height: 1, color: Color(0xFFE2E8F0)),
 
                 // ── Transaction List ────────────────────────────────
                 Expanded(
@@ -211,18 +214,18 @@ class _AllTransactionsScreenState extends State<AllTransactionsScreen> {
                           child: Column(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
-                              Icon(
+                              const Icon(
                                 Icons.receipt_long_outlined,
                                 size: 54,
-                                color: AppColors.mutedText.withValues(alpha: 0.4),
+                                color: Color(0xFFCBD5E1),
                               ),
                               const SizedBox(height: 12),
                               Text(
                                 'Tidak ada transaksi yang cocok',
-                                style: GoogleFonts.inter(
+                                style: GoogleFonts.plusJakartaSans(
                                   fontSize: 14,
-                                  fontWeight: FontWeight.w500,
-                                  color: AppColors.mutedText,
+                                  fontWeight: FontWeight.w600,
+                                  color: const Color(0xFF64748B),
                                 ),
                               ),
                             ],
@@ -230,7 +233,7 @@ class _AllTransactionsScreenState extends State<AllTransactionsScreen> {
                         )
                       : ListView.separated(
                           physics: const BouncingScrollPhysics(),
-                          padding: const EdgeInsets.fromLTRB(16, 16, 16, 80),
+                          padding: const EdgeInsets.fromLTRB(16, 16, 16, 90),
                           itemCount: filtered.length,
                           separatorBuilder: (context, index) =>
                               const SizedBox(height: 10),
@@ -244,14 +247,14 @@ class _AllTransactionsScreenState extends State<AllTransactionsScreen> {
                                 color: Colors.white,
                                 borderRadius: BorderRadius.circular(16),
                                 border: Border.all(
-                                  color: AppColors.lightTealBorder,
+                                  color: const Color(0xFFE2E8F0),
                                   width: 1.1,
                                 ),
-                                boxShadow: [
+                                boxShadow: const [
                                   BoxShadow(
-                                    color: AppColors.primaryTeal.withValues(alpha: 0.04),
-                                    blurRadius: 8,
-                                    offset: const Offset(0, 2),
+                                    color: Color(0x060F172A),
+                                    blurRadius: 10,
+                                    offset: Offset(0, 3),
                                   ),
                                 ],
                               ),
@@ -273,47 +276,48 @@ class _AllTransactionsScreenState extends State<AllTransactionsScreen> {
                                   vertical: 4,
                                 ),
                                 leading: Container(
-                                  width: 42,
-                                  height: 42,
+                                  width: 40,
+                                  height: 40,
                                   decoration: BoxDecoration(
                                     color: isIncome
-                                        ? AppColors.successBg
-                                        : AppColors.dangerBg,
-                                    shape: BoxShape.circle,
+                                        ? const Color(0xFFDCFCE7)
+                                        : const Color(0xFFFEE2E2),
+                                    borderRadius: BorderRadius.circular(12),
                                   ),
                                   child: Icon(
                                     isIncome
                                         ? Icons.point_of_sale_rounded
                                         : Icons.shopping_bag_outlined,
                                     color: isIncome
-                                        ? AppColors.successText
-                                        : AppColors.dangerText,
+                                        ? const Color(0xFF16A34A)
+                                        : const Color(0xFFDC2626),
                                     size: 20,
                                   ),
                                 ),
                                 title: Text(
                                   tx.title,
-                                  style: GoogleFonts.inter(
-                                    fontSize: 14,
-                                    fontWeight: FontWeight.w600,
-                                    color: AppColors.darkText,
+                                  style: GoogleFonts.plusJakartaSans(
+                                    fontSize: 13.5,
+                                    fontWeight: FontWeight.w700,
+                                    color: const Color(0xFF0F172A),
                                   ),
                                 ),
                                 subtitle: Text(
                                   tx.listSubtitle,
-                                  style: GoogleFonts.inter(
-                                    fontSize: 12,
-                                    color: AppColors.mutedText,
+                                  style: GoogleFonts.plusJakartaSans(
+                                    fontSize: 11.5,
+                                    fontWeight: FontWeight.w500,
+                                    color: const Color(0xFF64748B),
                                   ),
                                 ),
                                 trailing: Text(
                                   tx.formattedAmountWithSign,
-                                  style: GoogleFonts.poppins(
+                                  style: GoogleFonts.plusJakartaSans(
                                     fontSize: 14,
-                                    fontWeight: FontWeight.w700,
+                                    fontWeight: FontWeight.w800,
                                     color: isIncome
-                                        ? AppColors.successText
-                                        : AppColors.destructive,
+                                        ? const Color(0xFF16A34A)
+                                        : const Color(0xFFDC2626),
                                   ),
                                 ),
                               ),
@@ -339,21 +343,21 @@ class _AllTransactionsScreenState extends State<AllTransactionsScreen> {
       },
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 180),
-        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 7),
+        padding: const EdgeInsets.symmetric(horizontal: 13, vertical: 7),
         decoration: BoxDecoration(
-          color: isSelected ? AppColors.primaryTeal : AppColors.tealBackgrounds,
-          borderRadius: BorderRadius.circular(20),
+          color: isSelected ? const Color(0xFF111111) : const Color(0xFFF1F5F9),
+          borderRadius: BorderRadius.circular(12),
           border: Border.all(
-            color: isSelected ? AppColors.primaryTeal : AppColors.lightTealBorder,
-            width: 1.1,
+            color: isSelected ? const Color(0xFF111111) : const Color(0xFFE2E8F0),
+            width: 1.0,
           ),
         ),
         child: Text(
           label,
-          style: GoogleFonts.inter(
+          style: GoogleFonts.plusJakartaSans(
             fontSize: 12,
-            fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
-            color: isSelected ? Colors.white : AppColors.darkText,
+            fontWeight: isSelected ? FontWeight.w700 : FontWeight.w600,
+            color: isSelected ? Colors.white : const Color(0xFF64748B),
           ),
         ),
       ),

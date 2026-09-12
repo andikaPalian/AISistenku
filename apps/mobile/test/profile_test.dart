@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:tiga_angkatan/models/profile_model.dart';
-import 'package:tiga_angkatan/screens/profile/profile_screen.dart';
+import 'package:AISISTENKU/models/profile_model.dart';
+import 'package:AISISTENKU/screens/profile/profile_screen.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();

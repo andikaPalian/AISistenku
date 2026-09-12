@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:tiga_angkatan/models/stock_model.dart';
-import 'package:tiga_angkatan/screens/stock/stock_screen.dart';
-import 'package:tiga_angkatan/screens/stock/stock_detail_screen.dart';
-import 'package:tiga_angkatan/screens/stock/widgets/stock_filter_sheet.dart';
+import 'package:AISISTENKU/models/stock_model.dart';
+import 'package:AISISTENKU/screens/stock/stock_screen.dart';
+import 'package:AISISTENKU/screens/stock/stock_detail_screen.dart';
+import 'package:AISISTENKU/screens/stock/widgets/stock_filter_sheet.dart';
 
 void main() {
   group('Stock Model & Repository Tests', () {
@@ -50,6 +50,11 @@ void main() {
 
   group('Stock UI Widget Tests', () {
     testWidgets('StockScreen renders KPI summary cards, Search and Filter container, and stock list', (WidgetTester tester) async {
+      tester.view.physicalSize = const Size(1080, 2400);
+      tester.view.devicePixelRatio = 2.0;
+      addTearDown(tester.view.resetPhysicalSize);
+      addTearDown(tester.view.resetDevicePixelRatio);
+
       await tester.pumpWidget(
         const MaterialApp(
           home: StockScreen(),

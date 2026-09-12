@@ -1,17 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import '../../../core/theme/app_colors.dart';
 import '../../../models/finance_model.dart';
 
 /// Top header section for the Finance Screen.
 ///
-/// Features the profile avatar, store branding ("AIsistenku"),
-/// notification bell, page title ("Keuangan"), and period filter chips.
+/// Designed with Neo-Clean aesthetics, sharp typography,
+/// period filter pills, and quick transaction trigger.
 class FinanceHeader extends StatelessWidget {
   final FinancePeriod selectedPeriod;
   final ValueChanged<FinancePeriod> onPeriodChanged;
   final VoidCallback? onNotificationTap;
   final VoidCallback? onProfileTap;
+  final VoidCallback? onAddTransactionTap;
 
   const FinanceHeader({
     super.key,
@@ -19,168 +19,144 @@ class FinanceHeader extends StatelessWidget {
     required this.onPeriodChanged,
     this.onNotificationTap,
     this.onProfileTap,
+    this.onAddTransactionTap,
   });
+
+  Widget _buildFilterPill(String label, FinancePeriod period) {
+    final isSelected = selectedPeriod == period;
+    return GestureDetector(
+      onTap: () => onPeriodChanged(period),
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 180),
+        alignment: Alignment.center,
+        padding: const EdgeInsets.symmetric(vertical: 8),
+        decoration: BoxDecoration(
+          color: isSelected ? const Color(0xFF111111) : Colors.transparent,
+          borderRadius: BorderRadius.circular(10),
+          boxShadow: isSelected
+              ? [
+                  BoxShadow(
+                    color: Colors.black.withValues(alpha: 0.1),
+                    blurRadius: 4,
+                    offset: const Offset(0, 2),
+                  ),
+                ]
+              : [],
+        ),
+        child: Text(
+          label,
+          style: GoogleFonts.plusJakartaSans(
+            fontSize: 12.5,
+            fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
+            color: isSelected ? Colors.white : const Color(0xFF64748B),
+          ),
+        ),
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // ── Top Brand Bar ─────────────────────────────────────────────
+        // ── Main Page Title & Quick Action ────────────────────────────
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            GestureDetector(
-              onTap: onProfileTap,
-              child: Row(
-                children: [
-                  Container(
-                    width: 38,
-                    height: 38,
-                    decoration: BoxDecoration(
-                      color: AppColors.tealBackgrounds,
-                      shape: BoxShape.circle,
-                      border: Border.all(color: AppColors.lightTealBorder),
-                    ),
-                    padding: const EdgeInsets.all(6),
-                    child: Image.asset(
-                      'assets/icons/logoAisitenku.png',
-                      fit: BoxFit.contain,
-                      errorBuilder: (context, error, stackTrace) => const Icon(
-                        Icons.auto_awesome,
-                        color: AppColors.primaryTeal,
-                        size: 20,
-                      ),
-                    ),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Keuangan',
+                  style: GoogleFonts.plusJakartaSans(
+                    fontSize: 24,
+                    fontWeight: FontWeight.w800,
+                    color: const Color(0xFF0F172A),
+                    letterSpacing: -0.5,
                   ),
-                  const SizedBox(width: 10),
-                  Text(
-                    'AIsistenku',
-                    style: GoogleFonts.poppins(
-                      fontSize: 18,
-                      fontWeight: FontWeight.w700,
-                      color: AppColors.darkText,
-                    ),
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  'Pantau Uang Bisnis Anda',
+                  style: GoogleFonts.plusJakartaSans(
+                    fontSize: 12.5,
+                    fontWeight: FontWeight.w500,
+                    color: const Color(0xFF64748B),
                   ),
-                ],
-              ),
+                ),
+              ],
             ),
-            IconButton(
-              onPressed: onNotificationTap ??
-                  () {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                        content: Text('Tidak ada notifikasi baru'),
-                        duration: Duration(seconds: 2),
+            if (onAddTransactionTap != null)
+              InkWell(
+                onTap: onAddTransactionTap,
+                borderRadius: BorderRadius.circular(16),
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 7),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFF111111),
+                    borderRadius: BorderRadius.circular(16),
+                    boxShadow: const [
+                      BoxShadow(
+                        color: Color(0x12000000),
+                        blurRadius: 6,
+                        offset: Offset(0, 2),
                       ),
-                    );
-                  },
-              icon: Stack(
-                children: [
-                  const Icon(
-                    Icons.notifications_none_rounded,
-                    color: AppColors.darkText,
-                    size: 24,
+                    ],
                   ),
-                  Positioned(
-                    right: 2,
-                    top: 2,
-                    child: Container(
-                      width: 8,
-                      height: 8,
-                      decoration: const BoxDecoration(
-                        color: AppColors.destructive,
-                        shape: BoxShape.circle,
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      const Icon(
+                        Icons.add_rounded,
+                        color: Color(0xFF22C55E),
+                        size: 16,
                       ),
-                    ),
+                      const SizedBox(width: 5),
+                      Text(
+                        'Catat',
+                        style: GoogleFonts.plusJakartaSans(
+                          fontSize: 12,
+                          fontWeight: FontWeight.w700,
+                          color: Colors.white,
+                        ),
+                      ),
+                    ],
                   ),
-                ],
+                ),
               ),
-            ),
           ],
         ),
 
-        const SizedBox(height: 16),
+        const SizedBox(height: 14),
 
-        // ── Main Page Title ───────────────────────────────────────────
-        Text(
-          'Keuangan',
-          style: GoogleFonts.poppins(
-            fontSize: 26,
-            fontWeight: FontWeight.w700,
-            color: AppColors.darkText,
-            height: 1.2,
+        // ── Period Filter Pills [Hari Ini | Minggu Ini | Bulan Ini] ──
+        Container(
+          width: double.infinity,
+          padding: const EdgeInsets.all(4),
+          decoration: BoxDecoration(
+            color: const Color(0xFFF1F5F9),
+            borderRadius: BorderRadius.circular(14),
+            border: Border.all(
+              color: const Color(0xFFE2E8F0),
+              width: 1,
+            ),
           ),
-        ),
-        const SizedBox(height: 4),
-        Text(
-          'Pantau Uang Bisnis Anda',
-          style: GoogleFonts.inter(
-            fontSize: 14,
-            fontWeight: FontWeight.w400,
-            color: AppColors.mutedText,
-          ),
-        ),
-
-        const SizedBox(height: 16),
-
-        // ── Period Filter Pills ───────────────────────────────────────
-        SingleChildScrollView(
-          scrollDirection: Axis.horizontal,
-          physics: const BouncingScrollPhysics(),
           child: Row(
-            children: FinancePeriod.values.map((period) {
-              final isSelected = selectedPeriod == period;
-              return Padding(
-                padding: const EdgeInsets.only(right: 8),
-                child: GestureDetector(
-                  onTap: () => onPeriodChanged(period),
-                  child: AnimatedContainer(
-                    duration: const Duration(milliseconds: 200),
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 20,
-                      vertical: 9,
-                    ),
-                    decoration: BoxDecoration(
-                      color: isSelected
-                          ? AppColors.primaryTeal
-                          : AppColors.cardBackground,
-                      borderRadius: BorderRadius.circular(24),
-                      border: Border.all(
-                        color: isSelected
-                            ? AppColors.primaryTeal
-                            : AppColors.lightTealBorder,
-                        width: 1.2,
-                      ),
-                      boxShadow: isSelected
-                          ? [
-                              BoxShadow(
-                                color: AppColors.primaryTeal.withValues(alpha: 0.25),
-                                blurRadius: 8,
-                                offset: const Offset(0, 3),
-                              ),
-                            ]
-                          : [
-                              BoxShadow(
-                                color: Colors.black.withValues(alpha: 0.02),
-                                blurRadius: 4,
-                                offset: const Offset(0, 1),
-                              ),
-                            ],
-                    ),
-                    child: Text(
-                      period.label,
-                      style: GoogleFonts.inter(
-                        fontSize: 13,
-                        fontWeight:
-                            isSelected ? FontWeight.w600 : FontWeight.w500,
-                        color: isSelected ? Colors.white : AppColors.darkText,
-                      ),
-                    ),
-                  ),
-                ),
-              );
-            }).toList(),
+            children: [
+              Expanded(
+                child: _buildFilterPill('Hari Ini', FinancePeriod.today),
+              ),
+              const SizedBox(width: 4),
+              Expanded(
+                child: _buildFilterPill('Minggu Ini', FinancePeriod.thisWeek),
+              ),
+              const SizedBox(width: 4),
+              Expanded(
+                child: _buildFilterPill('Bulan Ini', FinancePeriod.thisMonth),
+              ),
+            ],
           ),
         ),
       ],

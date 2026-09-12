@@ -74,11 +74,11 @@ class _AiAssistantScreenState extends State<AiAssistantScreen> {
               mainAxisSize: MainAxisSize.min,
               children: [
                 Container(
-                  width: 30,
-                  height: 30,
-                  padding: const EdgeInsets.all(4),
+                  width: 32,
+                  height: 32,
+                  padding: const EdgeInsets.all(5),
                   decoration: const BoxDecoration(
-                    color: AppColors.primaryTeal, // Solid background so the logo pops out
+                    color: Color(0xFF111111),
                     shape: BoxShape.circle,
                   ),
                   child: Image.asset(
@@ -91,13 +91,38 @@ class _AiAssistantScreenState extends State<AiAssistantScreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Text(
-                      'AIsistenku',
-                      style: GoogleFonts.poppins(
-                        fontSize: 15,
-                        fontWeight: FontWeight.w700,
-                        color: AppColors.darkText,
-                      ),
+                    Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 5,
+                            vertical: 1.5,
+                          ),
+                          decoration: BoxDecoration(
+                            color: const Color(0xFF111111),
+                            borderRadius: BorderRadius.circular(5),
+                          ),
+                          child: Text(
+                            'AI',
+                            style: GoogleFonts.inter(
+                              fontSize: 10,
+                              fontWeight: FontWeight.w800,
+                              color: const Color(0xFF22C55E), // Vibrant Green
+                              letterSpacing: 0.5,
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 5),
+                        Text(
+                          'Sistenku',
+                          style: GoogleFonts.poppins(
+                            fontSize: 15.5,
+                            fontWeight: FontWeight.w700,
+                            color: const Color(0xFF0F172A),
+                          ),
+                        ),
+                      ],
                     ),
                     Row(
                       mainAxisSize: MainAxisSize.min,
@@ -106,17 +131,17 @@ class _AiAssistantScreenState extends State<AiAssistantScreen> {
                           width: 6,
                           height: 6,
                           decoration: const BoxDecoration(
-                            color: AppColors.successGreen,
+                            color: Color(0xFF22C55E),
                             shape: BoxShape.circle,
                           ),
                         ),
                         const SizedBox(width: 4),
                         Text(
-                          'Copilot Aktif',
+                          'Copilot Bisnis Aktif',
                           style: GoogleFonts.inter(
                             fontSize: 10,
                             fontWeight: FontWeight.w500,
-                            color: AppColors.mutedText,
+                            color: const Color(0xFF64748B),
                           ),
                         ),
                       ],
@@ -144,63 +169,95 @@ class _AiAssistantScreenState extends State<AiAssistantScreen> {
           ),
           body: Column(
             children: [
-              // ── Scrollable Chat Feed ──────────────────────────────
+              // ── Scrollable Chat Feed or Welcome Empty State ───────
               Expanded(
-                child: ListView(
-                  controller: _scrollController,
-                  physics: const BouncingScrollPhysics(),
-                  padding: const EdgeInsets.fromLTRB(16, 16, 16, 16),
-                  children: [
-                    // 1. Welcome Greeting Hero
-                    const AiWelcomeHero(userName: 'Budi'),
-                    const SizedBox(height: 16),
+                child: messages.isEmpty
+                    ? SingleChildScrollView(
+                        physics: const BouncingScrollPhysics(),
+                        padding: const EdgeInsets.fromLTRB(16, 16, 16, 16),
+                        child: AiWelcomeHero(
+                          userName: 'Budi',
+                          onSelectPrompt: _handleSendMessage,
+                        ),
+                      )
+                    : ListView(
+                        controller: _scrollController,
+                        physics: const BouncingScrollPhysics(),
+                        padding: const EdgeInsets.fromLTRB(16, 12, 16, 16),
+                        children: [
+                          // Subtle Session Badge
+                          Center(
+                            child: Container(
+                              margin: const EdgeInsets.only(bottom: 16),
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 12,
+                                vertical: 4,
+                              ),
+                              decoration: BoxDecoration(
+                                color: const Color(0xFFF1F5F9),
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              child: Text(
+                                'Hari Ini',
+                                style: GoogleFonts.inter(
+                                  fontSize: 11,
+                                  fontWeight: FontWeight.w600,
+                                  color: const Color(0xFF64748B),
+                                ),
+                              ),
+                            ),
+                          ),
 
-                    // 2. Quick Action Prompt Chips
-                    AiQuickPrompts(
-                      onSelectPrompt: _handleSendMessage,
-                    ),
-                    const SizedBox(height: 24),
-
-                    // 3. Chat Messages History
-                    ...messages.map((msg) {
-                      return AiMessageBubble(
-                        message: msg,
-                        onConfirmAction: msg.actionPayload != null
-                            ? () {
-                                repo.confirmAction(
-                                  msg.actionPayload!.actionId,
-                                );
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  const SnackBar(
-                                    content: Row(
-                                      children: [
-                                        Icon(
-                                          Icons.check_circle_rounded,
-                                          color: Colors.white,
-                                          size: 18,
+                          // Chat Messages History
+                          ...messages.map((msg) {
+                            return AiMessageBubble(
+                              message: msg,
+                              onConfirmAction: msg.actionPayload != null
+                                  ? () {
+                                      repo.confirmAction(
+                                        msg.actionPayload!.actionId,
+                                      );
+                                      ScaffoldMessenger.of(context).showSnackBar(
+                                        const SnackBar(
+                                          content: Row(
+                                            children: [
+                                              Icon(
+                                                Icons.check_circle_rounded,
+                                                color: Color(0xFF22C55E),
+                                                size: 18,
+                                              ),
+                                              SizedBox(width: 8),
+                                              Text(
+                                                'Aksi berhasil! Stok & Keuangan telah sinkron.',
+                                              ),
+                                            ],
+                                          ),
+                                          backgroundColor: Color(0xFF111111),
+                                          duration: Duration(seconds: 3),
                                         ),
-                                        SizedBox(width: 8),
-                                        Text(
-                                          'Aksi berhasil! Stok & Keuangan telah sinkron.',
-                                        ),
-                                      ],
-                                    ),
-                                    backgroundColor: AppColors.primaryTeal,
-                                    duration: Duration(seconds: 3),
-                                  ),
-                                );
-                              }
-                            : null,
-                      );
-                    }),
+                                      );
+                                    }
+                                  : null,
+                            );
+                          }),
 
-                    // 4. Typing / Thinking Indicator
-                    if (isTyping) ...[
-                      _buildTypingIndicator(),
-                    ],
-                  ],
-                ),
+                          // Typing / Thinking Indicator
+                          if (isTyping) ...[
+                            _buildTypingIndicator(),
+                          ],
+                        ],
+                      ),
               ),
+
+              // ── Quick Action Suggestion Chips (Docked right above input bar) ──
+              if (messages.isNotEmpty) ...[
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 8),
+                  child: AiQuickPrompts(
+                    onSelectPrompt: _handleSendMessage,
+                  ),
+                ),
+              ],
 
               // ── Bottom Chat Input Bar ──────────────────────────────
               AiChatInputBar(
@@ -218,28 +275,42 @@ class _AiAssistantScreenState extends State<AiAssistantScreen> {
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        backgroundColor: Colors.white,
+        surfaceTintColor: Colors.transparent,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
         title: Text(
           'Mulai Sesi Baru?',
-          style: GoogleFonts.poppins(fontWeight: FontWeight.w700, fontSize: 17),
+          style: GoogleFonts.poppins(
+            fontWeight: FontWeight.w700,
+            fontSize: 17,
+            color: AppColors.darkText,
+          ),
         ),
         content: Text(
           'Riwayat percakapan sebelumnya akan direset. Anda dapat memulai konsultasi baru dengan AIsistenku.',
           style: GoogleFonts.inter(fontSize: 13, color: AppColors.mutedText),
         ),
+        actionsPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx),
             child: Text(
               'Batal',
-              style: GoogleFonts.inter(fontWeight: FontWeight.w600, color: AppColors.mutedText),
+              style: GoogleFonts.inter(
+                fontWeight: FontWeight.w600,
+                color: AppColors.mutedText,
+              ),
             ),
           ),
           ElevatedButton(
             style: ElevatedButton.styleFrom(
-              backgroundColor: AppColors.primaryTeal,
+              backgroundColor: const Color(0xFF111111), // Solid Black Pill
               foregroundColor: Colors.white,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+              elevation: 0,
+              padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 10),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(24),
+              ),
             ),
             onPressed: () {
               Navigator.pop(ctx);
@@ -247,12 +318,18 @@ class _AiAssistantScreenState extends State<AiAssistantScreen> {
               ScaffoldMessenger.of(context).showSnackBar(
                 const SnackBar(
                   content: Text('Percakapan telah direset ke sesi baru'),
-                  backgroundColor: AppColors.primaryTeal,
+                  backgroundColor: Color(0xFF111111),
                   duration: Duration(seconds: 2),
                 ),
               );
             },
-            child: const Text('Reset Chat'),
+            child: Text(
+              'Reset Chat',
+              style: GoogleFonts.inter(
+                fontWeight: FontWeight.w600,
+                fontSize: 13,
+              ),
+            ),
           ),
         ],
       ),
@@ -270,11 +347,11 @@ class _AiAssistantScreenState extends State<AiAssistantScreen> {
             height: 36,
             padding: const EdgeInsets.all(5),
             decoration: BoxDecoration(
-              color: AppColors.primaryTeal, // Solid background
+              color: const Color(0xFF111111), // Solid black background
               shape: BoxShape.circle,
               boxShadow: [
                 BoxShadow(
-                  color: AppColors.primaryTeal.withValues(alpha: 0.15),
+                  color: Colors.black.withValues(alpha: 0.1),
                   blurRadius: 6,
                   offset: const Offset(0, 2),
                 ),
@@ -289,11 +366,12 @@ class _AiAssistantScreenState extends State<AiAssistantScreen> {
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
             decoration: BoxDecoration(
-              color: const Color(0xFFF1F5F9), // Clean slate
+              color: Colors.white,
               borderRadius: BorderRadius.circular(16),
+              border: Border.all(color: const Color(0xFFE2E8F0)),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withValues(alpha: 0.02),
+                  color: Colors.black.withValues(alpha: 0.03),
                   blurRadius: 8,
                   offset: const Offset(0, 2),
                 ),
@@ -303,11 +381,11 @@ class _AiAssistantScreenState extends State<AiAssistantScreen> {
               mainAxisSize: MainAxisSize.min,
               children: [
                 Text(
-                  'AIsistenku sedang menganalisis...',
+                  'AIsisten sedang menganalisis data...',
                   style: GoogleFonts.inter(
                     fontSize: 12,
                     fontStyle: FontStyle.italic,
-                    color: AppColors.mutedText,
+                    color: const Color(0xFF64748B),
                   ),
                 ),
                 const SizedBox(width: 8),
@@ -317,7 +395,7 @@ class _AiAssistantScreenState extends State<AiAssistantScreen> {
                   child: CircularProgressIndicator(
                     strokeWidth: 1.5,
                     valueColor:
-                        AlwaysStoppedAnimation<Color>(AppColors.primaryTeal),
+                        AlwaysStoppedAnimation<Color>(Color(0xFF22C55E)), // Vibrant Green spinner
                   ),
                 ),
               ],

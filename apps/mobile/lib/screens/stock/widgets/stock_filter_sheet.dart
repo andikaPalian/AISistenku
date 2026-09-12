@@ -196,11 +196,6 @@ class _StockFilterSheetState extends State<StockFilterSheet>
               offset: const Offset(0, 8),
               spreadRadius: 2,
             ),
-            BoxShadow(
-              color: AppColors.primaryTeal.withValues(alpha: 0.06),
-              blurRadius: 48,
-              offset: const Offset(0, 16),
-            ),
           ],
         ),
         child: ClipRRect(
@@ -256,19 +251,12 @@ class _StockFilterSheetState extends State<StockFilterSheet>
           Container(
             padding: const EdgeInsets.all(8),
             decoration: BoxDecoration(
-              gradient: LinearGradient(
-                colors: [
-                  AppColors.primaryTeal.withValues(alpha: 0.15),
-                  AppColors.primaryTeal.withValues(alpha: 0.05),
-                ],
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-              ),
+              color: const Color(0xFF111111),
               borderRadius: BorderRadius.circular(12),
             ),
             child: const Icon(
               Icons.tune_rounded,
-              color: AppColors.primaryTeal,
+              color: Color(0xFF22C55E),
               size: 20,
             ),
           ),
@@ -280,19 +268,19 @@ class _StockFilterSheetState extends State<StockFilterSheet>
               children: [
                 Text(
                   'Filter & Urutkan Stok',
-                  style: GoogleFonts.poppins(
+                  style: GoogleFonts.plusJakartaSans(
                     fontSize: 16,
-                    fontWeight: FontWeight.w700,
-                    color: AppColors.darkText,
-                    height: 1.2,
+                    fontWeight: FontWeight.w800,
+                    color: const Color(0xFF111111),
+                    letterSpacing: -0.3,
                   ),
                 ),
                 const SizedBox(height: 1),
                 Text(
                   'Temukan bahan baku lebih cepat',
-                  style: GoogleFonts.inter(
-                    fontSize: 11,
-                    color: AppColors.mutedText,
+                  style: GoogleFonts.plusJakartaSans(
+                    fontSize: 12,
+                    color: const Color(0xFF64748B),
                   ),
                 ),
               ],
@@ -305,13 +293,13 @@ class _StockFilterSheetState extends State<StockFilterSheet>
               icon: const Icon(Icons.refresh_rounded, size: 15),
               label: Text(
                 'Reset',
-                style: GoogleFonts.inter(
+                style: GoogleFonts.plusJakartaSans(
                   fontSize: 12,
-                  fontWeight: FontWeight.w600,
+                  fontWeight: FontWeight.w700,
                 ),
               ),
               style: TextButton.styleFrom(
-                foregroundColor: AppColors.destructive,
+                foregroundColor: const Color(0xFFEF4444),
                 padding: const EdgeInsets.symmetric(horizontal: 10),
                 minimumSize: Size.zero,
                 tapTargetSize: MaterialTapTargetSize.shrinkWrap,
@@ -324,10 +312,10 @@ class _StockFilterSheetState extends State<StockFilterSheet>
             icon: Container(
               padding: const EdgeInsets.all(4),
               decoration: BoxDecoration(
-                color: AppColors.surface,
+                color: const Color(0xFFF1F5F9),
                 borderRadius: BorderRadius.circular(8),
               ),
-              child: const Icon(Icons.close_rounded, size: 16, color: AppColors.mutedText),
+              child: const Icon(Icons.close_rounded, size: 16, color: Color(0xFF64748B)),
             ),
             visualDensity: VisualDensity.compact,
             padding: EdgeInsets.zero,
@@ -346,7 +334,7 @@ class _StockFilterSheetState extends State<StockFilterSheet>
       margin: const EdgeInsets.fromLTRB(16, 14, 16, 0),
       padding: const EdgeInsets.all(3),
       decoration: BoxDecoration(
-        color: AppColors.surface,
+        color: const Color(0xFFF1F5F9),
         borderRadius: BorderRadius.circular(14),
       ),
       child: TabBar(
@@ -364,13 +352,13 @@ class _StockFilterSheetState extends State<StockFilterSheet>
         ),
         indicatorSize: TabBarIndicatorSize.tab,
         dividerColor: Colors.transparent,
-        labelColor: AppColors.primaryTeal,
-        unselectedLabelColor: AppColors.mutedText,
-        labelStyle: GoogleFonts.inter(
+        labelColor: const Color(0xFF111111),
+        unselectedLabelColor: const Color(0xFF64748B),
+        labelStyle: GoogleFonts.plusJakartaSans(
           fontSize: 13,
-          fontWeight: FontWeight.w600,
+          fontWeight: FontWeight.w700,
         ),
-        unselectedLabelStyle: GoogleFonts.inter(
+        unselectedLabelStyle: GoogleFonts.plusJakartaSans(
           fontSize: 13,
           fontWeight: FontWeight.w500,
         ),
@@ -389,7 +377,7 @@ class _StockFilterSheetState extends State<StockFilterSheet>
                     width: 6,
                     height: 6,
                     decoration: const BoxDecoration(
-                      color: AppColors.primaryTeal,
+                      color: Color(0xFF22C55E),
                       shape: BoxShape.circle,
                     ),
                   ),
@@ -444,7 +432,7 @@ class _StockFilterSheetState extends State<StockFilterSheet>
             label: 'Semua Status',
             subtitle: ' bahan',
             isSelected: _selectedStatus == null,
-            accentColor: AppColors.primaryTeal,
+            accentColor: const Color(0xFF111111),
             onTap: () => setState(() => _selectedStatus = null),
           ),
           const SizedBox(height: 8),
@@ -453,7 +441,7 @@ class _StockFilterSheetState extends State<StockFilterSheet>
             label: 'Stok Aman',
             subtitle: ' bahan',
             isSelected: _selectedStatus == StockStatus.baik,
-            accentColor: AppColors.successGreen,
+            accentColor: const Color(0xFF22C55E),
             onTap: () => setState(() => _selectedStatus = StockStatus.baik),
           ),
           const SizedBox(height: 8),
@@ -462,7 +450,7 @@ class _StockFilterSheetState extends State<StockFilterSheet>
             label: 'Stok Rendah',
             subtitle: ' bahan',
             isSelected: _selectedStatus == StockStatus.rendah,
-            accentColor: AppColors.warningOrange,
+            accentColor: const Color(0xFFF59E0B),
             onTap: () => setState(() => _selectedStatus = StockStatus.rendah),
           ),
           const SizedBox(height: 8),
@@ -471,7 +459,7 @@ class _StockFilterSheetState extends State<StockFilterSheet>
             label: 'Stok Kritis',
             subtitle: ' bahan — perlu restock!',
             isSelected: _selectedStatus == StockStatus.kritis,
-            accentColor: AppColors.destructive,
+            accentColor: const Color(0xFFEF4444),
             onTap: () => setState(() => _selectedStatus = StockStatus.kritis),
           ),
         ],
@@ -495,24 +483,24 @@ class _StockFilterSheetState extends State<StockFilterSheet>
               setState(() => _selectedCategory = cat);
             },
             child: AnimatedContainer(
-              duration: const Duration(milliseconds: 200),
+              duration: const Duration(milliseconds: 180),
               padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
               decoration: BoxDecoration(
                 color: isSelected
-                    ? AppColors.primaryTeal
-                    : AppColors.surface,
-                borderRadius: BorderRadius.circular(12),
+                    ? const Color(0xFF111111)
+                    : Colors.white,
+                borderRadius: BorderRadius.circular(14),
                 border: Border.all(
                   color: isSelected
-                      ? AppColors.primaryTeal
-                      : Color(0xFFE2E8F0),
+                      ? const Color(0xFF111111)
+                      : const Color(0xFFE2E8F0),
                   width: isSelected ? 1.5 : 1,
                 ),
                 boxShadow: isSelected
                     ? [
                         BoxShadow(
-                          color: AppColors.primaryTeal.withValues(alpha: 0.2),
-                          blurRadius: 8,
+                          color: Colors.black.withValues(alpha: 0.15),
+                          blurRadius: 6,
                           offset: const Offset(0, 2),
                         ),
                       ]
@@ -525,16 +513,16 @@ class _StockFilterSheetState extends State<StockFilterSheet>
                     const Icon(
                       Icons.check_rounded,
                       size: 15,
-                      color: Colors.white,
+                      color: Color(0xFF22C55E),
                     ),
                     const SizedBox(width: 6),
                   ],
                   Text(
                     cat.label,
-                    style: GoogleFonts.inter(
+                    style: GoogleFonts.plusJakartaSans(
                       fontSize: 13,
-                      fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
-                      color: isSelected ? Colors.white : AppColors.darkText,
+                      fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
+                      color: isSelected ? Colors.white : const Color(0xFF111111),
                     ),
                   ),
                 ],
@@ -560,7 +548,7 @@ class _StockFilterSheetState extends State<StockFilterSheet>
               icon: sort.icon,
               label: sort.label,
               isSelected: isSelected,
-              accentColor: AppColors.primaryTeal,
+              accentColor: const Color(0xFF111111),
               onTap: () => setState(() => _selectedSortBy = sort),
             ),
           );
@@ -579,10 +567,13 @@ class _StockFilterSheetState extends State<StockFilterSheet>
       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
       decoration: BoxDecoration(
         color: _lowStockOnly
-            ? AppColors.warningOrange.withValues(alpha: 0.08)
+            ? const Color(0xFFFEF3C7)
             : const Color(0xFFF8FAFC),
         borderRadius: BorderRadius.circular(14),
-        // No border
+        border: Border.all(
+          color: _lowStockOnly ? const Color(0xFFF59E0B).withValues(alpha: 0.3) : const Color(0xFFE2E8F0),
+          width: 1,
+        ),
       ),
       child: Row(
         children: [
@@ -591,7 +582,7 @@ class _StockFilterSheetState extends State<StockFilterSheet>
                 ? Icons.notifications_active_rounded
                 : Icons.notifications_none_rounded,
             size: 18,
-            color: _lowStockOnly ? AppColors.warningOrange : AppColors.mutedText,
+            color: _lowStockOnly ? const Color(0xFFD97706) : const Color(0xFF64748B),
           ),
           const SizedBox(width: 10),
           Expanded(
@@ -600,17 +591,17 @@ class _StockFilterSheetState extends State<StockFilterSheet>
               children: [
                 Text(
                   'Hanya Stok Menipis & Kritis',
-                  style: GoogleFonts.inter(
+                  style: GoogleFonts.plusJakartaSans(
                     fontSize: 12,
-                    fontWeight: FontWeight.w600,
-                    color: _lowStockOnly ? AppColors.warningText : AppColors.darkText,
+                    fontWeight: FontWeight.w700,
+                    color: _lowStockOnly ? const Color(0xFFD97706) : const Color(0xFF111111),
                   ),
                 ),
                 Text(
                   '$alertCount bahan perlu perhatian',
-                  style: GoogleFonts.inter(
-                    fontSize: 10,
-                    color: AppColors.mutedText,
+                  style: GoogleFonts.plusJakartaSans(
+                    fontSize: 11,
+                    color: const Color(0xFF64748B),
                   ),
                 ),
               ],
@@ -624,7 +615,7 @@ class _StockFilterSheetState extends State<StockFilterSheet>
                 HapticFeedback.selectionClick();
                 setState(() => _lowStockOnly = val);
               },
-              activeTrackColor: AppColors.warningOrange,
+              activeTrackColor: const Color(0xFFF59E0B),
               activeThumbColor: Colors.white,
             ),
           ),
@@ -646,8 +637,8 @@ class _StockFilterSheetState extends State<StockFilterSheet>
             child: TextButton(
               onPressed: () => Navigator.pop(context),
               style: TextButton.styleFrom(
-                backgroundColor: const Color(0xFFF1F5F9), // Slate
-                foregroundColor: AppColors.darkText,
+                backgroundColor: const Color(0xFFF1F5F9),
+                foregroundColor: const Color(0xFF111111),
                 padding: const EdgeInsets.symmetric(vertical: 13),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(14),
@@ -655,10 +646,10 @@ class _StockFilterSheetState extends State<StockFilterSheet>
               ),
               child: Text(
                 'Batal',
-                style: GoogleFonts.inter(
+                style: GoogleFonts.plusJakartaSans(
                   fontSize: 13,
-                  fontWeight: FontWeight.w600,
-                  color: AppColors.darkText,
+                  fontWeight: FontWeight.w700,
+                  color: const Color(0xFF111111),
                 ),
               ),
             ),
@@ -670,25 +661,25 @@ class _StockFilterSheetState extends State<StockFilterSheet>
             child: ElevatedButton(
               onPressed: _applyAndClose,
               style: ElevatedButton.styleFrom(
-                backgroundColor: AppColors.primaryTeal,
+                backgroundColor: const Color(0xFF111111),
                 foregroundColor: Colors.white,
                 padding: const EdgeInsets.symmetric(vertical: 13),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(14),
                 ),
-                elevation: 6,
-                shadowColor: AppColors.primaryTeal.withValues(alpha: 0.4),
+                elevation: 4,
+                shadowColor: Colors.black.withValues(alpha: 0.25),
               ),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  const Icon(Icons.check_rounded, size: 18),
+                  const Icon(Icons.check_rounded, size: 18, color: Color(0xFF22C55E)),
                   const SizedBox(width: 6),
                   Text(
-                    'Tampilkan  Bahan',
-                    style: GoogleFonts.poppins(
+                    'Tampilkan $matchingCount Bahan',
+                    style: GoogleFonts.plusJakartaSans(
                       fontSize: 13,
-                      fontWeight: FontWeight.w600,
+                      fontWeight: FontWeight.w700,
                     ),
                   ),
                 ],

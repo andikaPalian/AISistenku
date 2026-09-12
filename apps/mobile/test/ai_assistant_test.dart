@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:tiga_angkatan/models/ai_chat_model.dart';
-import 'package:tiga_angkatan/models/stock_model.dart';
-import 'package:tiga_angkatan/models/finance_model.dart';
-import 'package:tiga_angkatan/screens/ai_assistant/ai_assistant_screen.dart';
+import 'package:AISISTENKU/models/ai_chat_model.dart';
+import 'package:AISISTENKU/models/stock_model.dart';
+import 'package:AISISTENKU/models/finance_model.dart';
+import 'package:AISISTENKU/screens/ai_assistant/ai_assistant_screen.dart';
 
 void main() {
   group('AI Chat Model & Action Execution Tests', () {
