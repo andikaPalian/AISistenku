@@ -154,8 +154,10 @@ class RecentOrdersSection extends StatelessWidget {
   Widget _buildTransactionRow(FinanceTransaction tx) {
     final isIncome = tx.type == TransactionType.income;
     final iconBg = isIncome ? const Color(0xFFDCFCE7) : const Color(0xFFFEE2E2);
-    final iconColor = isIncome ? const Color(0xFF16A34A) : const Color(0xFFDC2626);
-    final amountColor = isIncome ? const Color(0xFF16A34A) : const Color(0xFF0F172A);
+    final iconColor =
+        isIncome ? const Color(0xFF16A34A) : const Color(0xFFDC2626);
+    final amountColor =
+        isIncome ? const Color(0xFF16A34A) : const Color(0xFF0F172A);
     final prefix = isIncome ? '+' : '-';
 
     return Padding(
@@ -171,7 +173,9 @@ class RecentOrdersSection extends StatelessWidget {
               borderRadius: BorderRadius.circular(12),
             ),
             child: Icon(
-              isIncome ? Icons.arrow_downward_rounded : Icons.arrow_upward_rounded,
+              isIncome
+                  ? Icons.arrow_downward_rounded
+                  : Icons.arrow_upward_rounded,
               color: iconColor,
               size: 20,
             ),

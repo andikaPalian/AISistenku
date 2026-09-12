@@ -33,15 +33,15 @@ void main() {
       );
       await tester.pumpAndSettle();
 
-      expect(find.textContaining('POS'), findsOneWidget);
-      expect(find.text('Layanan Cepat & Transaksi'), findsOneWidget);
+      expect(find.text('Tiga Angkatan - Kartasura'), findsOneWidget);
+      expect(find.text('Outlet Utama • Siap Saji 15 Menit'), findsOneWidget);
       expect(find.text('All'), findsOneWidget);
       expect(find.text('Kopi'), findsAtLeastNWidgets(1));
       expect(find.text('Iced Latte'), findsOneWidget);
       expect(find.text('Americano'), findsOneWidget);
     });
 
-    testWidgets('ProductCard renders image container, category badge, and stepper', (WidgetTester tester) async {
+    testWidgets('ProductCard renders image container, price badge, and stepper', (WidgetTester tester) async {
       final product = ProductCatalog.items.first;
       await tester.pumpWidget(
         MaterialApp(
@@ -57,7 +57,7 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(find.text('Iced Latte'), findsOneWidget);
-      expect(find.text(product.category.label), findsOneWidget);
+      expect(find.text(product.formattedPrice), findsOneWidget);
       expect(find.text('2'), findsWidgets); // badge & stepper
       expect(find.byIcon(Icons.add_rounded), findsOneWidget);
       expect(find.byIcon(Icons.remove_rounded), findsOneWidget);
