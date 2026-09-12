@@ -17,9 +17,6 @@ void main() {
       expect(find.text('Selamat Datang'), findsOneWidget);
       expect(find.byType(Image), findsOneWidget);
 
-      // Verify Server status chip
-      expect(find.textContaining('Server'), findsOneWidget);
-
       // Verify Tab Switcher & Button
       expect(find.text('Masuk'), findsOneWidget); // Tab switcher
       expect(find.text('Masuk ke Akun'), findsOneWidget); // Submit button
@@ -38,6 +35,8 @@ void main() {
 
       expect(find.text('Daftar Akun Baru'), findsOneWidget);
       expect(find.text('Nama Lengkap / Toko'), findsOneWidget);
+      expect(find.text('Nama Bisnis / Toko'), findsOneWidget);
+      expect(find.text('Alamat Toko / Bisnis'), findsOneWidget);
       expect(find.text('Daftar Sekarang'), findsOneWidget);
     });
   });

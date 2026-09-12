@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 
 enum NotificationType {
-  stockAlert('Stok', Icons.warning_amber_rounded, Color(0xFFEF4444), Color(0xFFFEE2E2)),
-  salesMilestone('Penjualan', Icons.trending_up_rounded, Color(0xFF10B981), Color(0xFFDCFCE7)),
-  aiInsight('AIsisten', Icons.auto_awesome, Color(0xFF0D9488), Color(0xFFCCFBF1)),
-  system('Sistem', Icons.info_outline_rounded, Color(0xFF3B82F6), Color(0xFFDBEAFE));
+  stockAlert('Stok', Icons.inventory_2_outlined, Color(0xFFE11D48), Color(0xFFFFF1F2)),
+  salesMilestone('Penjualan', Icons.trending_up_rounded, Color(0xFF16A34A), Color(0xFFF0FDF4)),
+  aiInsight('AIsisten', Icons.auto_awesome_rounded, Color(0xFF0F172A), Color(0xFFF1F5F9)),
+  system('Sistem', Icons.info_outline_rounded, Color(0xFF2563EB), Color(0xFFEFF6FF));
 
   final String label;
   final IconData icon;
@@ -35,9 +35,10 @@ class AppNotification {
   String get timeAgo {
     final diff = DateTime.now().difference(timestamp);
     if (diff.inMinutes < 1) return 'Baru saja';
-    if (diff.inMinutes < 60) return ' mnt lalu';
-    if (diff.inHours < 24) return ' jam lalu';
-    return ' hari lalu';
+    if (diff.inMinutes < 60) return '${diff.inMinutes} mnt lalu';
+    if (diff.inHours < 24) return '${diff.inHours} jam lalu';
+    if (diff.inDays < 7) return '${diff.inDays} hari lalu';
+    return '${timestamp.day}/${timestamp.month}';
   }
 }
 
@@ -107,6 +108,16 @@ class NotificationRepository extends ChangeNotifier {
     for (final n in _notifications) {
       n.isRead = true;
     }
+    notifyListeners();
+  }
+
+  void deleteNotification(String id) {
+    _notifications.removeWhere((n) => n.id == id);
+    notifyListeners();
+  }
+
+  void clearAll() {
+    _notifications.clear();
     notifyListeners();
   }
 

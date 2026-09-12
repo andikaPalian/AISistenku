@@ -81,17 +81,18 @@ void main() {
   group('AI Assistant Screen UI Tests', () {
     testWidgets('AiAssistantScreen renders Header, Hero, Quick Prompts and Messages',
         (WidgetTester tester) async {
+      AiChatRepository.instance.clearForNewUser();
       await tester.pumpWidget(
         const MaterialApp(
           home: AiAssistantScreen(),
         ),
       );
 
-      expect(find.text('AIsistenku'), findsOneWidget);
+      expect(find.text('Sistenku'), findsOneWidget);
       expect(find.textContaining('Halo, Budi'), findsOneWidget);
       expect(find.text('Catat Belanja Bahan'), findsOneWidget);
       expect(find.text('Cek Stok Menipis'), findsOneWidget);
-      expect(find.text('Tanya apa saja ke AIsistenku...'), findsOneWidget);
+      expect(find.text('Ketik pesan atau instruksi bisnis...'), findsOneWidget);
       expect(find.byIcon(Icons.mic_none_rounded), findsOneWidget);
       expect(find.byIcon(Icons.send_rounded), findsOneWidget);
     });

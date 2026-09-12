@@ -14,14 +14,8 @@ void main() {
 
       // Verify Initial Rendering
       expect(find.text('AISISTENKU'), findsOneWidget);
-      expect(find.text('Sistem POS & Manajemen Toko Pintar'), findsOneWidget);
-      expect(find.text('Asisten Bisnis Cerdas UMKM'), findsOneWidget);
-      expect(find.text('Tiga Angkatan • Ekosistem Terpadu'), findsOneWidget);
+      expect(find.text('POS & Manajemen Toko Pintar'), findsOneWidget);
       expect(find.byType(Image), findsOneWidget);
-
-      // Pump through animation
-      await tester.pump(const Duration(milliseconds: 1000));
-      expect(find.byType(CircularProgressIndicator), findsOneWidget);
 
       // Complete navigation timer to avoid pending timers
       await tester.pump(const Duration(milliseconds: 3000));

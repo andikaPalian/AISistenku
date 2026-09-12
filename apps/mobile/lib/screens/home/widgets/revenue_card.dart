@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../../models/finance_model.dart';
-import '../../finance/finance_screen.dart';
+import '../../shell_screen.dart';
 
 /// Card showing today's gross revenue, real-time comparison status,
 /// key sub-metrics (Orders, Today's Expenses, Top Selling Menu),
@@ -271,12 +271,7 @@ class RevenueCard extends StatelessWidget {
                   Expanded(
                     child: InkWell(
                       onTap: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => const FinanceScreen(),
-                          ),
-                        );
+                        ShellScreen.switchTab(context, 4);
                       },
                       borderRadius: BorderRadius.circular(16),
                       child: Container(

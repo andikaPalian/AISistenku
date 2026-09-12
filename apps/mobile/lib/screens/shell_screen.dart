@@ -17,6 +17,24 @@ import '../widgets/app_bottom_nav.dart';
 class ShellScreen extends StatefulWidget {
   const ShellScreen({super.key});
 
+  /// Switch tab globally from anywhere within the Shell
+  static void switchTab(BuildContext context, int index) {
+    final state = context.findAncestorStateOfType<_ShellScreenState>();
+    if (state != null) {
+      state._onTabTapped(index);
+    } else {
+      if (index == 1) {
+        Navigator.of(context).push(MaterialPageRoute(builder: (_) => const PosScreen()));
+      } else if (index == 2) {
+        Navigator.of(context).push(AiAssistantPortalRoute(builder: (_) => const AiAssistantScreen()));
+      } else if (index == 3) {
+        Navigator.of(context).push(MaterialPageRoute(builder: (_) => const StockScreen()));
+      } else if (index == 4) {
+        Navigator.of(context).push(MaterialPageRoute(builder: (_) => const FinanceScreen()));
+      }
+    }
+  }
+
   @override
   State<ShellScreen> createState() => _ShellScreenState();
 }
