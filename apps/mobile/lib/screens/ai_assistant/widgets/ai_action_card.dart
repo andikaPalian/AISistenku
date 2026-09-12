@@ -16,6 +16,11 @@ class AiActionCard extends StatelessWidget {
     this.onConfirm,
   });
 
+  String _formatQty(double? qty) {
+    if (qty == null) return '1';
+    return (qty % 1 == 0) ? qty.toInt().toString() : qty.toString();
+  }
+
   @override
   Widget build(BuildContext context) {
     final isConfirmed = payload.status == AiActionStatus.confirmed;
@@ -55,15 +60,20 @@ class AiActionCard extends StatelessWidget {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text(
-                  '${payload.itemName ?? 'Bahan'} (+${payload.quantity?.toStringAsFixed(0) ?? '1'} ${payload.unit ?? 'kg'})',
-                  style: GoogleFonts.inter(
-                    fontSize: 12.5,
-                    fontWeight: FontWeight.w600,
-                    color: const Color(0xFF1E293B),
+                Expanded(
+                  child: Text(
+                    '${payload.itemName ?? 'Bahan'} (+${_formatQty(payload.quantity)} ${payload.unit ?? 'kg'})',
+                    style: GoogleFonts.inter(
+                      fontSize: 12.5,
+                      fontWeight: FontWeight.w600,
+                      color: const Color(0xFF1E293B),
+                    ),
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
                   ),
                 ),
-                if (payload.expenseAmount != null)
+                if (payload.expenseAmount != null) ...[
+                  const SizedBox(width: 8),
                   Text(
                     FinanceRepository.formatRupiah(payload.expenseAmount!),
                     style: GoogleFonts.poppins(
@@ -72,6 +82,7 @@ class AiActionCard extends StatelessWidget {
                       color: const Color(0xFF1E293B),
                     ),
                   ),
+                ],
               ],
             ),
           ],
@@ -113,15 +124,20 @@ class AiActionCard extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(
-                '${payload.itemName ?? 'Bahan'} (+${payload.quantity?.toStringAsFixed(0) ?? '1'} ${payload.unit ?? 'kg'})',
-                style: GoogleFonts.inter(
-                  fontSize: 13,
-                  fontWeight: FontWeight.w600,
-                  color: const Color(0xFF334155),
+              Expanded(
+                child: Text(
+                  '${payload.itemName ?? 'Bahan'} (+${_formatQty(payload.quantity)} ${payload.unit ?? 'kg'})',
+                  style: GoogleFonts.inter(
+                    fontSize: 13,
+                    fontWeight: FontWeight.w600,
+                    color: const Color(0xFF334155),
+                  ),
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
                 ),
               ),
-              if (payload.expenseAmount != null)
+              if (payload.expenseAmount != null) ...[
+                const SizedBox(width: 8),
                 Text(
                   FinanceRepository.formatRupiah(payload.expenseAmount!),
                   style: GoogleFonts.poppins(
@@ -130,6 +146,7 @@ class AiActionCard extends StatelessWidget {
                     color: const Color(0xFFE11D48),
                   ),
                 ),
+              ],
             ],
           ),
           const SizedBox(height: 12),

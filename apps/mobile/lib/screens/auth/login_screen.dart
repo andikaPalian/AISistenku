@@ -308,29 +308,37 @@ class _LoginScreenState extends State<LoginScreen> {
       }
       ApiService.instance.setAuthToken(token);
 
-      final isDemoAccount = email.toLowerCase() == 'owner@tigaangkatan.id';
-      if (isDemoAccount) {
-        ProductRepository.instance.loadDemoProducts();
-        StockRepository.instance.loadDemoData();
-        FinanceRepository.instance.loadDemoData();
-        ProfileRepository.instance.resetToDemo();
-      } else {
-        ProductRepository.instance.clearForNewUser();
-        StockRepository.instance.clearForNewUser();
-        FinanceRepository.instance.clearForNewUser();
-        AiChatRepository.instance.clearForNewUser();
-
-        await Future.wait([
-          ProductRepository.instance.fetchProductsFromBackend(),
-          StockRepository.instance.fetchStocksFromBackend(),
-          FinanceRepository.instance.fetchFinanceFromBackend(),
-          AiChatRepository.instance.fetchMessagesFromBackend(),
-          ProfileRepository.instance.fetchProfileFromBackend(),
-        ]).catchError((e) {
-          debugPrint('⚠️ Sync user data from backend: $e');
-          return <void>[];
-        });
+      // Extract and set businessId immediately from login response
+      final userData = res?['data']?['user'] ?? res?['user'];
+      if (userData is Map && userData['memberships'] is List && (userData['memberships'] as List).isNotEmpty) {
+        final firstMembership = (userData['memberships'] as List).first;
+        if (firstMembership is Map && firstMembership['business'] is Map) {
+          final bizId = firstMembership['business']['id']?.toString();
+          if (bizId != null && bizId.isNotEmpty) {
+            ApiService.instance.setBusinessId(bizId);
+          }
+        }
       }
+
+      // 1. Fetch user & business profile from backend to ensure full context is synced
+      await ProfileRepository.instance.fetchProfileFromBackend();
+
+      // 2. Clear previous session state and fetch real dynamic data from backend
+      ProductRepository.instance.clearForNewUser();
+      StockRepository.instance.clearForNewUser();
+      FinanceRepository.instance.clearForNewUser();
+      AiChatRepository.instance.clearForNewUser();
+
+      await Future.wait([
+        ProductRepository.instance.fetchProductsFromBackend(),
+        StockRepository.instance.fetchStocksFromBackend(),
+        FinanceRepository.instance.fetchFinanceFromBackend(),
+        FinanceRepository.instance.fetchDashboardFromBackend(),
+        AiChatRepository.instance.fetchMessagesFromBackend(),
+      ]).catchError((e) {
+        debugPrint('⚠️ Sync user data from backend: $e');
+        return <void>[];
+      });
 
       if (!mounted) return;
 

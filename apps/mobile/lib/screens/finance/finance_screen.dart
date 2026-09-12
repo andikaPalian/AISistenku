@@ -25,6 +25,15 @@ class FinanceScreen extends StatefulWidget {
 }
 
 class _FinanceScreenState extends State<FinanceScreen> {
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      FinanceRepository.instance.fetchFinanceFromBackend();
+      FinanceRepository.instance.fetchDashboardFromBackend();
+    });
+  }
+
   FinancePeriod _selectedPeriod = FinancePeriod.today;
 
   void _onPeriodChanged(FinancePeriod period) {
@@ -179,6 +188,7 @@ class _FinanceScreenState extends State<FinanceScreen> {
                       ),
                     ),
                   ),
+                  const SizedBox(height: 24),
                 ],
               ),
             ),

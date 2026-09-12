@@ -27,12 +27,21 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _handleRefresh();
+    });
+  }
+
   Future<void> _handleRefresh() async {
     try {
       await Future.wait([
         ProductRepository.instance.fetchProductsFromBackend(),
         StockRepository.instance.fetchStocksFromBackend(),
         FinanceRepository.instance.fetchFinanceFromBackend(),
+        FinanceRepository.instance.fetchDashboardFromBackend(),
       ]);
     } catch (_) {}
   }
@@ -50,7 +59,7 @@ class _HomeScreenState extends State<HomeScreen> {
             physics: const AlwaysScrollableScrollPhysics(
               parent: BouncingScrollPhysics(),
             ),
-            padding: const EdgeInsets.fromLTRB(20, 16, 20, 160),
+            padding: const EdgeInsets.fromLTRB(20, 16, 20, 24),
             child: const Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [

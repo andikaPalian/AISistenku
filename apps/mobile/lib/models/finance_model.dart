@@ -184,6 +184,9 @@ class FinanceRepository extends ChangeNotifier {
   }
 
   final List<FinanceTransaction> _transactions = [];
+  List<ChartDataPoint> _cachedChartData = [];
+  List<TopProductContribution> _cachedTopProducts = [];
+  Map<String, dynamic>? _cachedDashboard;
 
   List<FinanceTransaction> get transactions => List.unmodifiable(_transactions);
 
@@ -297,8 +300,15 @@ class FinanceRepository extends ChangeNotifier {
   Future<void> fetchFinanceFromBackend() async {
     try {
       final res = await ApiService.instance.get('/finance/transactions');
-      if (res != null && res['transactions'] is List) {
-        final List list = res['transactions'];
+      List? list;
+      if (res != null) {
+        if (res['data'] is List) {
+          list = res['data'];
+        } else if (res['transactions'] is List) {
+          list = res['transactions'];
+        }
+      }
+      if (list != null) {
         final List<FinanceTransaction> loaded = [];
         for (final t in list) {
           final isIncome = (t['type'] ?? '').toString().toLowerCase() == 'income';
@@ -322,25 +332,99 @@ class FinanceRepository extends ChangeNotifier {
             src = TransactionSource.aiAgent;
           }
 
+          final amountVal = double.tryParse((t['amount'] ?? '0').toString()) ??
+              (t['amount'] as num?)?.toDouble() ??
+              0.0;
+
           loaded.add(FinanceTransaction(
-            id: (t['transaction_id'] ?? t['id'] ?? 'tx-${DateTime.now().millisecondsSinceEpoch}').toString(),
+            id: (t['id'] ?? t['transaction_id'] ?? 'tx-${DateTime.now().millisecondsSinceEpoch}').toString(),
             title: (t['title'] ?? 'Transaksi').toString(),
             type: isIncome ? TransactionType.income : TransactionType.expense,
             category: cat,
-            amount: (t['amount'] as num?)?.toDouble() ?? 0.0,
+            amount: amountVal,
             source: src,
-            notes: t['notes'],
+            notes: t['notes']?.toString(),
             timestamp: t['timestamp'] != null
-                ? DateTime.tryParse(t['timestamp']) ?? DateTime.now()
+                ? DateTime.tryParse(t['timestamp'].toString()) ?? DateTime.now()
                 : DateTime.now(),
           ));
         }
-        _transactions.clear();
-        _transactions.addAll(loaded);
-        notifyListeners();
+        if (loaded.isNotEmpty) {
+          _transactions.clear();
+          _transactions.addAll(loaded);
+          notifyListeners();
+        }
       }
     } catch (e) {
       debugPrint('⚠️ fetchFinanceFromBackend error: $e');
+    }
+  }
+
+  Future<void> fetchDashboardFromBackend() async {
+    try {
+      final summaryRes = await ApiService.instance.get('/dashboard/overview');
+      if (summaryRes != null && summaryRes is Map) {
+        _cachedDashboard = summaryRes['data'] is Map ? summaryRes['data'] : summaryRes;
+      }
+
+      final trendRes = await ApiService.instance.get('/dashboard/sales-trend?range=30d');
+      List? trendList;
+      if (trendRes != null) {
+        if (trendRes is List) {
+          trendList = trendRes;
+        } else if (trendRes is Map && trendRes['data'] is List) {
+          trendList = trendRes['data'];
+        }
+      }
+      if (trendList != null) {
+        _cachedChartData = trendList.map((t) {
+          final totalSales = double.tryParse((t['totalSales'] ?? '0').toString()) ??
+              (t['totalSales'] as num?)?.toDouble() ??
+              0.0;
+          final dateStr = (t['date'] ?? '').toString();
+          return ChartDataPoint(
+            label: dateStr.length == 10 ? dateStr.substring(5, 10) : dateStr,
+            income: totalSales,
+            expense: 0.0,
+          );
+        }).toList();
+      }
+
+      final topRes = await ApiService.instance.get('/dashboard/top-products?range=30d&limit=3');
+      List? topList;
+      if (topRes != null) {
+        if (topRes is List) {
+          topList = topRes;
+        } else if (topRes is Map && topRes['data'] is List) {
+          topList = topRes['data'];
+        }
+      }
+      if (topList != null) {
+        final colors = [const Color(0xFF0D9488), const Color(0xFF14B8A6), const Color(0xFF3B82F6)];
+        final totalRev = topList.fold<double>(0.0, (sum, e) {
+          final rev = double.tryParse((e['totalRevenue'] ?? '0').toString()) ?? (e['totalRevenue'] as num?)?.toDouble() ?? 0.0;
+          return sum + rev;
+        });
+        _cachedTopProducts = topList.asMap().entries.map((entry) {
+          final rev = double.tryParse((entry.value['totalRevenue'] ?? '0').toString()) ??
+              (entry.value['totalRevenue'] as num?)?.toDouble() ??
+              0.0;
+          final qty = int.tryParse((entry.value['totalQuantitySold'] ?? '0').toString()) ??
+              (entry.value['totalQuantitySold'] as num?)?.toInt() ??
+              0;
+          return TopProductContribution(
+            name: (entry.value['productName'] ?? '').toString(),
+            soldQuantity: qty,
+            totalRevenue: rev,
+            contributionPercent: totalRev > 0 ? (rev / totalRev * 100) : 0.0,
+            badgeColor: colors[entry.key % colors.length],
+          );
+        }).toList();
+      }
+
+      notifyListeners();
+    } catch (e) {
+      debugPrint('⚠️ fetchDashboardFromBackend error: $e');
     }
   }
 
@@ -441,35 +525,58 @@ class FinanceRepository extends ChangeNotifier {
     return total;
   }
 
+  /// Total count of orders completed today.
+  int get todayOrdersCount {
+    if (_cachedDashboard != null) {
+      final val = _cachedDashboard!['todayOrdersCount'] ??
+          _cachedDashboard!['today_orders'] ??
+          _cachedDashboard!['todayOrders'];
+      if (val != null) {
+        return int.tryParse(val.toString()) ?? (val as num?)?.toInt() ?? 0;
+      }
+    }
+    return _transactions.where((tx) {
+      final now = DateTime.now();
+      return tx.type == TransactionType.income &&
+          tx.timestamp.year == now.year &&
+          tx.timestamp.month == now.month &&
+          tx.timestamp.day == now.day;
+    }).length;
+  }
+
   /// Calculate total income for a given period.
   double getTotalIncome(FinancePeriod period) {
+    if (_cachedDashboard != null) {
+      if (period == FinancePeriod.today) {
+        final val = _cachedDashboard!['todayRevenue'] ?? _cachedDashboard!['today_sales'];
+        if (val != null) return double.tryParse(val.toString()) ?? (val as num?)?.toDouble() ?? 0.0;
+      } else if (period == FinancePeriod.thisMonth) {
+        final val = _cachedDashboard!['monthRevenue'] ?? _cachedDashboard!['total_sales'];
+        if (val != null) return double.tryParse(val.toString()) ?? (val as num?)?.toDouble() ?? 0.0;
+      }
+    }
     final filtered = getFilteredTransactions(
       period: period,
       typeFilter: TransactionType.income,
     );
-    if (filtered.isEmpty) {
-      return period == FinancePeriod.today
-          ? 1250000
-          : period == FinancePeriod.thisWeek
-              ? 4550000
-              : 18450000;
-    }
     return filtered.fold(0.0, (sum, tx) => sum + tx.amount);
   }
 
   /// Calculate total expense for a given period.
   double getTotalExpense(FinancePeriod period) {
+    if (_cachedDashboard != null) {
+      if (period == FinancePeriod.today) {
+        final val = _cachedDashboard!['todayExpense'];
+        if (val != null) return double.tryParse(val.toString()) ?? (val as num?)?.toDouble() ?? 0.0;
+      } else if (period == FinancePeriod.thisMonth) {
+        final val = _cachedDashboard!['monthExpense'];
+        if (val != null) return double.tryParse(val.toString()) ?? (val as num?)?.toDouble() ?? 0.0;
+      }
+    }
     final filtered = getFilteredTransactions(
       period: period,
       typeFilter: TransactionType.expense,
     );
-    if (filtered.isEmpty) {
-      return period == FinancePeriod.today
-          ? 450000
-          : period == FinancePeriod.thisWeek
-              ? 1680000
-              : 6200000;
-    }
     return filtered.fold(0.0, (sum, tx) => sum + tx.amount);
   }
 
@@ -488,6 +595,9 @@ class FinanceRepository extends ChangeNotifier {
 
   /// Generate chart data points for the given period.
   List<ChartDataPoint> getChartPoints(FinancePeriod period) {
+    if (_cachedChartData.isNotEmpty && period == FinancePeriod.thisMonth) {
+      return _cachedChartData;
+    }
     switch (period) {
       case FinancePeriod.today:
         return const [
@@ -534,6 +644,9 @@ class FinanceRepository extends ChangeNotifier {
 
   /// Top 3 bestselling menu items with revenue contribution.
   List<TopProductContribution> getTopProducts() {
+    if (_cachedTopProducts.isNotEmpty) {
+      return _cachedTopProducts;
+    }
     return const [
       TopProductContribution(
         name: 'Kopi Susu Gula Aren',

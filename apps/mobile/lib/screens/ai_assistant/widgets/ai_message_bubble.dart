@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_markdown/flutter_markdown.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../models/ai_chat_model.dart';
@@ -117,14 +118,45 @@ class AiMessageBubble extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  // Text description
-                  Text(
-                    message.text,
-                    style: GoogleFonts.inter(
-                      fontSize: 13,
-                      fontWeight: FontWeight.w400,
-                      color: AppColors.darkText,
-                      height: 1.45,
+                  // Formatted Markdown text description (handles **bold**, *italic*, `code`, etc.)
+                  MarkdownBody(
+                    data: message.text,
+                    selectable: true,
+                    styleSheet: MarkdownStyleSheet(
+                      p: GoogleFonts.inter(
+                        fontSize: 13,
+                        fontWeight: FontWeight.w400,
+                        color: AppColors.darkText,
+                        height: 1.45,
+                      ),
+                      strong: GoogleFonts.inter(
+                        fontSize: 13,
+                        fontWeight: FontWeight.w700,
+                        color: const Color(0xFF0F172A),
+                      ),
+                      em: GoogleFonts.inter(
+                        fontSize: 13,
+                        fontStyle: FontStyle.italic,
+                        color: AppColors.darkText,
+                      ),
+                      code: GoogleFonts.inter(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w600,
+                        color: const Color(0xFF15803D), // Forest green for variables/codes
+                        backgroundColor: const Color(0xFFF1F5F9), // Slate 100 pill background
+                      ),
+                      listBullet: GoogleFonts.inter(
+                        fontSize: 13,
+                        fontWeight: FontWeight.w700,
+                        color: const Color(0xFF22C55E),
+                      ),
+                      blockquoteDecoration: BoxDecoration(
+                        color: const Color(0xFFF8FAFC),
+                        border: const Border(
+                          left: BorderSide(color: Color(0xFF22C55E), width: 3),
+                        ),
+                        borderRadius: BorderRadius.circular(4),
+                      ),
                     ),
                   ),
 

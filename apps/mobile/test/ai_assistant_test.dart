@@ -9,9 +9,10 @@ void main() {
   group('AI Chat Model & Action Execution Tests', () {
     test('AI Chat Repository seeds initial conversation properly', () {
       final repo = AiChatRepository.instance;
-      expect(repo.messages.length, greaterThanOrEqualTo(4));
-      expect(repo.messages.any((m) => m.sender == ChatSender.user), isTrue);
-      expect(repo.messages.any((m) => m.sender == ChatSender.ai), isTrue);
+      expect(repo.messages.length, greaterThanOrEqualTo(1));
+      expect(repo.messages.first.sender, ChatSender.ai);
+      expect(repo.messages.first.text, contains('AIsistenku'));
+      expect(repo.messages.any((m) => m.sender == ChatSender.user), isFalse);
     });
 
     test('NLP parser recognizes purchase and restock intents', () async {

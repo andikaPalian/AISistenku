@@ -343,6 +343,14 @@ class StockRepository extends ChangeNotifier {
     );
 
     notifyListeners();
+
+    // Sync to backend
+    ApiService.instance.post('/stocks/$stockId/restock', {
+      'quantity': quantity,
+      if (costPerUnit != null) 'costPerUnit': costPerUnit,
+      if (supplier != null && supplier.isNotEmpty) 'supplier': supplier,
+      if (note != null && note.isNotEmpty) 'note': note,
+    }).catchError((_) => null);
   }
 
   /// Adjust stock based on physical count (Stock Opname).
@@ -384,13 +392,29 @@ class StockRepository extends ChangeNotifier {
     );
 
     notifyListeners();
+
+    // Sync to backend
+    ApiService.instance.post('/stocks/$stockId/adjust', {
+      'actualQuantity': actualQuantity,
+      'reason': reason,
+      if (note != null && note.isNotEmpty) 'note': note,
+    }).catchError((_) => null);
   }
 
   Future<void> fetchStocksFromBackend() async {
     try {
       final res = await ApiService.instance.get('/stocks');
-      if (res != null && res['stockItems'] is List) {
-        final List list = res['stockItems'];
+      List? list;
+      if (res != null) {
+        if (res['data'] is List) {
+          list = res['data'];
+        } else if (res['stocks'] is List) {
+          list = res['stocks'];
+        } else if (res['stockItems'] is List) {
+          list = res['stockItems'];
+        }
+      }
+      if (list != null) {
         final List<StockItem> loaded = [];
         for (final item in list) {
           StockCategory cat = StockCategory.pemanis;
@@ -401,27 +425,51 @@ class StockRepository extends ChangeNotifier {
             cat = StockCategory.dairy;
           } else if (catStr.contains('sirup') || catStr.contains('perasa') || catStr.contains('syrup')) {
             cat = StockCategory.sirup;
-          } else if (catStr.contains('kemas') || catStr.contains('cup')) {
+          } else if (catStr.contains('kemas') || catStr.contains('cup') || catStr.contains('lid')) {
             cat = StockCategory.kemasan;
+          } else if (catStr.contains('manis') || catStr.contains('gula') || catStr.contains('sugar')) {
+            cat = StockCategory.pemanis;
+          } else if (catStr.contains('makan') || catStr.contains('food') || catStr.contains('snack')) {
+            cat = StockCategory.makanan;
           }
 
+          final currStockVal = double.tryParse((item['currentStock'] ?? item['current_stock'] ?? '0').toString()) ??
+              (item['currentStock'] as num?)?.toDouble() ??
+              (item['current_stock'] as num?)?.toDouble() ??
+              0.0;
+
+          final minStockVal = double.tryParse((item['minStock'] ?? item['min_stock'] ?? '5').toString()) ??
+              (item['minStock'] as num?)?.toDouble() ??
+              (item['min_stock'] as num?)?.toDouble() ??
+              5.0;
+
+          final costVal = int.tryParse((item['costPerUnit'] ?? item['cost_per_unit'] ?? '0').toString()) ??
+              (item['costPerUnit'] as num?)?.toInt() ??
+              (item['cost_per_unit'] as num?)?.toInt() ??
+              0;
+
+          final updatedStr = (item['updatedAt'] ?? item['last_updated'] ?? item['createdAt'])?.toString();
+
           loaded.add(StockItem(
-            id: (item['stock_id'] ?? item['id'] ?? 'stock-${DateTime.now().millisecondsSinceEpoch}').toString(),
+            id: (item['id'] ?? item['stock_id'] ?? 'stock-${DateTime.now().millisecondsSinceEpoch}').toString(),
             name: (item['name'] ?? 'Bahan').toString(),
             category: cat,
-            currentStock: (item['current_stock'] as num?)?.toDouble() ?? 0.0,
-            minStock: (item['min_stock'] as num?)?.toDouble() ?? 5.0,
+            currentStock: currStockVal,
+            minStock: minStockVal,
             unit: (item['unit'] ?? 'kg').toString(),
-            costPerUnit: (item['cost_per_unit'] as num?)?.toInt() ?? 0,
-            supplier: item['supplier'],
-            lastUpdated: item['last_updated'] != null
-                ? DateTime.tryParse(item['last_updated']) ?? DateTime.now()
+            costPerUnit: costVal,
+            supplier: item['supplier']?.toString() ?? 'Supplier Utama',
+            note: item['note']?.toString(),
+            lastUpdated: updatedStr != null
+                ? DateTime.tryParse(updatedStr) ?? DateTime.now()
                 : DateTime.now(),
           ));
         }
-        _items.clear();
-        _items.addAll(loaded);
-        notifyListeners();
+        if (loaded.isNotEmpty) {
+          _items.clear();
+          _items.addAll(loaded);
+          notifyListeners();
+        }
       }
     } catch (e) {
       debugPrint('⚠️ fetchStocksFromBackend error: $e');

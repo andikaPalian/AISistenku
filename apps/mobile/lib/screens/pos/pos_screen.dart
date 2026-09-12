@@ -19,6 +19,14 @@ class PosScreen extends StatefulWidget {
 }
 
 class _PosScreenState extends State<PosScreen> {
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      ProductRepository.instance.fetchProductsFromBackend();
+    });
+  }
+
   ProductCategory _selectedCategory = ProductCategory.all;
   String _searchQuery = '';
   final Map<String, CartItem> _cart = {};
@@ -140,12 +148,12 @@ class _PosScreenState extends State<PosScreen> {
                         ],
                       ),
 
-                      // ── Cart bar (floating at bottom) ──
+                      // ── Cart bar (floating neatly above bottom nav) ──
                       if (_totalItems > 0)
                         Positioned(
                           left: 0,
                           right: 0,
-                          bottom: 110, // Increased to float above the global AppBottomNav
+                          bottom: 0,
                           child: CartBottomBar(
                             itemCount: _totalItems,
                             totalFormatted: _formattedTotal,

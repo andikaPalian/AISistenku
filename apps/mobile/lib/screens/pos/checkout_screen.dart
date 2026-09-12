@@ -102,31 +102,61 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
       timestamp: DateTime.now(),
     );
 
+    // Auto-deduct sold product stock immediately
+    for (final it in widget.items) {
+      ProductRepository.instance.deductStock(it.product.id, it.quantity);
+    }
+
+    String backendOrderType = widget.orderType == OrderType.takeAway ? 'TakeAway' : 'DineIn';
+    String backendPaymentMethod = 'Cash';
+    if (_selectedMethod == PaymentMethodType.qris) {
+      backendPaymentMethod = 'QRIS_EWallet';
+    } else if (_selectedMethod == PaymentMethodType.card) {
+      backendPaymentMethod = 'DebitCreditCard';
+    }
+
     // Sync order to Backend API
     ApiService.instance.post('/orders', {
+      'orderCode': orderRecord.orderCode,
       'order_code': orderRecord.orderCode,
-      'order_type': widget.orderType.label,
+      'orderType': backendOrderType,
+      'order_type': backendOrderType,
+      'tableNumber': widget.tableNumber,
       'table_number': widget.tableNumber,
+      'customerName': 'Pelanggan POS',
       'customer_name': 'Pelanggan POS',
-      'payment_method': _selectedMethod.label,
+      'paymentMethod': backendPaymentMethod,
+      'payment_method': backendPaymentMethod,
       'subtotal': _subtotal,
       'tax': _tax,
+      'totalAmount': _total,
       'total_amount': _total,
+      'cashGiven': _selectedMethod == PaymentMethodType.cash ? _cashGiven : _total,
       'cash_given': _selectedMethod == PaymentMethodType.cash ? _cashGiven : _total,
+      'changeAmount': _selectedMethod == PaymentMethodType.cash ? _change : 0,
       'change': _selectedMethod == PaymentMethodType.cash ? _change : 0,
-      'items': widget.items.map((it) => {
-        'product_id': it.product.id,
-        'name': it.product.name,
-        'quantity': it.quantity,
-        'unit_price': it.product.price,
-        'subtotal': it.subtotal,
-        'variant': it.variant,
+      'items': widget.items.map((it) {
+        final isUuid = RegExp(r'^[0-9a-fA-F-]{36}$').hasMatch(it.product.id);
+        return {
+          if (isUuid) 'productId': it.product.id,
+          if (isUuid) 'product_id': it.product.id,
+          'productName': it.product.name,
+          'product_name': it.product.name,
+          'name': it.product.name,
+          'quantity': it.quantity,
+          'price': it.product.price,
+          'unit_price': it.product.price,
+          'subtotal': it.subtotal,
+          'variant': it.variant,
+        };
       }).toList(),
     }).then((_) {
-      // Refetch from backend to ensure stock is updated
+      // Refetch from backend to ensure stock and analytics are updated
       try {
         StockRepository.instance.fetchStocksFromBackend();
         ProductRepository.instance.fetchProductsFromBackend();
+        FinanceRepository.instance.fetchFinanceFromBackend();
+        FinanceRepository.instance.fetchDashboardFromBackend();
       } catch (e) {
         debugPrint('Fetch after checkout failed: $e');
       }

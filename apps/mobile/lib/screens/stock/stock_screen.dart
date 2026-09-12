@@ -24,6 +24,14 @@ class _StockScreenState extends State<StockScreen> {
   final TextEditingController _searchController = TextEditingController();
 
   @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      StockRepository.instance.fetchStocksFromBackend();
+    });
+  }
+
+  @override
   void dispose() {
     _searchController.dispose();
     super.dispose();
@@ -574,6 +582,7 @@ class _StockScreenState extends State<StockScreen> {
                             },
                           );
                         }),
+                        const SizedBox(height: 24),
                     ],
                   ),
                 ),

@@ -3,8 +3,8 @@ import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:image_picker/image_picker.dart';
-import '../../../core/theme/app_colors.dart';
 import '../../../core/services/api_service.dart';
+import '../../../core/theme/app_colors.dart';
 import '../../../models/product.dart';
 
 /// Modal bottom sheet for Adding or Editing a Product in POS with native Gallery/Camera Image Upload support.
@@ -248,11 +248,28 @@ class _AddEditProductModalState extends State<AddEditProductModal> {
     final stock = int.tryParse(_stockController.text.trim()) ?? 0;
     final minStock = int.tryParse(_minStockController.text.trim()) ?? 5;
     final variant = _variantController.text.trim().isNotEmpty ? _variantController.text.trim() : 'Regular';
-    final imageUrl = _currentImageUrl?.trim();
+    String? imageUrl = _currentImageUrl?.trim();
 
     setState(() => _isLoading = true);
 
     try {
+      // Jika ada gambar dari kamera/galeri, upload langsung ke Cloudinary
+      if (_pickedImageBytes != null && (imageUrl == null || imageUrl.startsWith('data:image'))) {
+        try {
+          final res = await ApiService.instance.uploadMultipart(
+            '/upload/product',
+            bytes: _pickedImageBytes!,
+            filename: 'product_${DateTime.now().millisecondsSinceEpoch}.jpg',
+            fields: {'productName': name},
+          );
+          if (res != null && res['data'] != null && res['data']['url'] != null) {
+            imageUrl = res['data']['url'] as String;
+          }
+        } catch (e) {
+          debugPrint('⚠️ Cloudinary upload warning: $e, menggunakan data lokal/offline');
+        }
+      }
+
       if (_isEditing) {
         final updated = widget.product!.copyWith(
           name: name,
@@ -267,19 +284,6 @@ class _AddEditProductModalState extends State<AddEditProductModal> {
         );
 
         ProductRepository.instance.updateProduct(updated);
-
-        // Sync with backend API in background
-        ApiService.instance.put('/products/${updated.id}', {
-          'name': name,
-          'price': price,
-          'code': code,
-          'category': _selectedCategory.label,
-          'stock': stock,
-          'min_stock': minStock,
-          'unit': _selectedUnit,
-          'default_variant': variant,
-          'image_url': imageUrl,
-        }).catchError((_) => null);
       } else {
         final newProduct = Product(
           id: 'prod-${DateTime.now().millisecondsSinceEpoch}',
@@ -296,19 +300,6 @@ class _AddEditProductModalState extends State<AddEditProductModal> {
         );
 
         ProductRepository.instance.addProduct(newProduct);
-
-        // Sync with backend API in background
-        ApiService.instance.post('/products', {
-          'name': name,
-          'price': price,
-          'code': code,
-          'category': _selectedCategory.label,
-          'stock': stock,
-          'min_stock': minStock,
-          'unit': _selectedUnit,
-          'default_variant': variant,
-          'image_url': imageUrl,
-        }).catchError((_) => null);
       }
 
       if (!mounted) return;
@@ -349,7 +340,6 @@ class _AddEditProductModalState extends State<AddEditProductModal> {
             ),
             onPressed: () {
               ProductRepository.instance.deleteProduct(widget.product!.id);
-              ApiService.instance.delete('/products/${widget.product!.id}').catchError((_) => null);
               Navigator.pop(ctx);
               Navigator.pop(context);
               ScaffoldMessenger.of(context).showSnackBar(

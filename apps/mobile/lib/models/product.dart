@@ -189,8 +189,15 @@ class ProductRepository extends ChangeNotifier {
   Future<void> fetchProductsFromBackend() async {
     try {
       final res = await ApiService.instance.get('/products');
-      if (res != null && res['products'] is List) {
-        final List list = res['products'];
+      List? list;
+      if (res != null) {
+        if (res['data'] is List) {
+          list = res['data'];
+        } else if (res['products'] is List) {
+          list = res['products'];
+        }
+      }
+      if (list != null) {
         final List<Product> loaded = [];
         for (final item in list) {
           ProductCategory cat = ProductCategory.kopi;
@@ -199,26 +206,47 @@ class ProductRepository extends ChangeNotifier {
             cat = ProductCategory.nonKopi;
           } else if (catStr.contains('snack')) {
             cat = ProductCategory.snack;
-          } else if (catStr.contains('makan')) {
+          } else if (catStr.contains('makan') || catStr.contains('food')) {
             cat = ProductCategory.makanan;
+          } else if (catStr.contains('coffee') || catStr.contains('kopi')) {
+            cat = ProductCategory.kopi;
           }
 
+          final priceVal = int.tryParse((item['price'] ?? '0').toString()) ??
+              (item['price'] as num?)?.toInt() ??
+              0;
+
+          final stockVal = int.tryParse((item['stock'] ?? item['current_stock'] ?? '20').toString()) ??
+              (item['stock'] as num?)?.toInt() ??
+              (item['current_stock'] as num?)?.toInt() ??
+              20;
+
+          final minStockVal = int.tryParse((item['minStock'] ?? item['min_stock'] ?? '5').toString()) ??
+              (item['minStock'] as num?)?.toInt() ??
+              (item['min_stock'] as num?)?.toInt() ??
+              5;
+
+          final img = (item['imageUrl'] ?? item['image_url'])?.toString();
+          final variant = (item['defaultVariant'] ?? item['default_variant'] ?? 'Regular').toString();
+
           loaded.add(Product(
-            id: (item['product_id'] ?? item['id'] ?? 'prod-${DateTime.now().millisecondsSinceEpoch}').toString(),
-            code: item['code'],
+            id: (item['id'] ?? item['product_id'] ?? 'prod-${DateTime.now().millisecondsSinceEpoch}').toString(),
+            code: item['code']?.toString(),
             name: (item['name'] ?? 'Menu').toString(),
-            price: (item['price'] as num?)?.toInt() ?? 0,
+            price: priceVal,
             category: cat,
-            stock: (item['current_stock'] as num?)?.toInt() ?? (item['stock'] as num?)?.toInt() ?? 20,
-            minStock: (item['min_stock'] as num?)?.toInt() ?? 5,
+            stock: stockVal,
+            minStock: minStockVal,
             unit: (item['unit'] ?? 'cup').toString(),
-            imageUrl: item['image_url'],
-            defaultVariant: (item['default_variant'] ?? 'Regular').toString(),
+            imageUrl: img,
+            defaultVariant: variant,
             placeholderIcon: Icons.coffee_rounded,
           ));
         }
-        _products = loaded;
-        notifyListeners();
+        if (loaded.isNotEmpty) {
+          _products = loaded;
+          notifyListeners();
+        }
       }
     } catch (e) {
       debugPrint('⚠️ fetchProductsFromBackend error: $e');
@@ -228,17 +256,23 @@ class ProductRepository extends ChangeNotifier {
   void addProduct(Product product) {
     _products.insert(0, product);
     notifyListeners();
+
+    String backendCategory = 'COFFEE';
+    if (product.category == ProductCategory.nonKopi) {
+      backendCategory = 'NON_COFFEE';
+    } else if (product.category == ProductCategory.makanan) {
+      backendCategory = 'FOOD';
+    } else if (product.category == ProductCategory.snack) {
+      backendCategory = 'SNACK';
+    }
+
     // Sync to backend
     ApiService.instance.post('/products', {
       'name': product.name,
       'price': product.price,
-      'code': product.code,
-      'category': product.category.label,
-      'stock': product.stock,
-      'min_stock': product.minStock,
-      'unit': product.unit,
-      'default_variant': product.defaultVariant,
-      'image_url': product.imageUrl,
+      'category': backendCategory,
+      'defaultVariant': product.defaultVariant,
+      if (product.imageUrl != null && product.imageUrl!.isNotEmpty) 'imageUrl': product.imageUrl,
     }).catchError((_) => null);
 
     // Auto-create matching stock item so it appears in inventory
@@ -276,17 +310,23 @@ class ProductRepository extends ChangeNotifier {
       _products[idx] = updated;
       notifyListeners();
     }
+
+    String backendCategory = 'COFFEE';
+    if (updated.category == ProductCategory.nonKopi) {
+      backendCategory = 'NON_COFFEE';
+    } else if (updated.category == ProductCategory.makanan) {
+      backendCategory = 'FOOD';
+    } else if (updated.category == ProductCategory.snack) {
+      backendCategory = 'SNACK';
+    }
+
     // Sync to backend
-    ApiService.instance.put('/products/${updated.id}', {
+    ApiService.instance.patch('/products/${updated.id}', {
       'name': updated.name,
       'price': updated.price,
-      'code': updated.code,
-      'category': updated.category.label,
-      'stock': updated.stock,
-      'min_stock': updated.minStock,
-      'unit': updated.unit,
-      'default_variant': updated.defaultVariant,
-      'image_url': updated.imageUrl,
+      'category': backendCategory,
+      'defaultVariant': updated.defaultVariant,
+      if (updated.imageUrl != null && updated.imageUrl!.isNotEmpty) 'imageUrl': updated.imageUrl,
     }).catchError((_) => null);
   }
 
@@ -301,6 +341,19 @@ class ProductRepository extends ChangeNotifier {
       StockRepository.instance.deleteStockItem('stock-$id');
     } catch (e) {
       debugPrint('Error auto-removing stock: $e');
+    }
+  }
+
+  /// Deduct stock of a product when an order is completed.
+  void deductStock(String productId, int quantity) {
+    final idx = _products.indexWhere(
+      (p) => p.id == productId || p.name.toLowerCase() == productId.toLowerCase(),
+    );
+    if (idx != -1) {
+      final current = _products[idx];
+      final newStock = (current.stock - quantity).clamp(0, 999999);
+      _products[idx] = current.copyWith(stock: newStock);
+      notifyListeners();
     }
   }
 }

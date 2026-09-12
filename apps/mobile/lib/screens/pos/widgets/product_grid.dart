@@ -88,7 +88,7 @@ class ProductGrid extends StatelessWidget {
     }
 
     return ListView.builder(
-      padding: const EdgeInsets.fromLTRB(16, 8, 16, 220), // Increased to clear both floating bars
+      padding: const EdgeInsets.fromLTRB(16, 8, 16, 96), // Clears the CartBottomBar cleanly
       physics: const BouncingScrollPhysics(),
       itemCount: products.length,
       itemBuilder: (context, index) {

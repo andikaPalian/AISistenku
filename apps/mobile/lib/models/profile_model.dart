@@ -108,7 +108,7 @@ class BusinessProfile {
 
   factory BusinessProfile.defaultStore() {
     return const BusinessProfile(
-      id: 'biz-senja-001',
+      id: '',
       name: 'Kedai Kopi Senja (Pusat)',
       category: 'Coffee Shop & Cafe',
       address: 'Jl. Melati No. 12, Bandung, Jawa Barat',
@@ -322,5 +322,6 @@ class ProfileRepository {
     userNotifier.value = _user;
     businessNotifier.value = _business;
     preferencesNotifier.value = _preferences;
+    ApiService.instance.setBusinessId(null);
   }
 }

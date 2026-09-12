@@ -21,12 +21,10 @@ class RevenueCard extends StatelessWidget {
         final todayExpenseNum = repo.getTotalExpense(FinancePeriod.today);
         final todayExpense = FinanceRepository.formatRupiah(todayExpenseNum);
 
-        final todayTx = repo.getFilteredTransactions(period: FinancePeriod.today);
-        final incomeTxCount = todayTx.where((tx) => tx.type == TransactionType.income).length;
-        final orderDisplay = incomeTxCount > 0 ? '$incomeTxCount Pesanan' : '18 Pesanan';
+        final orderDisplay = '${repo.todayOrdersCount} Pesanan';
 
         final topProducts = repo.getTopProducts();
-        final topProduct = topProducts.isNotEmpty ? topProducts.first.name : 'Kopi Susu';
+        final topProduct = topProducts.isNotEmpty ? topProducts.first.name : '-';
 
         return Container(
           width: double.infinity,

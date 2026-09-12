@@ -1,5 +1,4 @@
 import 'dart:convert';
-import 'dart:io' show Platform;
 import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 
@@ -9,7 +8,9 @@ class ApiConfig {
 
   /// Candidate URLs to probe in order of priority:
   static const List<String> candidateUrls = [
-    'http://localhost:3000/api', // USB with adb reverse, iOS, Desktop, Web
+    'http://localhost:3000/api',   // USB with adb reverse, iOS, Desktop, Web
+    'http://192.168.1.22:3000/api', // Current Wi-Fi LAN IP
+    'http://10.0.2.2:3000/api',     // Android Emulator
   ];
 
   /// Get current effective API base URL
@@ -23,17 +24,7 @@ class ApiConfig {
       return fromDefine;
     }
 
-    if (kIsWeb) {
-      return 'http://localhost:3000/api';
-    }
-
-    try {
-      if (Platform.isAndroid) {
-        // Default to Wi-Fi LAN IP or localhost
-        return 'http://10.11.4.61:3000/api';
-      }
-    } catch (_) {}
-
+    // Default to localhost:3000/api (works on web, desktop, and Android with adb reverse)
     return 'http://localhost:3000/api';
   }
 
@@ -217,6 +208,60 @@ class ApiService {
       throw Exception(errorMsg);
     } catch (e) {
       debugPrint('⚠️ ApiService.delete($path) error: $e');
+      rethrow;
+    }
+  }
+
+  /// Perform a MULTIPART upload request (for Cloudinary image uploads).
+  Future<dynamic> uploadMultipart(
+    String path, {
+    required Uint8List bytes,
+    required String filename,
+    String fieldName = 'image',
+    Map<String, String>? fields,
+  }) async {
+    if (ApiConfig._customBaseUrl == null) {
+      await ApiConfig.autoDetectServer();
+    }
+
+    final fullUrl = '${ApiConfig.baseUrl}$path';
+    try {
+      final uri = Uri.parse(fullUrl);
+      final req = http.MultipartRequest('POST', uri);
+
+      if (_authToken != null) {
+        req.headers['Authorization'] = 'Bearer $_authToken';
+      }
+      if (_businessId != null && _businessId!.isNotEmpty) {
+        req.headers['X-Business-Id'] = _businessId!;
+      }
+
+      if (fields != null) {
+        req.fields.addAll(fields);
+      }
+
+      req.files.add(
+        http.MultipartFile.fromBytes(
+          fieldName,
+          bytes,
+          filename: filename,
+        ),
+      );
+
+      final streamedRes = await req.send().timeout(const Duration(seconds: 25));
+      final res = await http.Response.fromStream(streamedRes);
+
+      final data = jsonDecode(res.body);
+      if (res.statusCode >= 200 && res.statusCode < 300) {
+        return data;
+      }
+
+      final errorMsg = data is Map
+          ? (data['error'] ?? data['message'] ?? 'Status ${res.statusCode}')
+          : 'Error ${res.statusCode}';
+      throw Exception(errorMsg);
+    } catch (e) {
+      debugPrint('⚠️ ApiService.uploadMultipart($path) error on $fullUrl: $e');
       rethrow;
     }
   }

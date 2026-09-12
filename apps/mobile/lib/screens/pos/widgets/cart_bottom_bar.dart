@@ -18,7 +18,7 @@ class CartBottomBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      margin: const EdgeInsets.fromLTRB(20, 0, 20, 24), // Elevated floating margin
+      margin: const EdgeInsets.fromLTRB(16, 0, 16, 12), // Floating neatly above grounded nav bar
       child: GestureDetector(
         onTap: onViewOrder,
         child: Container(

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../core/services/api_service.dart';
 import 'stock_model.dart';
 import 'finance_model.dart';
+import 'profile_model.dart';
 
 /// Sender of the AI Chat message.
 enum ChatSender {
@@ -106,58 +107,20 @@ class AiChatRepository extends ChangeNotifier {
   }
 
   void _seedChat() {
-    final now = DateTime.now();
+    _messages.clear();
+    final name = ProfileRepository.instance.user.name.split(' ').first;
+    final greetingPrefix = (name.isNotEmpty && name.toLowerCase() != 'owner') ? 'Halo, $name!' : 'Halo!';
 
-    _messages.addAll([
-      // 1. Initial User Query
+    _messages.add(
       AiChatMessage(
-        id: 'msg-001',
-        sender: ChatSender.user,
-        text: 'Bagaimana bisnis saya hari ini?',
-        type: AiMessageType.text,
-        timestamp: DateTime(now.year, now.month, now.day, 14, 20),
-      ),
-      // 2. AI Business Summary Response
-      AiChatMessage(
-        id: 'msg-002',
+        id: 'msg-welcome',
         sender: ChatSender.ai,
         text:
-            'Kinerja bisnis hari ini tampak baik. Pendapatan telah mencapai Rp1.250.000, naik 12% dibandingkan kemarin.',
-        type: AiMessageType.businessSummary,
-        timestamp: DateTime(now.year, now.month, now.day, 14, 20, 5),
-        extraData: {
-          'revenue': 1250000.0,
-          'profit': 450000.0,
-          'bestSeller': 'Iced Aren Latte',
-        },
-      ),
-      // 3. User Natural Language Purchase Recording
-      AiChatMessage(
-        id: 'msg-003',
-        sender: ChatSender.user,
-        text: 'Saya baru saja beli 10kg gula pasir dengan harga total 170rb',
+            '$greetingPrefix Saya AIsistenku, asisten cerdas untuk kelola toko & kedai Anda.\n\nAda yang bisa saya bantu hari ini? Anda bisa menanyakan omzet penjualan, mengecek ketersediaan stok bahan, mencatat pengeluaran belanja, atau membuat caption promosi media sosial.',
         type: AiMessageType.text,
-        timestamp: DateTime(now.year, now.month, now.day, 14, 22),
+        timestamp: DateTime.now(),
       ),
-      // 4. AI Detected Action Confirmation Card (Confirmed)
-      AiChatMessage(
-        id: 'msg-004',
-        sender: ChatSender.ai,
-        text: 'Pembelian berhasil dideteksi dan dicocokkan dengan inventaris:',
-        type: AiMessageType.actionConfirm,
-        timestamp: DateTime(now.year, now.month, now.day, 14, 22, 4),
-        actionPayload: AiActionPayload(
-          actionId: 'act-001',
-          intent: 'ADD_STOCK_AND_EXPENSE',
-          itemName: 'Sugar',
-          quantity: 10,
-          unit: 'kg',
-          expenseAmount: 170000,
-          category: 'Bahan Baku',
-          status: AiActionStatus.confirmed,
-        ),
-      ),
-    ]);
+    );
   }
 
   /// Fetch previous messages from backend API.
@@ -175,18 +138,22 @@ class AiChatRepository extends ChangeNotifier {
             AiActionPayload? actionPayload;
             Map<String, dynamic>? extraData;
 
-            if (typeStr == 'actionConfirm' && m['actionPayload'] != null) {
+            final rawAction = m['actionPayload'] ?? m['extraData'] ?? m['extra_data'];
+            if ((typeStr == 'actionConfirm' || typeStr == 'action_confirmation') && rawAction != null) {
               msgType = AiMessageType.actionConfirm;
-              final ap = m['actionPayload'];
+              final ap = rawAction;
+              final payload = ap['payload'] is Map ? ap['payload'] : ap;
               actionPayload = AiActionPayload(
-                actionId: ap['actionId'] ?? 'act-001',
-                intent: ap['intent'] ?? 'ADD_STOCK_AND_EXPENSE',
-                itemName: ap['itemName'],
-                quantity: (ap['quantity'] as num?)?.toDouble(),
-                unit: ap['unit'],
-                expenseAmount: (ap['expenseAmount'] as num?)?.toDouble(),
-                category: ap['category'],
-                status: ap['status'] == 'confirmed' ? AiActionStatus.confirmed : AiActionStatus.pending,
+                actionId: ap['actionId'] ?? ap['id'] ?? 'act-001',
+                intent: ap['intent'] ?? 'ADD_STOCK',
+                itemName: payload['itemName'] ?? payload['item'] ?? 'Bahan',
+                quantity: (payload['quantity'] as num?)?.toDouble() ?? 1.0,
+                unit: payload['unit'] ?? 'unit',
+                expenseAmount: (payload['expenseAmount'] ?? payload['amount'] as num?)?.toDouble(),
+                category: payload['category'] ?? 'Bahan Baku',
+                status: (ap['status'] == 'CONFIRMED' || ap['status'] == 'confirmed')
+                    ? AiActionStatus.confirmed
+                    : AiActionStatus.pending,
               );
             } else if (typeStr == 'businessSummary') {
               msgType = AiMessageType.businessSummary;
@@ -260,18 +227,22 @@ class AiChatRepository extends ChangeNotifier {
         AiActionPayload? actionPayload;
         Map<String, dynamic>? extraData;
 
-        if (resTypeStr == 'actionConfirm' && r['actionPayload'] != null) {
+        final rawAction = r['actionPayload'] ?? r['extraData'] ?? res['action'];
+        if ((resTypeStr == 'actionConfirm' || resTypeStr == 'action_confirmation') && rawAction != null) {
           msgType = AiMessageType.actionConfirm;
-          final ap = r['actionPayload'];
+          final ap = rawAction;
+          final payload = ap['payload'] is Map ? ap['payload'] : ap;
           actionPayload = AiActionPayload(
-            actionId: ap['actionId'] ?? 'act-${DateTime.now().millisecondsSinceEpoch}',
-            intent: ap['intent'] ?? 'ADD_STOCK_AND_EXPENSE',
-            itemName: ap['itemName'],
-            quantity: (ap['quantity'] as num?)?.toDouble(),
-            unit: ap['unit'],
-            expenseAmount: (ap['expenseAmount'] as num?)?.toDouble(),
-            category: ap['category'] ?? 'Bahan Baku',
-            status: AiActionStatus.pending,
+            actionId: ap['actionId'] ?? ap['id'] ?? 'act-${DateTime.now().millisecondsSinceEpoch}',
+            intent: ap['intent'] ?? 'ADD_STOCK',
+            itemName: payload['itemName'] ?? payload['item'] ?? 'Bahan',
+            quantity: (payload['quantity'] as num?)?.toDouble() ?? 1.0,
+            unit: payload['unit'] ?? 'unit',
+            expenseAmount: (payload['expenseAmount'] ?? payload['amount'] as num?)?.toDouble(),
+            category: payload['category'] ?? 'Bahan Baku',
+            status: (ap['status'] == 'CONFIRMED' || ap['status'] == 'confirmed')
+                ? AiActionStatus.confirmed
+                : AiActionStatus.pending,
           );
         } else if (resTypeStr == 'businessSummary') {
           msgType = AiMessageType.businessSummary;
@@ -571,10 +542,11 @@ class AiChatRepository extends ChangeNotifier {
     );
   }
 
-  /// Clear chat messages.
+  /// Clear chat messages and reset to initial AI greeting.
   void clearChat() {
     _messages.clear();
     _seedChat();
     notifyListeners();
+    ApiService.instance.delete('/ai/messages').catchError((_) => null);
   }
 }
