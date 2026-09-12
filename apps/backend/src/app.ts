@@ -15,6 +15,7 @@ import { financeRouter } from './modules/finance/finance.routes.js';
 import { dashboardRouter } from './modules/dashboard/dashboard.routes.js';
 import { aiRouter } from './modules/ai/ai.routes.js';
 import { marketingRouter } from './modules/marketing/marketing.routes.js';
+import { uploadRouter } from './modules/upload/upload.routes.js';
 import { globalErrorHandler } from './middleware/error.middleware.js';
 
 export const createApp = (): Express => {
@@ -29,7 +30,10 @@ export const createApp = (): Express => {
     })
   );
 
-  app.use(cors());
+  app.use(cors({
+    origin: env.FRONTEND_ORIGIN || 'http://localhost:5173',
+    credentials: true,
+  }));
   app.use(cookieParser());
   app.use(express.json());
   app.use(express.urlencoded({ extended: true, limit: '50mb' }));
@@ -66,6 +70,8 @@ export const createApp = (): Express => {
   app.use(`${API_PREFIX}/dashboard`, dashboardRouter);
   app.use(`${API_PREFIX}/ai`, aiRouter);
   app.use(`${API_PREFIX}/marketing-content`, marketingRouter);
+  app.use(`${API_PREFIX}/upload`, uploadRouter);
+  app.use(`${API_PREFIX}/uploads`, uploadRouter);
 
   // Backward compatibility alias for /api without /v1
   app.use('/api/auth', authRouter);
@@ -78,6 +84,8 @@ export const createApp = (): Express => {
   app.use('/api/dashboard', dashboardRouter);
   app.use('/api/ai', aiRouter);
   app.use('/api/marketing-content', marketingRouter);
+  app.use('/api/upload', uploadRouter);
+  app.use('/api/uploads', uploadRouter);
 
   app.use((_req: Request, res: Response) => {
     res.status(404).json({

@@ -5,6 +5,7 @@ import { SignOptions } from 'jsonwebtoken';
 const envSchema = z.object({
   NODE_ENV: z.enum(['development', 'production', 'test']).default('development'),
   PORT: z.coerce.number().default(3000),
+  FRONTEND_ORIGIN: z.string().optional().default(process.env.FRONTEND_ORIGIN || 'http://localhost:5173'),
 
   // Database
   DATABASE_URL: z.string().min(1, 'DATABASE_URL is required'),

@@ -22,13 +22,19 @@ import { GoogleGenAI } from '@google/genai';
 import crypto from 'crypto';
 
 let genAIClient: GoogleGenAI | null = null;
-if (env.GEMINI_API_KEY && env.GEMINI_API_KEY.trim() !== '') {
-  try {
-    genAIClient = new GoogleGenAI({ apiKey: env.GEMINI_API_KEY });
-  } catch (err: any) {
-    logger.warn(`[AI SERVICE] Failed to initialize GoogleGenAI: ${err.message}`);
+const getGenAIClient = (): GoogleGenAI | null => {
+  const apiKey = (env.GEMINI_API_KEY || process.env.GEMINI_API_KEY || '').trim();
+  if (!apiKey) return null;
+  if (!genAIClient) {
+    try {
+      genAIClient = new GoogleGenAI({ apiKey });
+      logger.info('[AI SERVICE] GoogleGenAI client initialized successfully with Gemini model.');
+    } catch (err: any) {
+      logger.warn(`[AI SERVICE] Failed to initialize GoogleGenAI: ${err.message}`);
+    }
   }
-}
+  return genAIClient;
+};
 
 const SYSTEM_INSTRUCTION = `
 Anda adalah AIsistenku, asisten bisnis cerdas untuk UMKM Coffee Shop dan F&B kecil ("Tiga Angkatan").
@@ -39,6 +45,12 @@ PRINSIP UTAMA:
 2. PROPOSAL AKSI TULIS: Jika pengguna meminta menambah stok atau mencatat pengeluaran, konfirmasikan usulan tersebut ("Mau saya tambahkan stok...?") dan jangan klaim sudah tersimpan sebelum pengguna menekan konfirmasi.
 3. KONTEN PROMOSI: Buatkan variasi caption promosi yang kreatif, menggugah selera, dan relevan dengan menu coffee shop, lengkap dengan rekomendasi hashtag yang pas.
 `;
+
+const capitalizeWords = (str: string) =>
+  str
+    .split(' ')
+    .map((w) => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase())
+    .join(' ');
 
 export const handleChat = async (
   businessId: string,
@@ -56,20 +68,105 @@ export const handleChat = async (
     },
   });
 
-  const textLower = messageText.toLowerCase();
+  const textLower = messageText.toLowerCase().trim();
 
-  // 2. Cek apakah ada intent aksi tulis langsung (misal: "tambah stok gula 5kg" atau "catat pengeluaran beli susu 50rb")
-  // Tool Write: add_stock
-  const addStockMatch = textLower.match(/(?:tambah|masukkan|isi)\s+stok\s+([a-zA-Z\s]+?)\s+(\d+(?:[.,]\d+)?)\s*([a-zA-Z]+)?/i);
-  if (addStockMatch) {
-    const item = addStockMatch[1].trim();
-    const qty = parseFloat(addStockMatch[2].replace(',', '.'));
-    const unit = (addStockMatch[3] || 'unit').trim();
+  // 2. Cek apakah pengguna mengonfirmasi aksi sebelumnya via chat (misal: "iya", "ya", "tambahkan", "oke", "setuju", "gas", "catat")
+  const isAffirmative = /^(iya|ya|oke|ok|setuju|gas|boleh|tambahkan|tambah|catat|lanjut|siap|yup|y|benar|betul)\b/i.test(textLower);
+  if (isAffirmative) {
+    const lastPendingAction = await prisma.aiAction.findFirst({
+      where: {
+        status: ActionStatus.PENDING,
+        message: { businessId },
+      },
+      orderBy: { createdAt: 'desc' },
+      include: { message: true },
+    });
+
+    if (lastPendingAction) {
+      await confirmAction(lastPendingAction.id, businessId, userId);
+      const payload = lastPendingAction.payload as any;
+      const detailText = lastPendingAction.intent === 'add_stock'
+        ? `Stok **${payload.item || 'Bahan'}** sebanyak **${payload.quantity} ${payload.unit || 'unit'}** telah berhasil ditambahkan ke inventaris.`
+        : `Pengeluaran sebesar **Rp ${Number(payload.amount || 0).toLocaleString('id-ID')}** (${payload.note || ''}) telah berhasil dicatat ke laporan keuangan.`;
+
+      const confirmText = `✅ Siap, sudah saya konfirmasi!\n\n${detailText}`;
+
+      const aiMessage = await prisma.aiMessage.create({
+        data: {
+          businessId,
+          userId,
+          sender: MessageSender.AI,
+          text: confirmText,
+          type: 'text',
+        },
+      });
+
+      return {
+        userMessage,
+        aiResponse: aiMessage,
+        type: 'text',
+        message: confirmText,
+      };
+    }
+  }
+
+  // 3. Cek apakah ada intent aksi tulis langsung (misal: "tambah stok gula 5kg" atau "catat pengeluaran beli susu 50rb")
+  // Tool Write: add_stock dengan variasi frasa luwes dan fleksibel
+  let stockItemName = '';
+  let stockQty = 0;
+  let stockUnit = 'unit';
+
+  // Pola 1: [tambah/masukkan/isi/beli/restock] + [item] + [angka] + [satuan]
+  // Contoh: "tambahkan bubuk matchanya 1.5kg", "tambah stok gula aren 2 liter", "beli susu fresh milk 3L"
+  const mItemFirst = textLower.match(/(?:tambah(?:kan)?|masukkan|isi(?:kan)?|beli|restock)\s+(?:saya\s+|dong\s+|tolong\s+)?(?:stok\s+)?([a-zA-Z\s]+?)(?:nya)?\s+(\d+(?:[.,]\d+)?)\s*([a-zA-Z]+)?$/i);
+
+  // Pola 2: [tambah/masukkan/isi/beli/restock] + [angka] + [satuan] + [item]
+  // Contoh: "tambahkan 1.5 kg bubuk matcha", "masukkan 5 liter susu fresh milk"
+  const mQtyFirst = textLower.match(/(?:tambah(?:kan)?|masukkan|isi(?:kan)?|beli|restock)\s+(?:saya\s+|dong\s+|tolong\s+)?(\d+(?:[.,]\d+)?)\s*([a-zA-Z]+)?\s+(?:stok\s+)?([a-zA-Z\s]+?)(?:nya)?$/i);
+
+  if (mItemFirst) {
+    stockItemName = mItemFirst[1].trim();
+    stockQty = parseFloat(mItemFirst[2].replace(',', '.'));
+    stockUnit = (mItemFirst[3] || 'unit').trim();
+  } else if (mQtyFirst) {
+    stockQty = parseFloat(mQtyFirst[1].replace(',', '.'));
+    stockUnit = (mQtyFirst[2] || 'unit').trim();
+    stockItemName = mQtyFirst[3].trim();
+  }
+
+  // Bersihkan kata depan 'stok' jika ikut terambil
+  stockItemName = stockItemName.replace(/^stok\s+/i, '').trim();
+
+  if (stockItemName && stockQty > 0) {
+    // 1. Cari exact/fuzzy match di tabel stok toko
+    let matchedStock = await prisma.stockItem.findFirst({
+      where: {
+        businessId,
+        name: { contains: stockItemName, mode: 'insensitive' },
+      },
+    });
+
+    // 2. Jika belum ketemu, coba cari berdasarkan kata kunci pecahan (misal "matcha" atau "gula")
+    if (!matchedStock) {
+      const words = stockItemName.split(/\s+/).filter((w) => w.length >= 3);
+      for (const word of words) {
+        matchedStock = await prisma.stockItem.findFirst({
+          where: {
+            businessId,
+            name: { contains: word, mode: 'insensitive' },
+          },
+        });
+        if (matchedStock) break;
+      }
+    }
+
+    const finalItemName = matchedStock ? matchedStock.name : capitalizeWords(stockItemName);
+    const finalUnit = (stockUnit === 'unit' && matchedStock?.unit) ? matchedStock.unit : stockUnit;
 
     const proposal = await executeAddStockProposal(userMessage.id, {
-      item,
-      quantity: qty,
-      unit,
+      item: finalItemName,
+      quantity: stockQty,
+      unit: finalUnit,
     });
 
     const aiMessage = await prisma.aiMessage.create({
@@ -150,20 +247,34 @@ export const handleChat = async (
   // 4. Hubungi Gemini API jika SDK tersedia dan KEY disetel
   let replyText = '';
 
-  if (genAIClient) {
+  const client = getGenAIClient();
+  if (client) {
     try {
       const menuContext = await getBusinessProductContext(businessId);
+
+      // Ambil 6 pesan riwayat terakhir agar percakapan multiturn saling berkesinambungan
+      const historyList = await prisma.aiMessage.findMany({
+        where: { businessId },
+        orderBy: { timestamp: 'desc' },
+        take: 6,
+      });
+      const chatHistory = historyList
+        .reverse()
+        .map((m) => `${m.sender === MessageSender.USER ? 'Pengguna' : 'AIsistenku'}: ${m.text}`)
+        .join('\n');
+
       const promptWithContext = `
 ${SYSTEM_INSTRUCTION}
 
 Konteks Menu Toko Saat Ini: ${menuContext || 'Kopi Susu, Americano, Latte, Croissant'}
 ${dataContext ? `Konteks Data Nyata Bisnis: ${dataContext}` : ''}
+${chatHistory ? `Riwayat Percakapan Sebelumnya:\n${chatHistory}\n` : ''}
 
-Pertanyaan Pengguna: "${messageText}"
-Berikan jawaban ringkas, akurat sesuai konteks, dan bermanfaat bagi pengelola toko.
+Pesan Pengguna Terkini: "${messageText}"
+Berikan jawaban ringkas, akurat sesuai konteks, ramah, dan solutif.
 `;
 
-      const response = await genAIClient.models.generateContent({
+      const response = await client.models.generateContent({
         model: 'gemini-2.5-flash',
         contents: promptWithContext,
       });
@@ -348,7 +459,8 @@ export const generateContentIdeas = async (
   let captions: string[] = [];
   let hashtags: string[] = ['#TigaAngkatan', '#CoffeeShop', '#PromoKopi', '#UMKMCoffee'];
 
-  if (genAIClient) {
+  const client = getGenAIClient();
+  if (client) {
     try {
       const prompt = `
 Buatkan 3 variasi caption promosi media sosial untuk kedai kopi "Tiga Angkatan".
@@ -368,7 +480,7 @@ Format keluaran HARUS valid JSON:
 }
 `;
 
-      const res = await genAIClient.models.generateContent({
+      const res = await client.models.generateContent({
         model: 'gemini-2.5-flash',
         contents: prompt,
       });

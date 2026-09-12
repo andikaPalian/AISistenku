@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
-import { BadRequestError, ForbiddenError, UnauthorizedError } from '@/errors/http.error.js';
+import { ForbiddenError, UnauthorizedError } from '@/errors/http.error.js';
 import { prisma } from '@/config/database.config.js';
 
 export const requireBusinessContext = async (
@@ -14,30 +14,48 @@ export const requireBusinessContext = async (
   const rawBusinessId = req.headers['x-business-id'];
   const businessId = Array.isArray(rawBusinessId) ? rawBusinessId[0] : rawBusinessId;
 
-  if (!businessId || typeof businessId !== 'string' || businessId.trim() === '') {
-    throw new BadRequestError(
-      'Header X-Business-Id wajib disertakan untuk mengakses sumber daya bisnis ini.',
-      'MISSING_BUSINESS_ID'
-    );
+  let cleanBusinessId: string | null = null;
+  if (businessId && typeof businessId === 'string' && businessId.trim() !== '') {
+    cleanBusinessId = businessId.trim();
   }
 
-  const cleanBusinessId = businessId.trim();
+  let membership = null;
+  if (cleanBusinessId) {
+    membership = await prisma.businessMember.findUnique({
+      where: {
+        businessId_userId: {
+          businessId: cleanBusinessId,
+          userId: req.user.id,
+        },
+      },
+      include: {
+        business: true,
+      },
+    });
+  }
 
-  const membership = await prisma.businessMember.findUnique({
-    where: {
-      businessId_userId: {
-        businessId: cleanBusinessId,
+  // Graceful fallback: attach user's primary/first active business membership
+  // if header was missing, invalid, or belongs to a different/stale local state
+  if (!membership) {
+    membership = await prisma.businessMember.findFirst({
+      where: {
         userId: req.user.id,
       },
-    },
-    include: {
-      business: true,
-    },
-  });
+      include: {
+        business: true,
+      },
+      orderBy: {
+        createdAt: 'asc',
+      },
+    });
+    if (membership) {
+      cleanBusinessId = membership.businessId;
+    }
+  }
 
-  if (!membership) {
+  if (!membership || !cleanBusinessId) {
     throw new ForbiddenError(
-      'Akses ditolak: Anda bukan anggota dari bisnis yang diminta.',
+      'Akses ditolak: Anda belum terdaftar dalam bisnis apapun.',
       'FORBIDDEN_BUSINESS_ACCESS'
     );
   }
