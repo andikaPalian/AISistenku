@@ -13,8 +13,8 @@ const envSchema = z.object({
   // JWT
   JWT_SECRET: z.string().min(16, 'JWT_SECRET must be at least 16 characters long').default(process.env.JWT_ACCESS_SECRET || process.env.JWT_SECRET || 'default_jwt_access_secret_super_secret_key_32'),
   JWT_REFRESH_SECRET: z.string().min(16, 'JWT_REFRESH_SECRET must be at least 16 characters long').default(process.env.JWT_REFRESH_SECRET || 'default_jwt_refresh_secret_super_secret_key_32'),
-  JWT_ACCESS_EXPIRES: z.string().default('15m') as z.ZodType<SignOptions['expiresIn']>,
-  JWT_REFRESH_EXPIRES: z.string().default('7d') as z.ZodType<SignOptions['expiresIn']>,
+  JWT_ACCESS_EXPIRES: z.string().default('7d') as z.ZodType<SignOptions['expiresIn']>,
+  JWT_REFRESH_EXPIRES: z.string().default('30d') as z.ZodType<SignOptions['expiresIn']>,
 
   // AI Assistant (Gemini)
   GEMINI_API_KEY: z.string().optional().default(process.env.GEMINI_API_KEY || ''),

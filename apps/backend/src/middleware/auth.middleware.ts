@@ -4,11 +4,15 @@ import { verifyAccessToken } from '@/utils/jwt.util.js';
 
 export const requireAuth = (req: Request, _res: Response, next: NextFunction): void => {
   const authHeader = req.headers.authorization;
-  if (!authHeader || !authHeader.startsWith('Bearer ')) {
-    throw new UnauthorizedError('Autentikasi diperlukan. Sediakan Bearer token.', 'UNAUTHORIZED');
+  let token = authHeader && authHeader.startsWith('Bearer ') ? authHeader.split(' ')[1] : null;
+
+  if (!token && req.cookies?.accessToken) {
+    token = req.cookies.accessToken;
   }
 
-  const token = authHeader.split(' ')[1];
+  if (!token) {
+    throw new UnauthorizedError('Autentikasi diperlukan. Sediakan Bearer token.', 'UNAUTHORIZED');
+  }
   try {
     const verified = verifyAccessToken(token);
     req.user = {

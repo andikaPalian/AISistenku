@@ -274,10 +274,17 @@ Pesan Pengguna Terkini: "${messageText}"
 Berikan jawaban ringkas, akurat sesuai konteks, ramah, dan solutif.
 `;
 
-      const response = await client.models.generateContent({
-        model: 'gemini-2.5-flash',
-        contents: promptWithContext,
-      });
+      const timeoutPromise = new Promise<never>((_, reject) =>
+        setTimeout(() => reject(new Error('Gemini API call timed out after 3500ms')), 3500)
+      );
+
+      const response = await Promise.race([
+        client.models.generateContent({
+          model: 'gemini-2.5-flash',
+          contents: promptWithContext,
+        }),
+        timeoutPromise,
+      ]);
 
       replyText = response.text?.trim() || '';
     } catch (apiErr: any) {
