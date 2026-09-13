@@ -9,6 +9,8 @@ export const getDashboardSummary = async (businessId: string) => {
   const [
     todayOrders,
     todayExpenses,
+    todayRefunds,
+    todayRecordedIncomes,
     monthIncomes,
     monthExpenses,
     allStocks,
@@ -25,12 +27,40 @@ export const getDashboardSummary = async (businessId: string) => {
       },
     }),
 
-    // 2. Pengeluaran hari ini
+    // 2. Pengeluaran operasional hari ini (excluding refund)
     prisma.financeTransaction.aggregate({
       where: {
         businessId,
         timestamp: { gte: startOfToday },
         type: FinanceType.EXPENSE,
+        category: { not: 'refund' },
+      },
+      _sum: {
+        amount: true,
+      },
+    }),
+
+    // 2b. Total refund hari ini
+    prisma.financeTransaction.aggregate({
+      where: {
+        businessId,
+        timestamp: { gte: startOfToday },
+        category: 'refund',
+      },
+      _sum: {
+        amount: true,
+      },
+      _count: {
+        id: true,
+      },
+    }),
+
+    // 2c. Total penjualan kotor tercatat hari ini
+    prisma.financeTransaction.aggregate({
+      where: {
+        businessId,
+        timestamp: { gte: startOfToday },
+        type: FinanceType.INCOME,
       },
       _sum: {
         amount: true,
@@ -82,6 +112,10 @@ export const getDashboardSummary = async (businessId: string) => {
   );
   const todayOrdersCount = todayOrders.length;
   const todayExpense = Number(todayExpenses._sum.amount ?? 0);
+  const todayRefundAmount = Number(todayRefunds._sum.amount ?? 0);
+  const todayRefundCount = todayRefunds._count.id;
+  const recordedGross = Number(todayRecordedIncomes._sum.amount ?? 0);
+  const todayGrossRevenue = Math.max(recordedGross, todayRevenue + todayRefundAmount);
 
   const monthRevenue = Number(monthIncomes._sum.amount ?? 0);
   const monthExpense = Number(monthExpenses._sum.amount ?? 0);
@@ -98,6 +132,9 @@ export const getDashboardSummary = async (businessId: string) => {
 
   return {
     todayRevenue,
+    todayGrossRevenue,
+    todayRefundAmount,
+    todayRefundCount,
     todayOrdersCount,
     todayExpense,
     monthRevenue,
@@ -107,6 +144,7 @@ export const getDashboardSummary = async (businessId: string) => {
     criticalStockItems,
     // Aliases for compatibility with various frontend representations
     today_sales: todayRevenue,
+    today_gross_sales: todayGrossRevenue,
     today_orders: todayOrdersCount,
     total_sales: monthRevenue,
     critical_stocks: criticalStockItems,

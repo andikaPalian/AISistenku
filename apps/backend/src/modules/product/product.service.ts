@@ -1,4 +1,5 @@
 import * as productRepo from './product.repository.js';
+import { prisma } from '@/config/database.config.js';
 import { NotFoundError } from '@/errors/http.error.js';
 import {
   CreateProductDTO,
@@ -12,6 +13,11 @@ export const listProducts = async (businessId: string, query: ListProductQuery) 
     isActive: query.isActive,
     category: query.category,
     search: query.search,
+  });
+
+  const allStocks = await prisma.stockItem.findMany({
+    where: { businessId },
+    select: { id: true, name: true, currentStock: true },
   });
 
   return products.map((product: any) => {
@@ -30,6 +36,13 @@ export const listProducts = async (businessId: string, query: ListProductQuery) 
       }
       if (minPortions !== Infinity) {
         availablePortions = Math.max(0, minPortions);
+      }
+    } else {
+      const match = allStocks.find(
+        (s) => s.name.trim().toLowerCase() === product.name.trim().toLowerCase()
+      );
+      if (match) {
+        availablePortions = Math.max(0, Math.floor(Number(match.currentStock)));
       }
     }
 
@@ -62,6 +75,16 @@ export const getProductById = async (id: string, businessId: string) => {
     }
     if (minPortions !== Infinity) {
       availablePortions = Math.max(0, minPortions);
+    }
+  } else {
+    const match = await prisma.stockItem.findFirst({
+      where: {
+        businessId,
+        name: { equals: product.name.trim(), mode: 'insensitive' },
+      },
+    });
+    if (match) {
+      availablePortions = Math.max(0, Math.floor(Number(match.currentStock)));
     }
   }
 
