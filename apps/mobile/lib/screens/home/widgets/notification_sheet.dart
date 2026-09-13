@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import '../../../core/widgets/action_success_modal.dart';
 import '../../../models/notification_model.dart';
 
 /// Modern Neo-Clean Notification Center Bottom Sheet Modal.
@@ -492,11 +493,16 @@ class _NotificationSheetState extends State<NotificationSheet> {
                         onTap: () {
                           repo.markAsRead(notif.id);
                           Navigator.pop(context);
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(
-                              content: Text('Mengarahkan ke: ${notif.actionLabel}'),
-                              backgroundColor: const Color(0xFF111111),
-                            ),
+                          ActionSuccessModal.show(
+                            context,
+                            title: notif.title,
+                            subtitle: notif.message,
+                            itemName: notif.actionLabel ?? 'Notifikasi',
+                            itemCategory: 'Aksi Notifikasi',
+                            quantityChange: 'Selesai',
+                            financialImpact: 'Outlet Tiga Angkatan',
+                            statusBadge: 'Terkonfirmasi',
+                            itemIcon: Icons.notifications_active_rounded,
                           );
                         },
                         borderRadius: BorderRadius.circular(10),

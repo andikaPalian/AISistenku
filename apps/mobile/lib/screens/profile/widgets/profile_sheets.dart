@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../../core/services/api_service.dart';
+import '../../../core/widgets/action_success_modal.dart';
 import '../../../models/profile_model.dart';
 
 /// Modal bottom sheets and dialogs for Profile & Business Settings.
@@ -238,17 +239,22 @@ class ProfileSheets {
                               );
 
                               if (context.mounted) {
+                                final savedName = nameController.text.trim();
+                                final savedPhone = phoneController.text.trim();
                                 Navigator.pop(context);
                                 onSaved();
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  SnackBar(
-                                    content: Text(
-                                      ok
-                                          ? '✅ Profil akun berhasil diperbarui di server'
-                                          : '✅ Profil akun diperbarui (tersimpan lokal)',
-                                    ),
-                                    backgroundColor: const Color(0xFF111111),
-                                  ),
+                                ActionSuccessModal.show(
+                                  context,
+                                  title: 'Profil Akun Diperbarui',
+                                  subtitle: ok
+                                      ? 'Informasi profil akun Anda berhasil disinkronkan ke cloud server.'
+                                      : 'Informasi profil akun Anda berhasil disimpan secara lokal.',
+                                  itemName: savedName,
+                                  itemCategory: 'Nama Pengguna',
+                                  quantityChange: savedPhone.isNotEmpty ? savedPhone : 'Aktif',
+                                  financialImpact: 'Akun Terverifikasi',
+                                  statusBadge: 'Tersimpan',
+                                  itemIcon: Icons.person_outline_rounded,
                                 );
                               }
                             },
@@ -628,17 +634,22 @@ class ProfileSheets {
                                 );
 
                                 if (context.mounted) {
+                                  final storeName = nameController.text.trim();
+                                  final storeCat = categoryController.text.trim();
                                   Navigator.pop(context);
                                   onSaved();
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    SnackBar(
-                                      content: Text(
-                                        ok
-                                            ? '✅ Profil bisnis berhasil diperbarui di server'
-                                            : '✅ Profil bisnis diperbarui (tersimpan lokal)',
-                                      ),
-                                      backgroundColor: const Color(0xFF111111),
-                                    ),
+                                  ActionSuccessModal.show(
+                                    context,
+                                    title: 'Profil Toko Diperbarui',
+                                    subtitle: ok
+                                        ? 'Pengaturan outlet dan informasi toko berhasil disimpan ke cloud server.'
+                                        : 'Pengaturan outlet dan informasi toko berhasil disimpan secara lokal.',
+                                    itemName: storeName,
+                                    itemCategory: 'Outlet / Kafe ($storeCat)',
+                                    quantityChange: 'PB1: $taxVal%',
+                                    financialImpact: 'Kategori: $storeCat',
+                                    statusBadge: 'Tersimpan',
+                                    itemIcon: Icons.storefront_rounded,
                                   );
                                 }
                               },
@@ -854,11 +865,16 @@ class ProfileSheets {
                 onPressed: () {
                   if (!formKey.currentState!.validate()) return;
                   Navigator.pop(ctx);
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text('✅ Kata sandi akun berhasil diperbarui'),
-                      backgroundColor: Color(0xFF111111),
-                    ),
+                  ActionSuccessModal.show(
+                    context,
+                    title: 'Kata Sandi Diperbarui',
+                    subtitle: 'Kata sandi akun kasir dan owner berhasil diperbarui dengan aman.',
+                    itemName: 'Keamanan Akun',
+                    itemCategory: 'Autentikasi & Sandi',
+                    quantityChange: 'Aktif',
+                    financialImpact: 'Enkripsi Kuat',
+                    statusBadge: 'Tersimpan',
+                    itemIcon: Icons.lock_outline_rounded,
                   );
                 },
                 child: Text('Simpan Sandi', style: GoogleFonts.plusJakartaSans(fontWeight: FontWeight.w700)),
@@ -979,16 +995,29 @@ class ProfileSheets {
               final ok = await ApiService.instance.checkHealth();
               onConnectionTested(ok);
               if (context.mounted) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                    content: Text(
-                      ok
-                          ? '✅ Berhasil terhubung ke ${ApiConfig.baseUrl}'
-                          : '⚠️ Server belum merespons, pastikan backend aktif',
-                    ),
-                    backgroundColor: ok ? const Color(0xFF111111) : const Color(0xFFDC2626),
-                  ),
-                );
+                if (ok) {
+                  ActionSuccessModal.show(
+                    context,
+                    title: 'Koneksi Server Berhasil',
+                    subtitle: 'Aplikasi terhubung ke backend API server dan siap melakukan sinkronisasi.',
+                    itemName: ApiConfig.baseUrl,
+                    itemCategory: 'Endpoint API Server',
+                    quantityChange: '200 OK',
+                    financialImpact: 'Status Jaringan: Online',
+                    statusBadge: 'Terhubung',
+                    itemIcon: Icons.dns_rounded,
+                  );
+                } else {
+                  ActionSuccessModal.showNotice(
+                    context,
+                    title: 'Server Belum Merespons',
+                    subtitle: 'Gagal menghubungi server di ${ApiConfig.baseUrl}. Pastikan laptop/server backend aktif dan IP address benar.',
+                    itemName: ApiConfig.baseUrl,
+                    itemCategory: 'Endpoint API Server',
+                    detailText: 'Offline',
+                    isError: true,
+                  );
+                }
               }
             },
             child: Text('Simpan & Tes', style: GoogleFonts.plusJakartaSans(fontWeight: FontWeight.w700)),

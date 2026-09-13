@@ -1,14 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import '../../../models/profile_model.dart';
 
 /// Modern welcome and empty state canvas introducing AIsisten to the business owner.
 class AiWelcomeHero extends StatelessWidget {
-  final String userName;
+  final String? userName;
   final ValueChanged<String>? onSelectPrompt;
 
   const AiWelcomeHero({
     super.key,
-    this.userName = 'Budi',
+    this.userName,
     this.onSelectPrompt,
   });
 
@@ -37,6 +38,11 @@ class AiWelcomeHero extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final rawName = userName?.trim();
+    final displayName = (rawName != null && rawName.isNotEmpty && rawName.toLowerCase() != 'owner')
+        ? (rawName.contains(' ') ? rawName.split(' ').first : rawName)
+        : ProfileRepository.instance.user.firstName;
+
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 12),
@@ -70,7 +76,7 @@ class AiWelcomeHero extends StatelessWidget {
 
           // Title & Greeting
           Text(
-            'Halo, $userName 👋',
+            'Halo, $displayName 👋',
             style: GoogleFonts.poppins(
               fontSize: 22,
               fontWeight: FontWeight.w700,

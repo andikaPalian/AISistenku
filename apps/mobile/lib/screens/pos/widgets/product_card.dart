@@ -32,10 +32,10 @@ class ProductCard extends StatelessWidget {
       onTap: onTap,
       onLongPress: onLongPress,
       child: Container(
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
         decoration: BoxDecoration(
           color: Colors.white,
-          borderRadius: BorderRadius.circular(24),
+          borderRadius: BorderRadius.circular(20),
           boxShadow: [
             BoxShadow(
               color: Colors.black.withValues(alpha: 0.03),
@@ -49,10 +49,10 @@ class ProductCard extends StatelessWidget {
           children: [
             // Product Image (Square with rounded corners)
             ClipRRect(
-              borderRadius: BorderRadius.circular(16),
+              borderRadius: BorderRadius.circular(14),
               child: SizedBox(
-                width: 72,
-                height: 72,
+                width: 68,
+                height: 68,
                 child: product.imageUrl != null && product.imageUrl!.isNotEmpty
                     ? Image.network(
                         product.imageUrl!,
@@ -62,7 +62,7 @@ class ProductCard extends StatelessWidget {
                     : _buildFallbackImage(),
               ),
             ),
-            const SizedBox(width: 16),
+            const SizedBox(width: 12),
             
             // Product Details
             Expanded(
@@ -72,37 +72,65 @@ class ProductCard extends StatelessWidget {
                   Text(
                     product.name,
                     style: GoogleFonts.poppins(
-                      fontSize: 16,
+                      fontSize: 15,
                       fontWeight: FontWeight.w700,
                       color: AppColors.darkText,
                     ),
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
                   ),
                   const SizedBox(height: 6),
-                  Row(
+                  Wrap(
+                    spacing: 6,
+                    runSpacing: 4,
+                    crossAxisAlignment: WrapCrossAlignment.center,
                     children: [
                       Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                         decoration: BoxDecoration(
                           color: AppColors.secondary, // Vibrant Green #22C55E
-                          borderRadius: BorderRadius.circular(12),
+                          borderRadius: BorderRadius.circular(10),
                         ),
                         child: Text(
                           product.formattedPrice,
                           style: GoogleFonts.inter(
-                            fontSize: 12,
+                            fontSize: 11.5,
                             fontWeight: FontWeight.w700,
                             color: Colors.white,
                           ),
                         ),
                       ),
-                      const SizedBox(width: 8),
                       Text(
-                        'Stok: ${product.stock}',
+                        'Stok: ${product.dynamicStock}',
                         style: GoogleFonts.inter(
-                          fontSize: 12,
-                          color: AppColors.mutedText,
+                          fontSize: 11.5,
+                          color: product.isLowStock ? const Color(0xFFDC2626) : AppColors.mutedText,
+                          fontWeight: product.isLowStock ? FontWeight.w600 : FontWeight.normal,
                         ),
                       ),
+                      if (product.hasRecipe)
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                          decoration: BoxDecoration(
+                            color: const Color(0xFFF1F5F9),
+                            borderRadius: BorderRadius.circular(6),
+                          ),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              const Icon(Icons.blender_outlined, size: 10, color: Color(0xFF64748B)),
+                              const SizedBox(width: 3),
+                              Text(
+                                '${product.recipes.length} bahan',
+                                style: GoogleFonts.inter(
+                                  fontSize: 10,
+                                  fontWeight: FontWeight.w600,
+                                  color: const Color(0xFF64748B),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
                     ],
                   ),
                 ],

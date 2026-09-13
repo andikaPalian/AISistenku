@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../core/theme/app_colors.dart';
+import '../../core/widgets/action_success_modal.dart';
 import '../../models/ai_chat_model.dart';
+import '../../models/profile_model.dart';
 import 'widgets/ai_welcome_hero.dart';
 import 'widgets/ai_quick_prompts.dart';
 import 'widgets/ai_message_bubble.dart';
@@ -175,9 +177,14 @@ class _AiAssistantScreenState extends State<AiAssistantScreen> {
                     ? SingleChildScrollView(
                         physics: const BouncingScrollPhysics(),
                         padding: const EdgeInsets.fromLTRB(16, 16, 16, 16),
-                        child: AiWelcomeHero(
-                          userName: 'Budi',
-                          onSelectPrompt: _handleSendMessage,
+                        child: ValueListenableBuilder<UserProfile>(
+                          valueListenable: ProfileRepository.instance.userNotifier,
+                          builder: (context, user, _) {
+                            return AiWelcomeHero(
+                              userName: user.firstName,
+                              onSelectPrompt: _handleSendMessage,
+                            );
+                          },
                         ),
                       )
                     : ListView(
@@ -217,24 +224,18 @@ class _AiAssistantScreenState extends State<AiAssistantScreen> {
                                       repo.confirmAction(
                                         msg.actionPayload!.actionId,
                                       );
-                                      ScaffoldMessenger.of(context).showSnackBar(
-                                        const SnackBar(
-                                          content: Row(
-                                            children: [
-                                              Icon(
-                                                Icons.check_circle_rounded,
-                                                color: Color(0xFF22C55E),
-                                                size: 18,
-                                              ),
-                                              SizedBox(width: 8),
-                                              Text(
-                                                'Aksi berhasil! Stok & Keuangan telah sinkron.',
-                                              ),
-                                            ],
-                                          ),
-                                          backgroundColor: Color(0xFF111111),
-                                          duration: Duration(seconds: 3),
-                                        ),
+                                      final payload = msg.actionPayload;
+                                      ActionSuccessModal.show(
+                                        context,
+                                        title: 'Aksi AI Berhasil Dieksekusi',
+                                        subtitle: 'Perintah otomatisasi telah dijalankan, modul stok dan keuangan telah sinkron.',
+                                        itemName: payload?.itemName ?? payload?.captionTitle ?? 'Rekomendasi AI',
+                                        itemCategory: 'Asisten Pintar',
+                                        quantityChange: 'Dijalankan',
+                                        financialImpact: 'Data Terintegrasi',
+                                        statusBadge: 'Status OK',
+                                        itemIcon: Icons.auto_awesome_rounded,
+                                        heroIcon: Icons.auto_awesome_rounded,
                                       );
                                     }
                                   : null,

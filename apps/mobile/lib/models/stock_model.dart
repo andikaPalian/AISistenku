@@ -401,6 +401,54 @@ class StockRepository extends ChangeNotifier {
     }).catchError((_) => null);
   }
 
+  /// Link a POS product to a stock ingredient.
+  void linkProductToStock(String stockId, String productName) {
+    final index = _items.indexWhere((i) => i.id == stockId);
+    if (index == -1) return;
+    final item = _items[index];
+    if (!item.linkedProducts.contains(productName)) {
+      final updatedList = List<String>.from(item.linkedProducts)..add(productName);
+      _items[index] = item.copyWith(linkedProducts: updatedList);
+      notifyListeners();
+    }
+  }
+
+  /// Deduct stock of raw material due to POS sale of a product recipe.
+  void deductRecipeStock({
+    required String stockId,
+    required double quantity,
+    required String productName,
+  }) {
+    final index = _items.indexWhere((i) => i.id == stockId);
+    if (index == -1) return;
+
+    final current = _items[index];
+    final newStock = (current.currentStock - quantity).clamp(0.0, 999999.0);
+    _items[index] = current.copyWith(
+      currentStock: newStock,
+      lastUpdated: DateTime.now(),
+    );
+
+    _logs.insert(
+      0,
+      StockLog(
+        id: 'log_${DateTime.now().millisecondsSinceEpoch}',
+        stockId: stockId,
+        stockName: current.name,
+        type: StockLogType.out,
+        quantity: quantity,
+        unit: current.unit,
+        source: 'POS Resep ($productName)',
+        referenceCode: '#REC-${DateTime.now().millisecondsSinceEpoch.toString().substring(7)}',
+        operatorName: 'Sistem POS',
+        timestamp: DateTime.now(),
+        note: 'Deduksi otomatis bahan baku resep untuk $productName',
+      ),
+    );
+
+    notifyListeners();
+  }
+
   Future<void> fetchStocksFromBackend() async {
     try {
       final res = await ApiService.instance.get('/stocks');

@@ -4,6 +4,7 @@ import 'package:AISISTENKU/models/stock_model.dart';
 import 'package:AISISTENKU/screens/stock/stock_screen.dart';
 import 'package:AISISTENKU/screens/stock/stock_detail_screen.dart';
 import 'package:AISISTENKU/screens/stock/widgets/stock_filter_sheet.dart';
+import 'package:AISISTENKU/core/widgets/action_success_modal.dart';
 
 void main() {
   group('Stock Model & Repository Tests', () {
@@ -88,6 +89,25 @@ void main() {
       expect(find.text('Status'), findsOneWidget);
       expect(find.text('Kategori'), findsOneWidget);
       expect(find.text('Urutkan'), findsOneWidget);
+
+      // Status options
+      expect(find.text('Semua Status'), findsOneWidget);
+      expect(find.text('Stok Aman'), findsOneWidget);
+      expect(find.text('Stok Rendah'), findsOneWidget);
+      expect(find.text('Stok Kritis'), findsOneWidget);
+
+      // Switch to Kategori tab
+      await tester.tap(find.text('Kategori'));
+      await tester.pumpAndSettle();
+      expect(find.text('Kopi'), findsOneWidget);
+      expect(find.text('Dairy & Susu'), findsOneWidget);
+
+      // Switch to Urutkan tab
+      await tester.tap(find.text('Urutkan'));
+      await tester.pumpAndSettle();
+      expect(find.text('Nama (A - Z)'), findsOneWidget);
+      expect(find.text('Stok Terendah (Prioritas Restock)'), findsOneWidget);
+
       // Low stock toggle visible
       expect(find.text('Hanya Stok Menipis & Kritis'), findsOneWidget);
       // Action bar
@@ -106,6 +126,46 @@ void main() {
       expect(find.text('STOK SAAT INI'), findsOneWidget);
       expect(find.text('Riwayat Stok'), findsOneWidget);
       expect(find.text('Stok Minimum'), findsOneWidget);
+    });
+
+    testWidgets('ActionSuccessModal renders celebration hero, receipt summary, and primary button', (WidgetTester tester) async {
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Scaffold(
+            body: Builder(
+              builder: (context) => ElevatedButton(
+                onPressed: () {
+                  ActionSuccessModal.show(
+                    context,
+                    title: 'Restock Berhasil!',
+                    subtitle: 'Stok bahan baku dan pengeluaran berhasil diperbarui.',
+                    itemName: 'Sirup Karamel Monin',
+                    quantityChange: '+30 btl',
+                    financialImpact: 'Tercatat di Beban Bahan (Rp 450.000)',
+                    statusBadge: 'Stok Bertambah',
+                  );
+                },
+                child: const Text('Open Modal'),
+              ),
+            ),
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.text('Open Modal'));
+      await tester.pumpAndSettle();
+
+      expect(find.text('Restock Berhasil!'), findsOneWidget);
+      expect(find.text('Sirup Karamel Monin'), findsOneWidget);
+      expect(find.text('+30 btl'), findsOneWidget);
+      expect(find.text('Tercatat di Beban Bahan (Rp 450.000)'), findsOneWidget);
+      expect(find.text('Stok Bertambah'), findsOneWidget);
+      expect(find.text('Selesai'), findsOneWidget);
+
+      await tester.tap(find.text('Selesai'));
+      await tester.pumpAndSettle();
+      expect(find.text('Restock Berhasil!'), findsNothing);
     });
   });
 }

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../../models/stock_model.dart';
+import '../../../core/widgets/action_success_modal.dart';
 
 /// Modal bottom sheet for creating/registering a new raw material.
 class AddStockModal extends StatefulWidget {
@@ -150,26 +151,17 @@ class _AddStockModalState extends State<AddStockModal> {
 
     Navigator.pop(context, true);
 
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Row(
-          children: [
-            const Icon(Icons.check_circle_rounded, color: Color(0xFF22C55E)),
-            const SizedBox(width: 12),
-            Expanded(
-              child: Text(
-                isEditing
-                    ? 'Data bahan baku $name berhasil diperbarui'
-                    : 'Bahan baku baru $name berhasil ditambahkan!',
-                style: GoogleFonts.plusJakartaSans(fontWeight: FontWeight.w600, color: Colors.white),
-              ),
-            ),
-          ],
-        ),
-        backgroundColor: const Color(0xFF111111),
-        behavior: SnackBarBehavior.floating,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
-      ),
+    ActionSuccessModal.show(
+      context,
+      title: isEditing ? 'Bahan Diperbarui!' : 'Bahan Ditambahkan!',
+      subtitle: isEditing
+          ? 'Perubahan data $name telah tersimpan.'
+          : 'Bahan baku baru berhasil didaftarkan ke inventaris.',
+      itemName: name,
+      quantityChange: '$stock $_selectedUnit',
+      financialImpact: cost > 0 ? 'Harga Beli: ${StockItem.formatRupiah(cost)} / $_selectedUnit' : null,
+      statusBadge: _selectedCategory.label,
+      itemIcon: icon,
     );
   }
 

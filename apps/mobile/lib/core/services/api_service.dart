@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
+import 'package:http_parser/http_parser.dart';
 
 /// Configuration for Backend REST API endpoints with Smart Auto-Detection.
 class ApiConfig {
@@ -212,12 +213,71 @@ class ApiService {
     }
   }
 
+  /// Resolves the MediaType based on file magic bytes or filename extension.
+  static MediaType resolveMediaType(String filename, [Uint8List? bytes]) {
+    // 1. Magic bytes sniff
+    if (bytes != null && bytes.length >= 3) {
+      if (bytes[0] == 0xFF && bytes[1] == 0xD8 && bytes[2] == 0xFF) {
+        return MediaType('image', 'jpeg');
+      }
+      if (bytes.length >= 8 &&
+          bytes[0] == 0x89 &&
+          bytes[1] == 0x50 &&
+          bytes[2] == 0x4E &&
+          bytes[3] == 0x47) {
+        return MediaType('image', 'png');
+      }
+      if (bytes.length >= 12 &&
+          bytes[0] == 0x52 &&
+          bytes[1] == 0x49 &&
+          bytes[2] == 0x46 &&
+          bytes[3] == 0x46 &&
+          bytes[8] == 0x57 &&
+          bytes[9] == 0x45 &&
+          bytes[10] == 0x42 &&
+          bytes[11] == 0x50) {
+        return MediaType('image', 'webp');
+      }
+      if (bytes.length >= 4 &&
+          bytes[0] == 0x47 &&
+          bytes[1] == 0x49 &&
+          bytes[2] == 0x46) {
+        return MediaType('image', 'gif');
+      }
+    }
+
+    // 2. Extension check
+    final lower = filename.toLowerCase();
+    if (lower.endsWith('.jpg') || lower.endsWith('.jpeg')) {
+      return MediaType('image', 'jpeg');
+    }
+    if (lower.endsWith('.png')) {
+      return MediaType('image', 'png');
+    }
+    if (lower.endsWith('.webp')) {
+      return MediaType('image', 'webp');
+    }
+    if (lower.endsWith('.heic')) {
+      return MediaType('image', 'heic');
+    }
+    if (lower.endsWith('.avif')) {
+      return MediaType('image', 'avif');
+    }
+    if (lower.endsWith('.gif')) {
+      return MediaType('image', 'gif');
+    }
+
+    // Default to image/jpeg
+    return MediaType('image', 'jpeg');
+  }
+
   /// Perform a MULTIPART upload request (for Cloudinary image uploads).
   Future<dynamic> uploadMultipart(
     String path, {
     required Uint8List bytes,
     required String filename,
     String fieldName = 'image',
+    MediaType? contentType,
     Map<String, String>? fields,
   }) async {
     if (ApiConfig._customBaseUrl == null) {
@@ -229,6 +289,7 @@ class ApiService {
       final uri = Uri.parse(fullUrl);
       final req = http.MultipartRequest('POST', uri);
 
+      req.headers['Accept'] = 'application/json';
       if (_authToken != null) {
         req.headers['Authorization'] = 'Bearer $_authToken';
       }
@@ -240,11 +301,14 @@ class ApiService {
         req.fields.addAll(fields);
       }
 
+      final resolvedContentType = contentType ?? resolveMediaType(filename, bytes);
+
       req.files.add(
         http.MultipartFile.fromBytes(
           fieldName,
           bytes,
           filename: filename,
+          contentType: resolvedContentType,
         ),
       );
 

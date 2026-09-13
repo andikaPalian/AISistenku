@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../core/theme/app_colors.dart';
+import '../../core/widgets/action_success_modal.dart';
 import '../../models/finance_model.dart';
+import '../../models/product.dart';
 
 /// Screen to record a new Income or Expense transaction.
 ///
@@ -135,17 +137,25 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
       timestamp: _selectedDate,
     );
 
-    Navigator.pop(context, true);
+    final formattedAmount = Product.formatRupiah(_parsedAmount.toInt());
+    final isIncome = _selectedType == TransactionType.income;
+    final catLabel = _selectedCategory.label;
 
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(
-          '${_selectedType == TransactionType.income ? 'Pemasukan' : 'Pengeluaran'} berhasil dicatat!',
-        ),
-        backgroundColor: AppColors.successGreen,
-        duration: const Duration(seconds: 2),
-      ),
-    );
+    ActionSuccessModal.show(
+      context,
+      title: '${isIncome ? 'Pemasukan' : 'Pengeluaran'} Dicatat',
+      subtitle: 'Catatan transaksi telah tersimpan dalam pembukuan arus kas outlet.',
+      itemName: title,
+      itemCategory: 'Kategori: $catLabel',
+      quantityChange: (isIncome ? '+ ' : '- ') + formattedAmount,
+      financialImpact: 'Sumber: Input Kas Manual',
+      statusBadge: isIncome ? 'Kas Masuk' : 'Kas Keluar',
+      itemIcon: isIncome ? Icons.arrow_downward_rounded : Icons.arrow_upward_rounded,
+    ).then((_) {
+      if (mounted) {
+        Navigator.pop(context, true);
+      }
+    });
   }
 
   @override

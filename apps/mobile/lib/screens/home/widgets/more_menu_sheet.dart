@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import '../../../core/widgets/action_success_modal.dart';
 import '../../shell_screen.dart';
 import '../../profile/profile_screen.dart';
 
@@ -26,25 +27,16 @@ class MoreMenuSheet extends StatelessWidget {
 
   void _showComingSoonSnackBar(BuildContext context, String feature) {
     Navigator.of(context).pop();
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Row(
-          children: [
-            const Icon(Icons.info_outline_rounded, color: Colors.white, size: 18),
-            const SizedBox(width: 8),
-            Expanded(
-              child: Text(
-                'Modul $feature aktif dalam mode sinkronisasi toko.',
-                style: GoogleFonts.plusJakartaSans(fontSize: 13),
-              ),
-            ),
-          ],
-        ),
-        backgroundColor: const Color(0xFF1E293B),
-        behavior: SnackBarBehavior.floating,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-        duration: const Duration(seconds: 2),
-      ),
+    ActionSuccessModal.show(
+      context,
+      title: 'Modul $feature',
+      subtitle: 'Fitur manajemen $feature telah aktif dalam sistem terintegrasi outlet Tiga Angkatan.',
+      itemName: feature,
+      itemCategory: 'Fitur Operasional',
+      quantityChange: 'Aktif',
+      financialImpact: 'Katalog Kasir & Gudang',
+      statusBadge: 'Tersedia',
+      itemIcon: Icons.dashboard_customize_rounded,
     );
   }
 

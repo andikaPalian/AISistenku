@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../../models/stock_model.dart';
 import '../../../models/finance_model.dart';
+import '../../../core/widgets/action_success_modal.dart';
 import '../../shell_screen.dart';
 
 /// Modern Neo-Clean Quick Restock Bottom Sheet Modal.
@@ -261,14 +262,17 @@ class _QuickRestockSheetState extends State<QuickRestockSheet> {
                         }
 
                         Navigator.pop(ctx);
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                            content: Text(
-                              '✅ Berhasil menambah +${qty % 1 == 0 ? qty.toInt() : qty} ${item.unit} ${item.name} (Tercatat di Beban Bahan)',
-                            ),
-                            backgroundColor: const Color(0xFF111111),
-                            duration: const Duration(seconds: 3),
-                          ),
+                        ActionSuccessModal.show(
+                          context,
+                          title: 'Restock Berhasil!',
+                          subtitle: 'Stok bahan baku dan pengeluaran berhasil diperbarui.',
+                          itemName: item.name,
+                          quantityChange: '+${qty % 1 == 0 ? qty.toInt() : qty} ${item.unit}',
+                          financialImpact: estimatedCost > 0
+                              ? 'Tercatat di Beban Bahan (${FinanceRepository.formatRupiah(estimatedCost)})'
+                              : null,
+                          statusBadge: 'Stok Bertambah',
+                          itemIcon: item.icon,
                         );
                       },
                       child: Text(

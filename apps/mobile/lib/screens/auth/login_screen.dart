@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/services/api_service.dart';
+import '../../core/services/socket_service.dart';
 import '../../models/product.dart';
 import '../../models/stock_model.dart';
 import '../../models/finance_model.dart';
@@ -322,6 +323,10 @@ class _LoginScreenState extends State<LoginScreen> {
 
       // 1. Fetch user & business profile from backend to ensure full context is synced
       await ProfileRepository.instance.fetchProfileFromBackend();
+
+      // Connect to real-time WebSocket gateway
+      final activeBizId = ApiService.instance.businessId ?? ProfileRepository.instance.business.id;
+      SocketService.instance.connect(token: token, businessId: activeBizId);
 
       // 2. Clear previous session state and fetch real dynamic data from backend
       ProductRepository.instance.clearForNewUser();

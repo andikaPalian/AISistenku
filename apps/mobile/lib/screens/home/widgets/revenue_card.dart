@@ -1,11 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../../models/finance_model.dart';
 import '../../shell_screen.dart';
 
-/// Card showing today's gross revenue, real-time comparison status,
-/// key sub-metrics (Orders, Today's Expenses, Top Selling Menu),
-/// and direct navigation to detailed financial analytics.
+/// Modern Executive Revenue Card for Home Screen:
+/// - Displays real-time Net Revenue (Penjualan Bersih) after refund deductions
+/// - Shows transparent Gross Sales & Refund Pill when return events occur
+/// - Provides responsive 3-column micro-metrics (Orders, Store Expenses, Best Sellers)
+/// - Integrated with Neo-Clean tokens, haptic feedback, and obsidian primary CTA.
 class RevenueCard extends StatelessWidget {
   const RevenueCard({super.key});
 
@@ -15,11 +18,17 @@ class RevenueCard extends StatelessWidget {
       animation: FinanceRepository.instance,
       builder: (context, _) {
         final repo = FinanceRepository.instance;
-        final grossRevenueNum = repo.getTotalIncome(FinancePeriod.today);
-        final grossRevenue = FinanceRepository.formatRupiah(grossRevenueNum);
+        final grossRevenueNum = repo.getTotalGrossIncome(FinancePeriod.today);
+        final refundTotalNum = repo.getTotalRefund(FinancePeriod.today);
+        final refundCount = repo.getRefundCount(FinancePeriod.today);
+        final netRevenueNum = repo.getNetRevenue(FinancePeriod.today);
 
-        final todayExpenseNum = repo.getTotalExpense(FinancePeriod.today);
-        final todayExpense = FinanceRepository.formatRupiah(todayExpenseNum);
+        final hasRefund = refundCount > 0;
+        final displayRevenueNum = hasRefund ? netRevenueNum : grossRevenueNum;
+        final displayRevenue = FinanceRepository.formatRupiah(displayRevenueNum);
+
+        final operationalExpenseNum = repo.getOperationalExpense(FinancePeriod.today);
+        final todayExpense = FinanceRepository.formatRupiah(operationalExpenseNum);
 
         final orderDisplay = '${repo.todayOrdersCount} Pesanan';
 
@@ -33,16 +42,16 @@ class RevenueCard extends StatelessWidget {
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
               colors: [
-                Color(0xFF22C55E), // Vibrant Green
+                Color(0xFF22C55E), // Vibrant Fresh Green (Original signature)
                 Color(0xFF16A34A), // Emerald Green
               ],
             ),
             borderRadius: BorderRadius.circular(24),
-            boxShadow: const [
+            boxShadow: [
               BoxShadow(
-                color: Color(0x2216A34A),
-                blurRadius: 16,
-                offset: Offset(0, 6),
+                color: const Color(0xFF16A34A).withValues(alpha: 0.22),
+                blurRadius: 18,
+                offset: const Offset(0, 6),
               ),
             ],
           ),
@@ -50,7 +59,7 @@ class RevenueCard extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // ── Top Row: Header & Growth Badge ─────────────────────────
+              // ── Top Row: Header & Dynamic Growth/Status Badge ───────────
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 crossAxisAlignment: CrossAxisAlignment.center,
@@ -67,7 +76,7 @@ class RevenueCard extends StatelessWidget {
                       ),
                       const SizedBox(width: 6),
                       Text(
-                        'Pendapatan Hari Ini',
+                        hasRefund ? 'Pendapatan Bersih Hari Ini' : 'Pendapatan Hari Ini',
                         style: GoogleFonts.plusJakartaSans(
                           fontSize: 13,
                           color: Colors.white.withValues(alpha: 0.95),
@@ -77,7 +86,7 @@ class RevenueCard extends StatelessWidget {
                     ],
                   ),
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 4),
+                    padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 4.5),
                     decoration: BoxDecoration(
                       color: Colors.white.withValues(alpha: 0.2),
                       borderRadius: BorderRadius.circular(12),
@@ -85,14 +94,18 @@ class RevenueCard extends StatelessWidget {
                     child: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        const Icon(
-                          Icons.trending_up_rounded,
-                          size: 14,
+                        Icon(
+                          displayRevenueNum > 0
+                              ? Icons.trending_up_rounded
+                              : (hasRefund ? Icons.replay_circle_filled_rounded : Icons.storefront_rounded),
+                          size: 13.5,
                           color: Colors.white,
                         ),
-                        const SizedBox(width: 4),
+                        const SizedBox(width: 4.5),
                         Text(
-                          '+14.2% vs kemarin',
+                          displayRevenueNum > 0
+                              ? '+14.2% vs kemarin'
+                              : (hasRefund ? 'Semua Di-refund' : 'Kasir Aktif'),
                           style: GoogleFonts.plusJakartaSans(
                             fontSize: 10.5,
                             fontWeight: FontWeight.w700,
@@ -108,7 +121,7 @@ class RevenueCard extends StatelessWidget {
 
               // ── Main Currency Amount ──────────────────────────────────
               Text(
-                grossRevenue,
+                displayRevenue,
                 style: GoogleFonts.plusJakartaSans(
                   fontSize: 34,
                   fontWeight: FontWeight.w800,
@@ -116,6 +129,58 @@ class RevenueCard extends StatelessWidget {
                   letterSpacing: -0.6,
                 ),
               ),
+
+              // ── Dedicated Refund & Gross Sales Breakdown Pill ─────────
+              if (hasRefund) ...[
+                const SizedBox(height: 6),
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                  decoration: BoxDecoration(
+                    color: Colors.white.withValues(alpha: 0.18),
+                    borderRadius: BorderRadius.circular(10),
+                    border: Border.all(
+                      color: Colors.white.withValues(alpha: 0.28),
+                      width: 1,
+                    ),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      const Icon(
+                        Icons.replay_rounded,
+                        size: 13,
+                        color: Colors.white,
+                      ),
+                      const SizedBox(width: 5),
+                      Text(
+                        '$refundCount Refund (-${FinanceRepository.formatRupiah(refundTotalNum)})',
+                        style: GoogleFonts.plusJakartaSans(
+                          fontSize: 11,
+                          fontWeight: FontWeight.w700,
+                          color: Colors.white,
+                        ),
+                      ),
+                      Container(
+                        margin: const EdgeInsets.symmetric(horizontal: 6),
+                        width: 3,
+                        height: 3,
+                        decoration: const BoxDecoration(
+                          color: Colors.white70,
+                          shape: BoxShape.circle,
+                        ),
+                      ),
+                      Text(
+                        'Kotor: ${FinanceRepository.formatRupiah(grossRevenueNum)}',
+                        style: GoogleFonts.plusJakartaSans(
+                          fontSize: 11,
+                          fontWeight: FontWeight.w500,
+                          color: Colors.white.withValues(alpha: 0.95),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
               const SizedBox(height: 16),
 
               // ── 3 Inset Micro-Metrics Frosted Glass Bar ────────────────
@@ -131,8 +196,9 @@ class RevenueCard extends StatelessWidget {
                 ),
                 child: Row(
                   children: [
-                    // 1. Total Transaksi
+                    // 1. Total Transaksi (Flex 3)
                     Expanded(
+                      flex: 3,
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
@@ -172,8 +238,9 @@ class RevenueCard extends StatelessWidget {
                       color: Colors.white.withValues(alpha: 0.25),
                     ),
 
-                    // 2. Pengeluaran
+                    // 2. Beban Toko (Flex 3)
                     Expanded(
+                      flex: 3,
                       child: Padding(
                         padding: const EdgeInsets.only(left: 10),
                         child: Column(
@@ -188,7 +255,7 @@ class RevenueCard extends StatelessWidget {
                                 ),
                                 const SizedBox(width: 4),
                                 Text(
-                                  'Pengeluaran',
+                                  'Beban Toko',
                                   style: GoogleFonts.plusJakartaSans(
                                     fontSize: 10.5,
                                     fontWeight: FontWeight.w500,
@@ -218,8 +285,9 @@ class RevenueCard extends StatelessWidget {
                       color: Colors.white.withValues(alpha: 0.25),
                     ),
 
-                    // 3. Menu Terlaris
+                    // 3. Menu Terlaris (Flex 4, 2 lines without clipping)
                     Expanded(
+                      flex: 4,
                       child: Padding(
                         padding: const EdgeInsets.only(left: 10),
                         child: Column(
@@ -247,11 +315,12 @@ class RevenueCard extends StatelessWidget {
                             Text(
                               topProduct,
                               style: GoogleFonts.plusJakartaSans(
-                                fontSize: 13,
+                                fontSize: 12,
                                 fontWeight: FontWeight.w700,
                                 color: Colors.white,
+                                height: 1.15,
                               ),
-                              maxLines: 1,
+                              maxLines: 2,
                               overflow: TextOverflow.ellipsis,
                             ),
                           ],
@@ -269,19 +338,20 @@ class RevenueCard extends StatelessWidget {
                   Expanded(
                     child: InkWell(
                       onTap: () {
+                        HapticFeedback.selectionClick();
                         ShellScreen.switchTab(context, 4);
                       },
                       borderRadius: BorderRadius.circular(16),
                       child: Container(
                         height: 44,
                         decoration: BoxDecoration(
-                          color: const Color(0xFF111111), // Solid Obsidian
+                          color: const Color(0xFF0F172A), // Modern Obsidian Slate
                           borderRadius: BorderRadius.circular(16),
-                          boxShadow: const [
+                          boxShadow: [
                             BoxShadow(
-                              color: Color(0x1A000000),
-                              blurRadius: 6,
-                              offset: Offset(0, 2),
+                              color: Colors.black.withValues(alpha: 0.16),
+                              blurRadius: 8,
+                              offset: const Offset(0, 3),
                             ),
                           ],
                         ),

@@ -1,12 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:image_picker/image_picker.dart';
 import '../../core/services/api_service.dart';
+import '../../core/services/socket_service.dart';
+import '../../core/widgets/action_success_modal.dart';
 import '../../models/profile_model.dart';
 import '../../models/product.dart';
 import '../../models/stock_model.dart';
 import '../../models/finance_model.dart';
 import '../../models/ai_chat_model.dart';
 import '../auth/login_screen.dart';
+import '../../core/services/thermal_printer_service.dart';
+import '../../core/services/offline_sync_service.dart';
+import '../pos/widgets/printer_selection_modal.dart';
+import '../pos/widgets/offline_sync_modal.dart';
 import 'widgets/profile_hero_card.dart';
 import 'widgets/profile_info_card.dart';
 import 'widgets/profile_sheets.dart';
@@ -55,13 +62,174 @@ class _ProfileScreenState extends State<ProfileScreen> {
     }
   }
 
+  Future<void> _handleChangeAvatar() async {
+    final source = await showModalBottomSheet<ImageSource>(
+      context: context,
+      backgroundColor: Colors.white,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+      ),
+      builder: (ctx) => SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.symmetric(vertical: 16),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                width: 44,
+                height: 4,
+                decoration: BoxDecoration(
+                  color: const Color(0xFFCBD5E1),
+                  borderRadius: BorderRadius.circular(2),
+                ),
+              ),
+              const SizedBox(height: 16),
+              Text(
+                'Ubah Foto Profil',
+                style: GoogleFonts.plusJakartaSans(
+                  fontSize: 17,
+                  fontWeight: FontWeight.w800,
+                  color: const Color(0xFF0F172A),
+                ),
+              ),
+              const SizedBox(height: 4),
+              Text(
+                'Pilih sumber gambar untuk foto profil Anda',
+                style: GoogleFonts.plusJakartaSans(
+                  fontSize: 13,
+                  color: const Color(0xFF64748B),
+                ),
+              ),
+              const SizedBox(height: 20),
+              ListTile(
+                leading: Container(
+                  width: 42,
+                  height: 42,
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFF0FDF4),
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(color: const Color(0xFFBBF7D0)),
+                  ),
+                  child: const Icon(Icons.photo_library_rounded, color: Color(0xFF16A34A), size: 20),
+                ),
+                title: Text(
+                  'Pilih dari Galeri',
+                  style: GoogleFonts.plusJakartaSans(fontWeight: FontWeight.w700, fontSize: 14),
+                ),
+                subtitle: Text(
+                  'Pilih foto yang sudah tersimpan di perangkat',
+                  style: GoogleFonts.plusJakartaSans(fontSize: 12, color: const Color(0xFF64748B)),
+                ),
+                onTap: () => Navigator.pop(ctx, ImageSource.gallery),
+              ),
+              const Divider(height: 1, indent: 70),
+              ListTile(
+                leading: Container(
+                  width: 42,
+                  height: 42,
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFF0FDF4),
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(color: const Color(0xFFBBF7D0)),
+                  ),
+                  child: const Icon(Icons.camera_alt_rounded, color: Color(0xFF16A34A), size: 20),
+                ),
+                title: Text(
+                  'Ambil Foto Baru',
+                  style: GoogleFonts.plusJakartaSans(fontWeight: FontWeight.w700, fontSize: 14),
+                ),
+                subtitle: Text(
+                  'Buka kamera dan ambil foto langsung',
+                  style: GoogleFonts.plusJakartaSans(fontSize: 12, color: const Color(0xFF64748B)),
+                ),
+                onTap: () => Navigator.pop(ctx, ImageSource.camera),
+              ),
+              const SizedBox(height: 8),
+            ],
+          ),
+        ),
+      ),
+    );
+
+    if (source == null || !mounted) return;
+
+    final picker = ImagePicker();
+    final picked = await picker.pickImage(
+      source: source,
+      maxWidth: 800,
+      maxHeight: 800,
+      imageQuality: 85,
+    );
+
+    if (picked == null || !mounted) return;
+
+    final bytes = await picked.readAsBytes();
+
+    // Show uploading indicator
+    setState(() => _isSyncing = true);
+
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Row(
+            children: [
+              const SizedBox(
+                width: 18,
+                height: 18,
+                child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
+              ),
+              const SizedBox(width: 12),
+              Text(
+                'Mengupload foto profil...',
+                style: GoogleFonts.plusJakartaSans(fontSize: 13, fontWeight: FontWeight.w600),
+              ),
+            ],
+          ),
+          backgroundColor: const Color(0xFF111111),
+          duration: const Duration(seconds: 10),
+        ),
+      );
+    }
+
+    final url = await _repo.uploadAvatar(bytes, filename: picked.name);
+
+    if (mounted) {
+      ScaffoldMessenger.of(context).hideCurrentSnackBar();
+      setState(() => _isSyncing = false);
+
+      if (url != null) {
+        ActionSuccessModal.show(
+          context,
+          title: 'Foto Profil Diperbarui',
+          subtitle: 'Foto avatar akun Anda telah berhasil diunggah dan disimpan ke server.',
+          itemName: picked.name,
+          itemCategory: 'Akun Pengguna',
+          quantityChange: 'Tersimpan',
+          financialImpact: 'Profil Cloud Aktif',
+          statusBadge: 'Berhasil',
+          itemIcon: Icons.account_circle_rounded,
+        );
+      } else {
+        ActionSuccessModal.showNotice(
+          context,
+          title: 'Gagal Mengunggah Foto',
+          subtitle: 'Terjadi kendala saat mengunggah foto profil. Pastikan koneksi internet stabil.',
+          itemName: picked.name,
+          itemCategory: 'Foto Profil',
+          isError: true,
+        );
+      }
+    }
+  }
+
   Future<void> _handleLogout() async {
     // 1. Invalidate backend session safely
     try {
       await ApiService.instance.post('/auth/logout', {});
     } catch (_) {}
 
-    // 2. Clear token & business ID
+    // 2. Clear token, business ID, & real-time WebSocket connection
+    SocketService.instance.disconnect();
     ApiService.instance.setAuthToken(null);
     ApiService.instance.setBusinessId(null);
 
@@ -119,6 +287,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                               context,
                               onSaved: () => setState(() {}),
                             ),
+                            onChangeAvatar: _handleChangeAvatar,
                           ),
                           const SizedBox(height: 24),
 
@@ -345,6 +514,69 @@ class _ProfileScreenState extends State<ProfileScreen> {
           value: prefs.autoPrintReceipt,
           onChanged: (val) {
             _repo.updatePreferences(autoPrintReceipt: val);
+          },
+        ),
+        const ProfileDivider(),
+        ListenableBuilder(
+          listenable: ThermalPrinterService.instance,
+          builder: (context, _) {
+            final printer = ThermalPrinterService.instance;
+            final isConnected = printer.isConnected;
+            final devName = printer.selectedDevice?.name ?? 'Belum terhubung';
+            final paper = printer.paperSize.label;
+            return ProfileInfoTile(
+              icon: Icons.bluetooth_connected_rounded,
+              label: 'Printer Thermal Bluetooth',
+              value: isConnected
+                  ? '$devName • Kertas $paper'
+                  : 'Ketuk untuk menghubungkan printer Bluetooth ESC/POS (58/80mm)',
+              trailingChipText: isConnected ? 'Terhubung' : 'Atur',
+              trailingChipColor: isConnected ? const Color(0xFF16A34A) : const Color(0xFF0F172A),
+              trailingChipBg: isConnected ? const Color(0xFFDCFCE7) : const Color(0xFFF1F5F9),
+              onTap: () => PrinterSelectionModal.show(context),
+            );
+          },
+        ),
+        const ProfileDivider(),
+        ListenableBuilder(
+          listenable: OfflineSyncService.instance,
+          builder: (context, _) {
+            final sync = OfflineSyncService.instance;
+            final pending = sync.pendingCount;
+            final isOnline = sync.isOnline;
+            final isSyncing = sync.isSyncing;
+
+            String statusText = 'Database lokal Hive aktif • Auto-flush saat online';
+            String chipText = 'Aman';
+            Color chipFg = const Color(0xFF16A34A);
+            Color chipBg = const Color(0xFFDCFCE7);
+
+            if (isSyncing) {
+              statusText = 'Sedang menyinkronkan transaksi ke backend...';
+              chipText = 'Syncing';
+              chipFg = const Color(0xFF0284C7);
+              chipBg = const Color(0xFFE0F2FE);
+            } else if (pending > 0) {
+              statusText = '$pending pesanan offline menunggu sinkronisasi';
+              chipText = '$pending Pending';
+              chipFg = const Color(0xFF854D0E);
+              chipBg = const Color(0xFFFEF9C3);
+            } else if (!isOnline) {
+              statusText = 'Wi-Fi terputus • Transaksi kasir tersimpan lokal';
+              chipText = 'Offline';
+              chipFg = const Color(0xFFDC2626);
+              chipBg = const Color(0xFFFEE2E2);
+            }
+
+            return ProfileInfoTile(
+              icon: Icons.cloud_sync_rounded,
+              label: 'Penyimpanan Offline & Sinkronisasi',
+              value: statusText,
+              trailingChipText: chipText,
+              trailingChipColor: chipFg,
+              trailingChipBg: chipBg,
+              onTap: () => OfflineSyncModal.show(context),
+            );
           },
         ),
         const ProfileDivider(),

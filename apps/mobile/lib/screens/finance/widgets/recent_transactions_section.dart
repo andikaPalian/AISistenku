@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import '../../../core/widgets/action_success_modal.dart';
 import '../../../models/finance_model.dart';
 import 'transaction_detail_modal.dart';
 
@@ -24,19 +25,25 @@ class RecentTransactionsSection extends StatefulWidget {
 
 class _RecentTransactionsSectionState
     extends State<RecentTransactionsSection> {
-  TransactionType? _typeFilter; // null = All, income = Income, expense = Expense
+  String _activeFilter = 'all'; // 'all', 'income', 'expense', 'refund'
 
   @override
   Widget build(BuildContext context) {
     final displayedTransactions = widget.transactions.where((tx) {
-      if (_typeFilter == null) return true;
-      return tx.type == _typeFilter;
-    }).take(5).toList();
+      if (_activeFilter == 'all') return true;
+      if (_activeFilter == 'income') return tx.type == TransactionType.income;
+      if (_activeFilter == 'expense') {
+        return tx.type == TransactionType.expense &&
+            tx.category != FinanceCategory.refund;
+      }
+      if (_activeFilter == 'refund') return tx.category == FinanceCategory.refund;
+      return true;
+    }).take(6).toList();
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // ── Section Header & Filter Pills ───────────────────────────
+        // ── Section Header & View All Action ───────────────────────────
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           crossAxisAlignment: CrossAxisAlignment.center,
@@ -64,16 +71,52 @@ class _RecentTransactionsSectionState
                 ),
               ],
             ),
-            Row(
-              children: [
-                _buildFilterPill('Semua', null),
-                const SizedBox(width: 5),
-                _buildFilterPill('Masuk', TransactionType.income),
-                const SizedBox(width: 5),
-                _buildFilterPill('Keluar', TransactionType.expense),
-              ],
-            ),
+            if (widget.onViewAllTap != null)
+              GestureDetector(
+                onTap: widget.onViewAllTap,
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 2),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        'Lihat Semua',
+                        style: GoogleFonts.plusJakartaSans(
+                          fontSize: 12.5,
+                          fontWeight: FontWeight.w700,
+                          color: const Color(0xFF0D9488),
+                        ),
+                      ),
+                      const SizedBox(width: 4),
+                      const Icon(
+                        Icons.arrow_forward_ios_rounded,
+                        size: 11,
+                        color: Color(0xFF0D9488),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
           ],
+        ),
+
+        const SizedBox(height: 12),
+
+        // ── Filter Pills in Dedicated Row ───────────────────────────
+        SingleChildScrollView(
+          scrollDirection: Axis.horizontal,
+          physics: const BouncingScrollPhysics(),
+          child: Row(
+            children: [
+              _buildFilterPill('Semua', 'all'),
+              const SizedBox(width: 6),
+              _buildFilterPill('Pemasukan', 'income'),
+              const SizedBox(width: 6),
+              _buildFilterPill('Pengeluaran', 'expense'),
+              const SizedBox(width: 6),
+              _buildFilterPill('Refund', 'refund'),
+            ],
+          ),
         ),
 
         const SizedBox(height: 14),
@@ -143,7 +186,7 @@ class _RecentTransactionsSectionState
                         const Divider(
                           height: 1,
                           thickness: 1,
-                          indent: 68,
+                          indent: 70,
                           endIndent: 16,
                           color: Color(0xFFF1F5F9),
                         ),
@@ -191,17 +234,17 @@ class _RecentTransactionsSectionState
     );
   }
 
-  Widget _buildFilterPill(String label, TransactionType? type) {
-    final isSelected = _typeFilter == type;
+  Widget _buildFilterPill(String label, String key) {
+    final isSelected = _activeFilter == key;
     return GestureDetector(
       onTap: () {
         setState(() {
-          _typeFilter = type;
+          _activeFilter = key;
         });
       },
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 180),
-        padding: const EdgeInsets.symmetric(horizontal: 11, vertical: 6),
+        padding: const EdgeInsets.symmetric(horizontal: 13, vertical: 7),
         decoration: BoxDecoration(
           color: isSelected ? const Color(0xFF111111) : const Color(0xFFF1F5F9),
           borderRadius: BorderRadius.circular(12),
@@ -213,7 +256,7 @@ class _RecentTransactionsSectionState
         child: Text(
           label,
           style: GoogleFonts.plusJakartaSans(
-            fontSize: 11.5,
+            fontSize: 12,
             fontWeight: isSelected ? FontWeight.w700 : FontWeight.w600,
             color: isSelected ? Colors.white : const Color(0xFF64748B),
           ),
@@ -224,41 +267,108 @@ class _RecentTransactionsSectionState
 
   Widget _buildTransactionItem(BuildContext context, FinanceTransaction tx) {
     final isIncome = tx.type == TransactionType.income;
+    final isRefund = tx.category == FinanceCategory.refund;
+
+    final isAlreadyRefunded = tx.isRefundedOrder ||
+        FinanceRepository.instance.isOrderAlreadyRefunded(
+          orderId: tx.orderId,
+          orderCode: tx.orderCode,
+          title: tx.title,
+          notes: tx.notes,
+        );
 
     // Semantic icons matching Neo-Clean mockup
     IconData iconData;
     Color iconBg;
     Color iconColor;
+    Color iconBorder;
 
-    if (isIncome) {
-      if (tx.title.toLowerCase().contains('pos')) {
-        iconData = Icons.storefront_rounded;
-      } else {
-        iconData = Icons.point_of_sale_rounded;
-      }
-      iconBg = const Color(0xFFDCFCE7);
-      iconColor = const Color(0xFF16A34A);
+    if (isRefund) {
+      iconData = Icons.assignment_return_rounded;
+      iconBg = const Color(0xFFFFF1F2);
+      iconColor = const Color(0xFFE11D48);
+      iconBorder = const Color(0xFFFECDD3);
+    } else if (isIncome) {
+      iconData = Icons.storefront_rounded;
+      iconBg = isAlreadyRefunded ? const Color(0xFFF8FAFC) : const Color(0xFFECFDF5);
+      iconColor = isAlreadyRefunded ? const Color(0xFF64748B) : const Color(0xFF059669);
+      iconBorder = isAlreadyRefunded ? const Color(0xFFE2E8F0) : const Color(0xFFA7F3D0);
     } else {
       if (tx.category == FinanceCategory.ingredients) {
-        if (tx.title.toLowerCase().contains('sugar') ||
-            tx.title.toLowerCase().contains('gula')) {
-          iconData = Icons.inventory_2_outlined;
-          iconBg = const Color(0xFFFFEDD5);
-          iconColor = const Color(0xFFEA580C);
-        } else {
-          iconData = Icons.shopping_bag_outlined;
-          iconBg = const Color(0xFFFEE2E2);
-          iconColor = const Color(0xFFDC2626);
-        }
+        iconData = Icons.inventory_2_outlined;
+        iconBg = const Color(0xFFFFFBEB);
+        iconColor = const Color(0xFFD97706);
+        iconBorder = const Color(0xFFFDE68A);
       } else if (tx.category == FinanceCategory.utility) {
         iconData = Icons.bolt_rounded;
         iconBg = const Color(0xFFFEF3C7);
-        iconColor = const Color(0xFFD97706);
+        iconColor = const Color(0xFFEA580C);
+        iconBorder = const Color(0xFFFDE047);
+      } else if (tx.category == FinanceCategory.salary) {
+        iconData = Icons.badge_outlined;
+        iconBg = const Color(0xFFF5F3FF);
+        iconColor = const Color(0xFF7C3AED);
+        iconBorder = const Color(0xFFDDD6FE);
       } else {
         iconData = Icons.receipt_long_rounded;
-        iconBg = const Color(0xFFF1F5F9);
-        iconColor = const Color(0xFF0F172A);
+        iconBg = const Color(0xFFF8FAFC);
+        iconColor = const Color(0xFF475569);
+        iconBorder = const Color(0xFFE2E8F0);
       }
+    }
+
+    // 1. Order Code Resolution
+    final ordRegex = RegExp(r'ORD-\d{8}-\d{3}|ORD-\d+');
+    final matchInTitle = ordRegex.firstMatch(tx.title);
+    final matchInNotes = tx.notes != null ? ordRegex.firstMatch(tx.notes!) : null;
+    final rawOrderCode = tx.orderCode ?? matchInTitle?.group(0) ?? matchInNotes?.group(0);
+
+    String? displayOrderCode;
+    if (rawOrderCode != null) {
+      displayOrderCode = '#$rawOrderCode';
+    } else if (tx.orderId != null && tx.orderId!.isNotEmpty) {
+      final clean = tx.orderId!.replaceAll('#', '');
+      displayOrderCode = '#${clean.length > 10 ? clean.substring(0, 8).toUpperCase() : clean.toUpperCase()}';
+    }
+
+    // 2. Title and Context Parsing
+    String mainTitle = tx.title;
+    String? orderTag;
+
+    if (tx.notes != null && tx.notes!.isNotEmpty) {
+      final cleanNotes = tx.notes!.replaceAll(RegExp(r'Meja\s+Meja', caseSensitive: false), 'Meja');
+      final lowerNotes = cleanNotes.toLowerCase();
+      final tableMatch = RegExp(r'meja\s*(\w+)', caseSensitive: false).firstMatch(cleanNotes);
+
+      if (lowerNotes.contains('takeaway') || lowerNotes.contains('take away')) {
+        orderTag = 'Take Away';
+      } else if (tableMatch != null) {
+        orderTag = 'Dine In • Meja ${tableMatch.group(1)}';
+      } else if (lowerNotes.contains('dinein') || lowerNotes.contains('dine in')) {
+        orderTag = 'Dine In';
+      }
+    }
+
+    if (isRefund) {
+      mainTitle = 'Refund Pesanan';
+    } else if (mainTitle.startsWith('Penjualan Kasir ORD-') || mainTitle.startsWith('Penjualan Kasir')) {
+      mainTitle = 'Penjualan Kasir POS';
+    }
+
+    // 3. Subtitle Formatting
+    String subtitle;
+    if (isRefund) {
+      final reasonMatch = RegExp(r'Alasan:\s*([^\)]+)', caseSensitive: false).firstMatch(tx.notes ?? '');
+      final reason = reasonMatch != null ? reasonMatch.group(1)?.trim() : null;
+      if (reason != null && reason.isNotEmpty) {
+        subtitle = '$reason • ${tx.formattedDateString}';
+      } else {
+        subtitle = 'Jurnal Balik • ${tx.formattedDateString}';
+      }
+    } else if (orderTag != null) {
+      subtitle = '$orderTag • ${tx.formattedDateString}';
+    } else {
+      subtitle = tx.listSubtitle;
     }
 
     return InkWell(
@@ -272,11 +382,19 @@ class _RecentTransactionsSectionState
             onDelete: tx.source == TransactionSource.manual
                 ? () {
                     FinanceRepository.instance.deleteTransaction(tx.id);
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                        content: Text('Transaksi berhasil dihapus'),
-                        duration: Duration(seconds: 2),
-                      ),
+                    ActionSuccessModal.show(
+                      context,
+                      title: 'Transaksi Berhasil Dihapus',
+                      subtitle: 'Catatan transaksi telah dihapus dari pembukuan kas outlet.',
+                      itemName: tx.title,
+                      itemCategory: 'Catatan Keuangan',
+                      quantityChange: tx.formattedAmount,
+                      financialImpact: 'Pembukuan Kas Diperbarui',
+                      statusBadge: 'Dihapus',
+                      itemIcon: Icons.delete_outline_rounded,
+                      heroIcon: Icons.delete_forever_rounded,
+                      heroColor: const Color(0xFFEF4444),
+                      heroHaloColor: const Color(0xFFFEE2E2),
                     );
                   }
                 : null,
@@ -286,14 +404,16 @@ class _RecentTransactionsSectionState
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 13),
         child: Row(
+          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             // Circular Avatar Icon
             Container(
-              width: 40,
-              height: 40,
+              width: 42,
+              height: 42,
               decoration: BoxDecoration(
                 color: iconBg,
-                borderRadius: BorderRadius.circular(12),
+                borderRadius: BorderRadius.circular(13),
+                border: Border.all(color: iconBorder, width: 1.0),
               ),
               child: Icon(
                 iconData,
@@ -301,31 +421,86 @@ class _RecentTransactionsSectionState
                 size: 20,
               ),
             ),
-            const SizedBox(width: 13),
+            const SizedBox(width: 12),
 
             // Title & Subtitle
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
                 children: [
-                  Text(
-                    tx.title,
-                    style: GoogleFonts.plusJakartaSans(
-                      fontSize: 13.5,
-                      fontWeight: FontWeight.w700,
-                      color: const Color(0xFF0F172A),
-                    ),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
+                  Row(
+                    children: [
+                      Flexible(
+                        child: Text(
+                          mainTitle,
+                          style: GoogleFonts.plusJakartaSans(
+                            fontSize: 13.5,
+                            fontWeight: FontWeight.w700,
+                            color: isAlreadyRefunded && !isRefund
+                                ? const Color(0xFF64748B)
+                                : const Color(0xFF0F172A),
+                          ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                      if (displayOrderCode != null) ...[
+                        const SizedBox(width: 6),
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                          decoration: BoxDecoration(
+                            color: const Color(0xFFF1F5F9),
+                            borderRadius: BorderRadius.circular(6),
+                            border: Border.all(color: const Color(0xFFE2E8F0), width: 0.8),
+                          ),
+                          child: Text(
+                            displayOrderCode,
+                            style: GoogleFonts.inter(
+                              fontSize: 10.5,
+                              fontWeight: FontWeight.w700,
+                              color: const Color(0xFF334155),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ],
                   ),
-                  const SizedBox(height: 2),
-                  Text(
-                    tx.listSubtitle,
-                    style: GoogleFonts.plusJakartaSans(
-                      fontSize: 11.5,
-                      fontWeight: FontWeight.w500,
-                      color: const Color(0xFF64748B),
-                    ),
+                  const SizedBox(height: 3),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: Text(
+                          subtitle,
+                          style: GoogleFonts.plusJakartaSans(
+                            fontSize: 11.5,
+                            fontWeight: FontWeight.w500,
+                            color: const Color(0xFF64748B),
+                          ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                      if (isAlreadyRefunded && !isRefund) ...[
+                        const SizedBox(width: 6),
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 1.5),
+                          decoration: BoxDecoration(
+                            color: const Color(0xFFFFF1F2),
+                            borderRadius: BorderRadius.circular(5),
+                            border: Border.all(color: const Color(0xFFFECDD3), width: 0.8),
+                          ),
+                          child: Text(
+                            'Di-refund',
+                            style: GoogleFonts.inter(
+                              fontSize: 10,
+                              fontWeight: FontWeight.w700,
+                              color: const Color(0xFFE11D48),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ],
                   ),
                 ],
               ),
@@ -334,15 +509,39 @@ class _RecentTransactionsSectionState
             const SizedBox(width: 10),
 
             // Amount (+/-)
-            Text(
-              tx.formattedAmountWithSign,
-              style: GoogleFonts.plusJakartaSans(
-                fontSize: 14,
-                fontWeight: FontWeight.w800,
-                color: isIncome
-                    ? const Color(0xFF16A34A)
-                    : const Color(0xFFDC2626),
-              ),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.end,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  tx.formattedAmountWithSign,
+                  style: GoogleFonts.plusJakartaSans(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w800,
+                    color: isRefund
+                        ? const Color(0xFFE11D48)
+                        : (isIncome
+                            ? (isAlreadyRefunded
+                                ? const Color(0xFF94A3B8)
+                                : const Color(0xFF16A34A))
+                            : const Color(0xFFDC2626)),
+                    decoration: (isAlreadyRefunded && !isRefund)
+                        ? TextDecoration.lineThrough
+                        : null,
+                  ),
+                ),
+                if (isAlreadyRefunded && !isRefund) ...[
+                  const SizedBox(height: 2),
+                  Text(
+                    'Dibatalkan',
+                    style: GoogleFonts.inter(
+                      fontSize: 10,
+                      fontWeight: FontWeight.w600,
+                      color: const Color(0xFFE11D48),
+                    ),
+                  ),
+                ],
+              ],
             ),
           ],
         ),

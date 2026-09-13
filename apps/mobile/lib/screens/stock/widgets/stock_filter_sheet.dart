@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
-import '../../../core/theme/app_colors.dart';
 import '../../../models/stock_model.dart';
 
-/// Filter criteria container returned from [StockFilterPopup].
+/// Filter criteria container returned from [StockFilterSheet].
 class StockFilterResult {
   final StockStatus? status;
   final StockCategory category;
@@ -34,10 +33,17 @@ class StockFilterResult {
   }
 }
 
-/// Modern floating popup filter for stock items.
+/// Modern Bottom Sheet filter for stock items.
 ///
-/// Shown as a centered dialog with backdrop blur and scale animation,
-/// inspired by modern e-commerce and F&B apps (Shopee, Gojek, Grab).
+/// Designed to follow the Neo-Clean design system:
+/// - Docked to bottom with smooth slide transition and rounded top border
+/// - Drag handle for natural mobile gestures
+/// - Segmented pill tabs with active indicators
+/// - Rich status options with real counts and semantic color cues
+/// - Category chips with item count badges
+/// - Sort options with explanatory subtitles
+/// - Prominent alert toggle for low/critical stock
+/// - High-contrast action buttons docked in the primary thumb zone
 class StockFilterSheet extends StatefulWidget {
   final StockStatus? initialStatus;
   final StockCategory initialCategory;
@@ -52,7 +58,7 @@ class StockFilterSheet extends StatefulWidget {
     this.initialSortBy = StockSortBy.nameAsc,
   });
 
-  /// Show the filter popup as a dialog overlay with animation.
+  /// Show the filter sheet as a modern modal bottom sheet.
   static Future<StockFilterResult?> show(
     BuildContext context, {
     StockStatus? currentStatus,
@@ -60,41 +66,17 @@ class StockFilterSheet extends StatefulWidget {
     bool currentLowStockOnly = false,
     StockSortBy currentSortBy = StockSortBy.nameAsc,
   }) {
-    return showGeneralDialog<StockFilterResult>(
+    return showModalBottomSheet<StockFilterResult>(
       context: context,
-      barrierDismissible: true,
-      barrierLabel: 'Filter',
-      barrierColor: Colors.black.withValues(alpha: 0.35),
-      transitionDuration: const Duration(milliseconds: 300),
-      transitionBuilder: (context, animation, secondaryAnimation, child) {
-        final curve = CurvedAnimation(
-          parent: animation,
-          curve: Curves.easeOutCubic,
-          reverseCurve: Curves.easeInCubic,
-        );
-        return FadeTransition(
-          opacity: curve,
-          child: ScaleTransition(
-            scale: Tween<double>(begin: 0.92, end: 1.0).animate(curve),
-            alignment: Alignment.topRight,
-            child: child,
-          ),
-        );
-      },
-      pageBuilder: (context, animation, secondaryAnimation) {
-        return SafeArea(
-          child: Align(
-            alignment: Alignment.topCenter,
-            child: Padding(
-              padding: const EdgeInsets.only(top: 160, left: 16, right: 16),
-              child: StockFilterSheet(
-                initialStatus: currentStatus,
-                initialCategory: currentCategory,
-                initialLowStockOnly: currentLowStockOnly,
-                initialSortBy: currentSortBy,
-              ),
-            ),
-          ),
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      barrierColor: Colors.black.withValues(alpha: 0.45),
+      builder: (context) {
+        return StockFilterSheet(
+          initialStatus: currentStatus,
+          initialCategory: currentCategory,
+          initialLowStockOnly: currentLowStockOnly,
+          initialSortBy: currentSortBy,
         );
       },
     );
@@ -112,7 +94,6 @@ class _StockFilterSheetState extends State<StockFilterSheet>
   late StockSortBy _selectedSortBy;
   late TabController _tabController;
 
-  // Sections: 0 = Status, 1 = Kategori, 2 = Urutkan
   static const _tabs = ['Status', 'Kategori', 'Urutkan'];
 
   @override
@@ -160,6 +141,11 @@ class _StockFilterSheetState extends State<StockFilterSheet>
     }).length;
   }
 
+  int _getCategoryItemCount(StockCategory cat, StockRepository repo) {
+    if (cat == StockCategory.all) return repo.totalItemsCount;
+    return repo.items.where((item) => item.category == cat).length;
+  }
+
   void _applyAndClose() {
     HapticFeedback.mediumImpact();
     Navigator.pop(
@@ -177,63 +163,82 @@ class _StockFilterSheetState extends State<StockFilterSheet>
   Widget build(BuildContext context) {
     final repo = StockRepository.instance;
     final matchingCount = _calculateMatchingCount();
+    final maxHeight = MediaQuery.of(context).size.height * 0.85;
 
     return Material(
       color: Colors.transparent,
       child: Container(
         constraints: BoxConstraints(
-          maxHeight: MediaQuery.of(context).size.height * 0.62,
-          maxWidth: 420,
+          maxHeight: maxHeight,
+          maxWidth: 520,
         ),
-        decoration: BoxDecoration(
+        decoration: const BoxDecoration(
           color: Colors.white,
-          borderRadius: BorderRadius.circular(24),
-          // No border
+          borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withValues(alpha: 0.12),
+              color: Color(0x1A000000),
               blurRadius: 32,
-              offset: const Offset(0, 8),
-              spreadRadius: 2,
+              offset: Offset(0, -6),
             ),
           ],
         ),
         child: ClipRRect(
-          borderRadius: BorderRadius.circular(24),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              // ── Header ────────────────────────────────────────
-              _buildHeader(),
+          borderRadius: const BorderRadius.vertical(top: Radius.circular(28)),
+          child: SafeArea(
+            top: false,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                // Drag handle
+                _buildDragHandle(),
 
-              // ── Tab Bar ───────────────────────────────────────
-              _buildTabBar(),
+                // Header
+                _buildHeader(),
 
-              // ── Tab Body ──────────────────────────────────────
-              Flexible(
-                child: AnimatedBuilder(
-                  animation: _tabController,
-                  builder: (context, _) {
-                    return AnimatedSwitcher(
-                      duration: const Duration(milliseconds: 220),
-                      switchInCurve: Curves.easeOutCubic,
-                      switchOutCurve: Curves.easeIn,
-                      child: _buildTabContent(
-                        _tabController.index,
-                        repo,
-                      ),
-                    );
-                  },
+                // Segmented Tab Bar
+                _buildTabBar(),
+
+                // Tab Content Body
+                Flexible(
+                  child: AnimatedBuilder(
+                    animation: _tabController,
+                    builder: (context, _) {
+                      return AnimatedSwitcher(
+                        duration: const Duration(milliseconds: 200),
+                        switchInCurve: Curves.easeOutCubic,
+                        switchOutCurve: Curves.easeIn,
+                        child: _buildTabContent(_tabController.index, repo),
+                      );
+                    },
+                  ),
                 ),
-              ),
 
-              // ── Low stock toggle ──────────────────────────────
-              _buildLowStockToggle(repo),
+                // Low Stock Alert Toggle Card
+                _buildLowStockToggle(repo),
 
-              // ── Bottom Actions ────────────────────────────────
-              _buildActionBar(matchingCount),
-            ],
+                // Docked Action Bar
+                _buildActionBar(matchingCount),
+              ],
+            ),
           ),
+        ),
+      ),
+    );
+  }
+
+  // ═══════════════════════════════════════════════════════════════
+  //  DRAG HANDLE
+  // ═══════════════════════════════════════════════════════════════
+  Widget _buildDragHandle() {
+    return Center(
+      child: Container(
+        margin: const EdgeInsets.only(top: 10, bottom: 6),
+        width: 40,
+        height: 4.5,
+        decoration: BoxDecoration(
+          color: const Color(0xFFCBD5E1),
+          borderRadius: BorderRadius.circular(2.5),
         ),
       ),
     );
@@ -244,24 +249,24 @@ class _StockFilterSheetState extends State<StockFilterSheet>
   // ═══════════════════════════════════════════════════════════════
   Widget _buildHeader() {
     return Container(
-      padding: const EdgeInsets.fromLTRB(20, 18, 12, 0),
+      padding: const EdgeInsets.fromLTRB(20, 8, 16, 4),
       child: Row(
         children: [
-          // Icon
+          // Icon badge
           Container(
             padding: const EdgeInsets.all(8),
             decoration: BoxDecoration(
-              color: const Color(0xFF111111),
+              color: const Color(0xFF0F172A),
               borderRadius: BorderRadius.circular(12),
             ),
             child: const Icon(
               Icons.tune_rounded,
-              color: Color(0xFF22C55E),
-              size: 20,
+              color: Color(0xFF10B981),
+              size: 19,
             ),
           ),
           const SizedBox(width: 12),
-          // Title
+          // Title & subtitle
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -269,10 +274,10 @@ class _StockFilterSheetState extends State<StockFilterSheet>
                 Text(
                   'Filter & Urutkan Stok',
                   style: GoogleFonts.plusJakartaSans(
-                    fontSize: 16,
+                    fontSize: 16.5,
                     fontWeight: FontWeight.w800,
-                    color: const Color(0xFF111111),
-                    letterSpacing: -0.3,
+                    color: const Color(0xFF0F172A),
+                    letterSpacing: -0.4,
                   ),
                 ),
                 const SizedBox(height: 1),
@@ -280,46 +285,58 @@ class _StockFilterSheetState extends State<StockFilterSheet>
                   'Temukan bahan baku lebih cepat',
                   style: GoogleFonts.plusJakartaSans(
                     fontSize: 12,
+                    fontWeight: FontWeight.w500,
                     color: const Color(0xFF64748B),
                   ),
                 ),
               ],
             ),
           ),
-          // Reset button
+          // Reset Button
           if (_hasFilters)
-            TextButton.icon(
-              onPressed: _resetFilters,
-              icon: const Icon(Icons.refresh_rounded, size: 15),
-              label: Text(
-                'Reset',
-                style: GoogleFonts.plusJakartaSans(
-                  fontSize: 12,
-                  fontWeight: FontWeight.w700,
+            InkWell(
+              onTap: _resetFilters,
+              borderRadius: BorderRadius.circular(10),
+              child: Container(
+                margin: const EdgeInsets.only(right: 8),
+                padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 5),
+                decoration: BoxDecoration(
+                  color: const Color(0xFFFEE2E2),
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const Icon(Icons.refresh_rounded, size: 13, color: Color(0xFFEF4444)),
+                    const SizedBox(width: 3),
+                    Text(
+                      'Reset',
+                      style: GoogleFonts.plusJakartaSans(
+                        fontSize: 11.5,
+                        fontWeight: FontWeight.w700,
+                        color: const Color(0xFFEF4444),
+                      ),
+                    ),
+                  ],
                 ),
               ),
-              style: TextButton.styleFrom(
-                foregroundColor: const Color(0xFFEF4444),
-                padding: const EdgeInsets.symmetric(horizontal: 10),
-                minimumSize: Size.zero,
-                tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                visualDensity: VisualDensity.compact,
+            ),
+          // Close Icon
+          InkWell(
+            onTap: () => Navigator.pop(context),
+            borderRadius: BorderRadius.circular(20),
+            child: Container(
+              padding: const EdgeInsets.all(6),
+              decoration: const BoxDecoration(
+                color: Color(0xFFF1F5F9),
+                shape: BoxShape.circle,
+              ),
+              child: const Icon(
+                Icons.close_rounded,
+                size: 16,
+                color: Color(0xFF64748B),
               ),
             ),
-          // Close
-          IconButton(
-            onPressed: () => Navigator.pop(context),
-            icon: Container(
-              padding: const EdgeInsets.all(4),
-              decoration: BoxDecoration(
-                color: const Color(0xFFF1F5F9),
-                borderRadius: BorderRadius.circular(8),
-              ),
-              child: const Icon(Icons.close_rounded, size: 16, color: Color(0xFF64748B)),
-            ),
-            visualDensity: VisualDensity.compact,
-            padding: EdgeInsets.zero,
-            constraints: const BoxConstraints(),
           ),
         ],
       ),
@@ -331,7 +348,7 @@ class _StockFilterSheetState extends State<StockFilterSheet>
   // ═══════════════════════════════════════════════════════════════
   Widget _buildTabBar() {
     return Container(
-      margin: const EdgeInsets.fromLTRB(16, 14, 16, 0),
+      margin: const EdgeInsets.fromLTRB(16, 12, 16, 4),
       padding: const EdgeInsets.all(3),
       decoration: BoxDecoration(
         color: const Color(0xFFF1F5F9),
@@ -352,7 +369,7 @@ class _StockFilterSheetState extends State<StockFilterSheet>
         ),
         indicatorSize: TabBarIndicatorSize.tab,
         dividerColor: Colors.transparent,
-        labelColor: const Color(0xFF111111),
+        labelColor: const Color(0xFF0F172A),
         unselectedLabelColor: const Color(0xFF64748B),
         labelStyle: GoogleFonts.plusJakartaSans(
           fontSize: 13,
@@ -365,19 +382,19 @@ class _StockFilterSheetState extends State<StockFilterSheet>
         tabs: _tabs.map((t) {
           final hasActive = _tabHasActiveFilter(t);
           return Tab(
-            height: 36,
+            height: 38,
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
               mainAxisSize: MainAxisSize.min,
               children: [
                 Flexible(child: Text(t, overflow: TextOverflow.ellipsis)),
                 if (hasActive) ...[
-                  const SizedBox(width: 4),
+                  const SizedBox(width: 5),
                   Container(
-                    width: 6,
-                    height: 6,
+                    width: 7,
+                    height: 7,
                     decoration: const BoxDecoration(
-                      color: Color(0xFF22C55E),
+                      color: Color(0xFF10B981),
                       shape: BoxShape.circle,
                     ),
                   ),
@@ -411,7 +428,7 @@ class _StockFilterSheetState extends State<StockFilterSheet>
       case 0:
         return _buildStatusTab(repo);
       case 1:
-        return _buildCategoryTab();
+        return _buildCategoryTab(repo);
       case 2:
         return _buildSortTab();
       default:
@@ -423,41 +440,45 @@ class _StockFilterSheetState extends State<StockFilterSheet>
   Widget _buildStatusTab(StockRepository repo) {
     return SingleChildScrollView(
       key: const ValueKey('status_tab'),
-      padding: const EdgeInsets.fromLTRB(16, 14, 16, 8),
+      padding: const EdgeInsets.fromLTRB(16, 12, 16, 10),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _buildOptionTile(
-            icon: Icons.apps_rounded,
+          _buildStatusTile(
+            icon: Icons.layers_outlined,
             label: 'Semua Status',
-            subtitle: ' bahan',
+            subtitle: '${repo.totalItemsCount} total bahan baku terdaftar',
+            count: repo.totalItemsCount,
             isSelected: _selectedStatus == null,
-            accentColor: const Color(0xFF111111),
+            accentColor: const Color(0xFF0F172A),
             onTap: () => setState(() => _selectedStatus = null),
           ),
-          const SizedBox(height: 8),
-          _buildOptionTile(
-            icon: Icons.check_circle_outline_rounded,
+          const SizedBox(height: 10),
+          _buildStatusTile(
+            icon: Icons.check_circle_rounded,
             label: 'Stok Aman',
-            subtitle: ' bahan',
+            subtitle: '${repo.safeStockCount} bahan dengan stok mencukupi',
+            count: repo.safeStockCount,
             isSelected: _selectedStatus == StockStatus.baik,
-            accentColor: const Color(0xFF22C55E),
+            accentColor: const Color(0xFF10B981),
             onTap: () => setState(() => _selectedStatus = StockStatus.baik),
           ),
-          const SizedBox(height: 8),
-          _buildOptionTile(
+          const SizedBox(height: 10),
+          _buildStatusTile(
             icon: Icons.warning_amber_rounded,
             label: 'Stok Rendah',
-            subtitle: ' bahan',
+            subtitle: '${repo.lowStockCount} bahan mendekati batas minimum',
+            count: repo.lowStockCount,
             isSelected: _selectedStatus == StockStatus.rendah,
             accentColor: const Color(0xFFF59E0B),
             onTap: () => setState(() => _selectedStatus = StockStatus.rendah),
           ),
-          const SizedBox(height: 8),
-          _buildOptionTile(
+          const SizedBox(height: 10),
+          _buildStatusTile(
             icon: Icons.error_outline_rounded,
             label: 'Stok Kritis',
-            subtitle: ' bahan — perlu restock!',
+            subtitle: '${repo.criticalStockCount} bahan perlu segera restock!',
+            count: repo.criticalStockCount,
             isSelected: _selectedStatus == StockStatus.kritis,
             accentColor: const Color(0xFFEF4444),
             onTap: () => setState(() => _selectedStatus = StockStatus.kritis),
@@ -468,15 +489,16 @@ class _StockFilterSheetState extends State<StockFilterSheet>
   }
 
   // ── Category Tab ───────────────────────────────────────────────
-  Widget _buildCategoryTab() {
+  Widget _buildCategoryTab(StockRepository repo) {
     return SingleChildScrollView(
       key: const ValueKey('category_tab'),
-      padding: const EdgeInsets.fromLTRB(16, 14, 16, 8),
+      padding: const EdgeInsets.fromLTRB(16, 12, 16, 10),
       child: Wrap(
         spacing: 8,
-        runSpacing: 8,
+        runSpacing: 10,
         children: StockCategory.values.map((cat) {
           final isSelected = _selectedCategory == cat;
+          final count = _getCategoryItemCount(cat, repo);
           return GestureDetector(
             onTap: () {
               HapticFeedback.selectionClick();
@@ -484,27 +506,31 @@ class _StockFilterSheetState extends State<StockFilterSheet>
             },
             child: AnimatedContainer(
               duration: const Duration(milliseconds: 180),
-              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 9),
               decoration: BoxDecoration(
-                color: isSelected
-                    ? const Color(0xFF111111)
-                    : Colors.white,
-                borderRadius: BorderRadius.circular(14),
+                color: isSelected ? const Color(0xFF0F172A) : Colors.white,
+                borderRadius: BorderRadius.circular(12),
                 border: Border.all(
                   color: isSelected
-                      ? const Color(0xFF111111)
-                      : const Color(0xFFE2E8F0),
+                      ? const Color(0xFF0F172A)
+                      : (count > 0 ? const Color(0xFFE2E8F0) : const Color(0xFFF1F5F9)),
                   width: isSelected ? 1.5 : 1,
                 ),
                 boxShadow: isSelected
                     ? [
                         BoxShadow(
-                          color: Colors.black.withValues(alpha: 0.15),
+                          color: const Color(0xFF0F172A).withValues(alpha: 0.2),
                           blurRadius: 6,
                           offset: const Offset(0, 2),
                         ),
                       ]
-                    : null,
+                    : [
+                        BoxShadow(
+                          color: Colors.black.withValues(alpha: 0.02),
+                          blurRadius: 4,
+                          offset: const Offset(0, 1),
+                        ),
+                      ],
               ),
               child: Row(
                 mainAxisSize: MainAxisSize.min,
@@ -513,7 +539,7 @@ class _StockFilterSheetState extends State<StockFilterSheet>
                     const Icon(
                       Icons.check_rounded,
                       size: 15,
-                      color: Color(0xFF22C55E),
+                      color: Color(0xFF10B981),
                     ),
                     const SizedBox(width: 6),
                   ],
@@ -522,7 +548,27 @@ class _StockFilterSheetState extends State<StockFilterSheet>
                     style: GoogleFonts.plusJakartaSans(
                       fontSize: 13,
                       fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
-                      color: isSelected ? Colors.white : const Color(0xFF111111),
+                      color: isSelected
+                          ? Colors.white
+                          : (count > 0 ? const Color(0xFF0F172A) : const Color(0xFF94A3B8)),
+                    ),
+                  ),
+                  const SizedBox(width: 6),
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 1.5),
+                    decoration: BoxDecoration(
+                      color: isSelected
+                          ? Colors.white.withValues(alpha: 0.2)
+                          : const Color(0xFFF1F5F9),
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: Text(
+                      '$count',
+                      style: GoogleFonts.plusJakartaSans(
+                        fontSize: 11,
+                        fontWeight: FontWeight.w700,
+                        color: isSelected ? Colors.white : const Color(0xFF64748B),
+                      ),
                     ),
                   ),
                 ],
@@ -536,23 +582,273 @@ class _StockFilterSheetState extends State<StockFilterSheet>
 
   // ── Sort Tab ───────────────────────────────────────────────────
   Widget _buildSortTab() {
+    final sortMeta = {
+      StockSortBy.nameAsc: (
+        icon: Icons.sort_by_alpha_rounded,
+        subtitle: 'Urutan alfabetik A ke Z',
+        color: const Color(0xFF0F172A),
+      ),
+      StockSortBy.stockAsc: (
+        icon: Icons.priority_high_rounded,
+        subtitle: 'Prioritas restock bahan menipis & segera habis',
+        color: const Color(0xFFF59E0B),
+      ),
+      StockSortBy.stockDesc: (
+        icon: Icons.inventory_2_outlined,
+        subtitle: 'Bahan dengan volume ketersediaan fisik terbanyak',
+        color: const Color(0xFF0284C7),
+      ),
+      StockSortBy.valueDesc: (
+        icon: Icons.monetization_on_outlined,
+        subtitle: 'Bahan dengan total nilai modal/inventaris tertinggi',
+        color: const Color(0xFF10B981),
+      ),
+    };
+
     return SingleChildScrollView(
       key: const ValueKey('sort_tab'),
-      padding: const EdgeInsets.fromLTRB(16, 14, 16, 8),
+      padding: const EdgeInsets.fromLTRB(16, 12, 16, 10),
       child: Column(
         children: StockSortBy.values.map((sort) {
           final isSelected = _selectedSortBy == sort;
+          final meta = sortMeta[sort]!;
           return Padding(
-            padding: const EdgeInsets.only(bottom: 8),
-            child: _buildOptionTile(
-              icon: sort.icon,
-              label: sort.label,
-              isSelected: isSelected,
-              accentColor: const Color(0xFF111111),
-              onTap: () => setState(() => _selectedSortBy = sort),
+            padding: const EdgeInsets.only(bottom: 10),
+            child: GestureDetector(
+              onTap: () {
+                HapticFeedback.selectionClick();
+                setState(() => _selectedSortBy = sort);
+              },
+              child: AnimatedContainer(
+                duration: const Duration(milliseconds: 180),
+                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                decoration: BoxDecoration(
+                  color: isSelected
+                      ? meta.color.withValues(alpha: 0.07)
+                      : const Color(0xFFF8FAFC),
+                  borderRadius: BorderRadius.circular(16),
+                  border: Border.all(
+                    color: isSelected
+                        ? meta.color.withValues(alpha: 0.5)
+                        : const Color(0xFFE2E8F0),
+                    width: isSelected ? 1.5 : 1,
+                  ),
+                  boxShadow: isSelected
+                      ? [
+                          BoxShadow(
+                            color: meta.color.withValues(alpha: 0.08),
+                            blurRadius: 8,
+                            offset: const Offset(0, 2),
+                          ),
+                        ]
+                      : null,
+                ),
+                child: Row(
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(9),
+                      decoration: BoxDecoration(
+                        color: isSelected
+                            ? meta.color.withValues(alpha: 0.15)
+                            : Colors.white,
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(
+                          color: isSelected
+                              ? meta.color.withValues(alpha: 0.3)
+                              : const Color(0xFFE2E8F0),
+                          width: 1,
+                        ),
+                      ),
+                      child: Icon(
+                        meta.icon,
+                        size: 19,
+                        color: isSelected ? meta.color : const Color(0xFF64748B),
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            sort.label,
+                            style: GoogleFonts.plusJakartaSans(
+                              fontSize: 13.5,
+                              fontWeight: isSelected ? FontWeight.w700 : FontWeight.w600,
+                              color: isSelected ? const Color(0xFF0F172A) : const Color(0xFF1E293B),
+                            ),
+                          ),
+                          const SizedBox(height: 2),
+                          Text(
+                            meta.subtitle,
+                            style: GoogleFonts.plusJakartaSans(
+                              fontSize: 11.5,
+                              color: isSelected
+                                  ? meta.color.withValues(alpha: 0.9)
+                                  : const Color(0xFF64748B),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    AnimatedContainer(
+                      duration: const Duration(milliseconds: 180),
+                      width: 22,
+                      height: 22,
+                      decoration: BoxDecoration(
+                        color: isSelected ? meta.color : Colors.transparent,
+                        shape: BoxShape.circle,
+                        border: Border.all(
+                          color: isSelected ? meta.color : const Color(0xFFCBD5E1),
+                          width: 1.5,
+                        ),
+                      ),
+                      child: isSelected
+                          ? const Icon(Icons.check_rounded, size: 14, color: Colors.white)
+                          : null,
+                    ),
+                  ],
+                ),
+              ),
             ),
           );
         }).toList(),
+      ),
+    );
+  }
+
+  // ═══════════════════════════════════════════════════════════════
+  //  STATUS TILE
+  // ═══════════════════════════════════════════════════════════════
+  Widget _buildStatusTile({
+    required IconData icon,
+    required String label,
+    required String subtitle,
+    required int count,
+    required bool isSelected,
+    required Color accentColor,
+    required VoidCallback onTap,
+  }) {
+    return GestureDetector(
+      onTap: () {
+        HapticFeedback.selectionClick();
+        onTap();
+      },
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 180),
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+        decoration: BoxDecoration(
+          color: isSelected
+              ? accentColor.withValues(alpha: 0.07)
+              : const Color(0xFFF8FAFC),
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(
+            color: isSelected
+                ? accentColor.withValues(alpha: 0.5)
+                : const Color(0xFFE2E8F0),
+            width: isSelected ? 1.5 : 1,
+          ),
+          boxShadow: isSelected
+              ? [
+                  BoxShadow(
+                    color: accentColor.withValues(alpha: 0.08),
+                    blurRadius: 8,
+                    offset: const Offset(0, 2),
+                  ),
+                ]
+              : null,
+        ),
+        child: Row(
+          children: [
+            // Icon
+            Container(
+              padding: const EdgeInsets.all(9),
+              decoration: BoxDecoration(
+                color: isSelected
+                    ? accentColor.withValues(alpha: 0.15)
+                    : Colors.white,
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(
+                  color: isSelected
+                      ? accentColor.withValues(alpha: 0.3)
+                      : const Color(0xFFE2E8F0),
+                  width: 1,
+                ),
+              ),
+              child: Icon(
+                icon,
+                size: 19,
+                color: isSelected ? accentColor : const Color(0xFF64748B),
+              ),
+            ),
+            const SizedBox(width: 12),
+            // Text
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    label,
+                    style: GoogleFonts.plusJakartaSans(
+                      fontSize: 13.5,
+                      fontWeight: isSelected ? FontWeight.w700 : FontWeight.w600,
+                      color: isSelected ? const Color(0xFF0F172A) : const Color(0xFF1E293B),
+                    ),
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    subtitle,
+                    style: GoogleFonts.plusJakartaSans(
+                      fontSize: 11.5,
+                      fontWeight: FontWeight.w400,
+                      color: isSelected
+                          ? accentColor.withValues(alpha: 0.9)
+                          : const Color(0xFF64748B),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(width: 8),
+            // Count pill badge
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+              decoration: BoxDecoration(
+                color: isSelected
+                    ? accentColor.withValues(alpha: 0.15)
+                    : const Color(0xFFF1F5F9),
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: Text(
+                '$count',
+                style: GoogleFonts.plusJakartaSans(
+                  fontSize: 12,
+                  fontWeight: FontWeight.w700,
+                  color: isSelected ? accentColor : const Color(0xFF64748B),
+                ),
+              ),
+            ),
+            const SizedBox(width: 8),
+            // Checkmark indicator
+            AnimatedContainer(
+              duration: const Duration(milliseconds: 180),
+              width: 22,
+              height: 22,
+              decoration: BoxDecoration(
+                color: isSelected ? accentColor : Colors.transparent,
+                shape: BoxShape.circle,
+                border: Border.all(
+                  color: isSelected ? accentColor : const Color(0xFFCBD5E1),
+                  width: 1.5,
+                ),
+              ),
+              child: isSelected
+                  ? const Icon(Icons.check_rounded, size: 14, color: Colors.white)
+                  : null,
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -563,26 +859,37 @@ class _StockFilterSheetState extends State<StockFilterSheet>
   Widget _buildLowStockToggle(StockRepository repo) {
     final alertCount = repo.lowStockCount + repo.criticalStockCount;
     return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
+      margin: const EdgeInsets.fromLTRB(16, 4, 16, 6),
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
       decoration: BoxDecoration(
         color: _lowStockOnly
-            ? const Color(0xFFFEF3C7)
+            ? const Color(0xFFFFFBEB)
             : const Color(0xFFF8FAFC),
         borderRadius: BorderRadius.circular(14),
         border: Border.all(
-          color: _lowStockOnly ? const Color(0xFFF59E0B).withValues(alpha: 0.3) : const Color(0xFFE2E8F0),
-          width: 1,
+          color: _lowStockOnly
+              ? const Color(0xFFF59E0B).withValues(alpha: 0.4)
+              : const Color(0xFFE2E8F0),
+          width: 1.2,
         ),
       ),
       child: Row(
         children: [
-          Icon(
-            _lowStockOnly
-                ? Icons.notifications_active_rounded
-                : Icons.notifications_none_rounded,
-            size: 18,
-            color: _lowStockOnly ? const Color(0xFFD97706) : const Color(0xFF64748B),
+          Container(
+            padding: const EdgeInsets.all(7),
+            decoration: BoxDecoration(
+              color: _lowStockOnly
+                  ? const Color(0xFFF59E0B).withValues(alpha: 0.15)
+                  : Colors.white,
+              borderRadius: BorderRadius.circular(10),
+            ),
+            child: Icon(
+              _lowStockOnly
+                  ? Icons.notifications_active_rounded
+                  : Icons.notifications_none_rounded,
+              size: 18,
+              color: _lowStockOnly ? const Color(0xFFD97706) : const Color(0xFF64748B),
+            ),
           ),
           const SizedBox(width: 10),
           Expanded(
@@ -592,16 +899,16 @@ class _StockFilterSheetState extends State<StockFilterSheet>
                 Text(
                   'Hanya Stok Menipis & Kritis',
                   style: GoogleFonts.plusJakartaSans(
-                    fontSize: 12,
+                    fontSize: 12.5,
                     fontWeight: FontWeight.w700,
-                    color: _lowStockOnly ? const Color(0xFFD97706) : const Color(0xFF111111),
+                    color: _lowStockOnly ? const Color(0xFFB45309) : const Color(0xFF0F172A),
                   ),
                 ),
                 Text(
-                  '$alertCount bahan perlu perhatian',
+                  '$alertCount bahan perlu perhatian restock',
                   style: GoogleFonts.plusJakartaSans(
                     fontSize: 11,
-                    color: const Color(0xFF64748B),
+                    color: _lowStockOnly ? const Color(0xFFD97706) : const Color(0xFF64748B),
                   ),
                 ),
               ],
@@ -629,7 +936,7 @@ class _StockFilterSheetState extends State<StockFilterSheet>
   // ═══════════════════════════════════════════════════════════════
   Widget _buildActionBar(int matchingCount) {
     return Padding(
-      padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
+      padding: const EdgeInsets.fromLTRB(16, 6, 16, 16),
       child: Row(
         children: [
           // Cancel
@@ -638,8 +945,8 @@ class _StockFilterSheetState extends State<StockFilterSheet>
               onPressed: () => Navigator.pop(context),
               style: TextButton.styleFrom(
                 backgroundColor: const Color(0xFFF1F5F9),
-                foregroundColor: const Color(0xFF111111),
-                padding: const EdgeInsets.symmetric(vertical: 13),
+                foregroundColor: const Color(0xFF0F172A),
+                padding: const EdgeInsets.symmetric(vertical: 14),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(14),
                 ),
@@ -647,9 +954,9 @@ class _StockFilterSheetState extends State<StockFilterSheet>
               child: Text(
                 'Batal',
                 style: GoogleFonts.plusJakartaSans(
-                  fontSize: 13,
+                  fontSize: 13.5,
                   fontWeight: FontWeight.w700,
-                  color: const Color(0xFF111111),
+                  color: const Color(0xFF475569),
                 ),
               ),
             ),
@@ -661,25 +968,34 @@ class _StockFilterSheetState extends State<StockFilterSheet>
             child: ElevatedButton(
               onPressed: _applyAndClose,
               style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF111111),
+                backgroundColor: matchingCount > 0
+                    ? const Color(0xFF0F172A)
+                    : const Color(0xFF94A3B8),
                 foregroundColor: Colors.white,
-                padding: const EdgeInsets.symmetric(vertical: 13),
+                padding: const EdgeInsets.symmetric(vertical: 14),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(14),
                 ),
-                elevation: 4,
+                elevation: matchingCount > 0 ? 3 : 0,
                 shadowColor: Colors.black.withValues(alpha: 0.25),
               ),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  const Icon(Icons.check_rounded, size: 18, color: Color(0xFF22C55E)),
+                  Icon(
+                    matchingCount > 0 ? Icons.check_rounded : Icons.search_off_rounded,
+                    size: 18,
+                    color: matchingCount > 0 ? const Color(0xFF10B981) : Colors.white70,
+                  ),
                   const SizedBox(width: 6),
                   Text(
-                    'Tampilkan $matchingCount Bahan',
+                    matchingCount > 0
+                        ? 'Tampilkan $matchingCount Bahan'
+                        : 'Tidak Ada Bahan',
                     style: GoogleFonts.plusJakartaSans(
-                      fontSize: 13,
+                      fontSize: 13.5,
                       fontWeight: FontWeight.w700,
+                      color: Colors.white,
                     ),
                   ),
                 ],
@@ -687,94 +1003,6 @@ class _StockFilterSheetState extends State<StockFilterSheet>
             ),
           ),
         ],
-      ),
-    );
-  }
-
-  // ═══════════════════════════════════════════════════════════════
-  //  REUSABLE OPTION TILE
-  // ═══════════════════════════════════════════════════════════════
-  Widget _buildOptionTile({
-    required IconData icon,
-    required String label,
-    String? subtitle,
-    required bool isSelected,
-    required Color accentColor,
-    required VoidCallback onTap,
-  }) {
-    return GestureDetector(
-      onTap: () {
-        HapticFeedback.selectionClick();
-        onTap();
-      },
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 200),
-        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-        decoration: BoxDecoration(
-          color: isSelected
-              ? accentColor.withValues(alpha: 0.08)
-              : const Color(0xFFF8FAFC), // Slight slate tint
-          borderRadius: BorderRadius.circular(14),
-          // No border
-        ),
-        child: Row(
-          children: [
-            // Leading icon circle
-            Container(
-              padding: const EdgeInsets.all(8),
-              decoration: BoxDecoration(
-                color: isSelected
-                    ? accentColor.withValues(alpha: 0.15)
-                    : Colors.white, // White circle
-                borderRadius: BorderRadius.circular(10),
-              ),
-              child: Icon(
-                icon,
-                size: 18,
-                color: isSelected ? accentColor : AppColors.mutedText,
-              ),
-            ),
-            const SizedBox(width: 12),
-            // Label
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    label,
-                    style: GoogleFonts.inter(
-                      fontSize: 13,
-                      fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
-                      color: isSelected ? accentColor : AppColors.darkText,
-                    ),
-                  ),
-                  if (subtitle != null)
-                    Text(
-                      subtitle,
-                      style: GoogleFonts.inter(
-                        fontSize: 11,
-                        color: AppColors.mutedText,
-                      ),
-                    ),
-                ],
-              ),
-            ),
-            // Check mark
-            AnimatedContainer(
-              duration: const Duration(milliseconds: 200),
-              width: 22,
-              height: 22,
-              decoration: BoxDecoration(
-                color: isSelected ? accentColor : Colors.transparent,
-                borderRadius: BorderRadius.circular(7),
-                // No border
-              ),
-              child: isSelected
-                  ? const Icon(Icons.check_rounded, size: 14, color: Colors.white)
-                  : null,
-            ),
-          ],
-        ),
       ),
     );
   }

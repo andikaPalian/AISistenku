@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../../models/stock_model.dart';
+import '../../../core/widgets/action_success_modal.dart';
 
 /// Modal bottom sheet for Stock Opname / Manual Stock Adjustment.
 class AdjustStockModal extends StatefulWidget {
@@ -91,24 +92,15 @@ class _AdjustStockModalState extends State<AdjustStockModal> {
         ? '+${diff.toStringAsFixed(1)} ${widget.item.unit}'
         : '${diff.toStringAsFixed(1)} ${widget.item.unit}';
 
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Row(
-          children: [
-            const Icon(Icons.check_circle_rounded, color: Color(0xFF22C55E)),
-            const SizedBox(width: 12),
-            Expanded(
-              child: Text(
-                'Stok ${widget.item.name} berhasil disesuaikan ($diffStr)',
-                style: GoogleFonts.plusJakartaSans(fontWeight: FontWeight.w600, color: Colors.white),
-              ),
-            ),
-          ],
-        ),
-        backgroundColor: const Color(0xFF111111),
-        behavior: SnackBarBehavior.floating,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
-      ),
+    ActionSuccessModal.show(
+      context,
+      title: 'Stok Disesuaikan!',
+      subtitle: 'Data audit stok opname berhasil dicatat.',
+      itemName: widget.item.name,
+      quantityChange: 'Stok Kini: ${_actualQty.toStringAsFixed(_actualQty == _actualQty.roundToDouble() ? 0 : 1)} ${widget.item.unit}',
+      financialImpact: 'Selisih Fisik: $diffStr (${_selectedReason.split(' / ').first})',
+      statusBadge: 'Audit Opname',
+      itemIcon: widget.item.icon,
     );
   }
 

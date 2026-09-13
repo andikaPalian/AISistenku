@@ -30,15 +30,21 @@ class AiFinanceInsightCard extends StatelessWidget {
       padding: const EdgeInsets.all(18),
       decoration: BoxDecoration(
         color: Colors.white,
+        gradient: const LinearGradient(
+          colors: [Color(0xFFF0FDFA), Colors.white],
+          begin: Alignment.topCenter,
+          end: Alignment.bottomCenter,
+          stops: [0.0, 0.45],
+        ),
         borderRadius: BorderRadius.circular(20),
         border: Border.all(
-          color: const Color(0xFFE2E8F0),
+          color: const Color(0xFFCCFBF1),
           width: 1.2,
         ),
         boxShadow: const [
           BoxShadow(
-            color: Color(0x060F172A),
-            blurRadius: 14,
+            color: Color(0x080D9488),
+            blurRadius: 16,
             offset: Offset(0, 4),
           ),
         ],
@@ -53,7 +59,7 @@ class AiFinanceInsightCard extends StatelessWidget {
                 height: 32,
                 padding: const EdgeInsets.all(5),
                 decoration: BoxDecoration(
-                  color: const Color(0xFF111111),
+                  color: const Color(0xFF0F172A),
                   borderRadius: BorderRadius.circular(10),
                 ),
                 child: Image.asset(
@@ -61,7 +67,7 @@ class AiFinanceInsightCard extends StatelessWidget {
                   fit: BoxFit.contain,
                   errorBuilder: (context, error, stackTrace) => const Icon(
                     Icons.auto_awesome_rounded,
-                    color: Color(0xFF22C55E),
+                    color: Color(0xFF14B8A6),
                     size: 16,
                   ),
                 ),
@@ -71,7 +77,7 @@ class AiFinanceInsightCard extends StatelessWidget {
                 child: Text(
                   'AIsisten Rekomendasi Bisnis',
                   style: GoogleFonts.plusJakartaSans(
-                    fontSize: 13,
+                    fontSize: 13.5,
                     fontWeight: FontWeight.w800,
                     color: const Color(0xFF0F172A),
                     letterSpacing: -0.2,
@@ -104,31 +110,44 @@ class AiFinanceInsightCard extends StatelessWidget {
             style: GoogleFonts.plusJakartaSans(
               fontSize: 12.5,
               fontWeight: FontWeight.w500,
-              color: const Color(0xFF475569),
+              color: const Color(0xFF334155),
               height: 1.5,
             ),
           ),
-          const SizedBox(height: 14),
-          GestureDetector(
-            onTap: onConsultTap,
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text(
-                  'Konsultasikan dengan AIsisten',
-                  style: GoogleFonts.plusJakartaSans(
-                    fontSize: 12.5,
-                    fontWeight: FontWeight.w700,
-                    color: const Color(0xFF111111),
+          const SizedBox(height: 16),
+          SizedBox(
+            width: double.infinity,
+            height: 44,
+            child: ElevatedButton(
+              onPressed: onConsultTap,
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color(0xFF0F172A),
+                foregroundColor: Colors.white,
+                elevation: 0,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(13),
+                ),
+              ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const Icon(
+                    Icons.auto_awesome_rounded,
+                    size: 16,
+                    color: Color(0xFF2DD4BF),
                   ),
-                ),
-                const SizedBox(width: 5),
-                const Icon(
-                  Icons.arrow_forward_rounded,
-                  size: 14,
-                  color: Color(0xFF111111),
-                ),
-              ],
+                  const SizedBox(width: 8),
+                  Text(
+                    'Konsultasikan dengan AIsisten',
+                    style: GoogleFonts.plusJakartaSans(
+                      fontSize: 13,
+                      fontWeight: FontWeight.w700,
+                      color: Colors.white,
+                      letterSpacing: 0.1,
+                    ),
+                  ),
+                ],
+              ),
             ),
           ),
         ],

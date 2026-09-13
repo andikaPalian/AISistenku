@@ -176,7 +176,7 @@ class _FinanceScreenState extends State<FinanceScreen> {
                           ),
                           const SizedBox(width: 8),
                           Text(
-                            'Tambah Transaksi +',
+                            'Tambah Transaksi Baru',
                             style: GoogleFonts.plusJakartaSans(
                               fontSize: 15,
                               fontWeight: FontWeight.w700,

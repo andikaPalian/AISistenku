@@ -99,117 +99,147 @@ class TopProductsCard extends StatelessWidget {
           const SizedBox(height: 18),
 
           // ── Products List with progress contribution ──────────────
-          Column(
-            children: products.asMap().entries.map((entry) {
-              final index = entry.key;
-              final item = entry.value;
-
-              final Color rankBg = index == 0
-                  ? const Color(0xFF111111)
-                  : (index == 1
-                      ? const Color(0xFF334155)
-                      : const Color(0xFF64748B));
-
-              final Color barColor = index == 0
-                  ? const Color(0xFF22C55E)
-                  : (index == 1
-                      ? const Color(0xFF0EA5E9)
-                      : const Color(0xFFF59E0B));
-
-              return Padding(
-                padding: const EdgeInsets.only(bottom: 14),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Expanded(
-                          child: Row(
-                            children: [
-                              Container(
-                                width: 22,
-                                height: 22,
-                                decoration: BoxDecoration(
-                                  color: rankBg,
-                                  shape: BoxShape.circle,
-                                ),
-                                alignment: Alignment.center,
-                                child: Text(
-                                  '${index + 1}',
-                                  style: GoogleFonts.plusJakartaSans(
-                                    fontSize: 11,
-                                    fontWeight: FontWeight.w800,
-                                    color: Colors.white,
-                                  ),
-                                ),
-                              ),
-                              const SizedBox(width: 9),
-                              Flexible(
-                                child: Text(
-                                  item.name,
-                                  style: GoogleFonts.plusJakartaSans(
-                                    fontSize: 13.5,
-                                    fontWeight: FontWeight.w700,
-                                    color: const Color(0xFF0F172A),
-                                  ),
-                                  maxLines: 1,
-                                  overflow: TextOverflow.ellipsis,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                        const SizedBox(width: 8),
-                        Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Text(
-                              '${item.soldQuantity} terjual',
-                              style: GoogleFonts.plusJakartaSans(
-                                fontSize: 11.5,
-                                fontWeight: FontWeight.w500,
-                                color: const Color(0xFF64748B),
-                              ),
-                            ),
-                            const SizedBox(width: 6),
-                            Container(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 6,
-                                vertical: 2,
-                              ),
-                              decoration: BoxDecoration(
-                                color: const Color(0xFFF1F5F9),
-                                borderRadius: BorderRadius.circular(6),
-                              ),
-                              child: Text(
-                                '${item.contributionPercent}%',
-                                style: GoogleFonts.plusJakartaSans(
-                                  fontSize: 11,
-                                  fontWeight: FontWeight.w700,
-                                  color: const Color(0xFF0F172A),
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 7),
-                    ClipRRect(
-                      borderRadius: BorderRadius.circular(4),
-                      child: LinearProgressIndicator(
-                        value: (item.contributionPercent / 100).clamp(0.0, 1.0),
-                        minHeight: 6,
-                        backgroundColor: const Color(0xFFF1F5F9),
-                        valueColor: AlwaysStoppedAnimation<Color>(barColor),
-                      ),
-                    ),
-                  ],
+          if (products.isEmpty)
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 24),
+              child: Center(
+                child: Text(
+                  'Belum ada data penjualan produk',
+                  style: GoogleFonts.plusJakartaSans(
+                    fontSize: 12.5,
+                    fontWeight: FontWeight.w500,
+                    color: const Color(0xFF94A3B8),
+                  ),
                 ),
-              );
-            }).toList(),
-          ),
+              ),
+            )
+          else
+            Column(
+              children: products.asMap().entries.map((entry) {
+                final index = entry.key;
+                final item = entry.value;
+
+                final Color rankBg = index == 0
+                    ? const Color(0xFF0F172A)
+                    : (index == 1
+                        ? const Color(0xFF334155)
+                        : const Color(0xFF64748B));
+
+                final Color barColor = index == 0
+                    ? const Color(0xFF0D9488)
+                    : (index == 1
+                        ? const Color(0xFF0284C7)
+                        : const Color(0xFFF59E0B));
+
+                final Color badgeBg = index == 0
+                    ? const Color(0xFFCCFBF1)
+                    : (index == 1
+                        ? const Color(0xFFE0F2FE)
+                        : const Color(0xFFFEF3C7));
+
+                final Color badgeText = index == 0
+                    ? const Color(0xFF0F766E)
+                    : (index == 1
+                        ? const Color(0xFF0369A1)
+                        : const Color(0xFFB45309));
+
+                final isLast = index == products.length - 1;
+
+                return Padding(
+                  padding: EdgeInsets.only(bottom: isLast ? 0 : 16),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          Expanded(
+                            child: Row(
+                              children: [
+                                Container(
+                                  width: 22,
+                                  height: 22,
+                                  decoration: BoxDecoration(
+                                    color: rankBg,
+                                    borderRadius: BorderRadius.circular(7),
+                                  ),
+                                  alignment: Alignment.center,
+                                  child: Text(
+                                    '${index + 1}',
+                                    style: GoogleFonts.plusJakartaSans(
+                                      fontSize: 11,
+                                      fontWeight: FontWeight.w800,
+                                      color: Colors.white,
+                                    ),
+                                  ),
+                                ),
+                                const SizedBox(width: 10),
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        item.name,
+                                        style: GoogleFonts.plusJakartaSans(
+                                          fontSize: 13.5,
+                                          fontWeight: FontWeight.w700,
+                                          color: const Color(0xFF0F172A),
+                                        ),
+                                        maxLines: 1,
+                                        overflow: TextOverflow.ellipsis,
+                                      ),
+                                      const SizedBox(height: 2),
+                                      Text(
+                                        '${item.soldQuantity} porsi terjual${item.totalRevenue > 0 ? ' • ${item.formattedRevenue}' : ''}',
+                                        style: GoogleFonts.plusJakartaSans(
+                                          fontSize: 11,
+                                          fontWeight: FontWeight.w500,
+                                          color: const Color(0xFF64748B),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          const SizedBox(width: 8),
+                          Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 8,
+                              vertical: 3,
+                            ),
+                            decoration: BoxDecoration(
+                              color: badgeBg,
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            child: Text(
+                              item.formattedPercent,
+                              style: GoogleFonts.plusJakartaSans(
+                                fontSize: 11,
+                                fontWeight: FontWeight.w800,
+                                color: badgeText,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 8),
+                      ClipRRect(
+                        borderRadius: BorderRadius.circular(4),
+                        child: LinearProgressIndicator(
+                          value: (item.contributionPercent / 100).clamp(0.02, 1.0),
+                          minHeight: 6,
+                          backgroundColor: const Color(0xFFF1F5F9),
+                          valueColor: AlwaysStoppedAnimation<Color>(barColor),
+                        ),
+                      ),
+                    ],
+                  ),
+                );
+              }).toList(),
+            ),
         ],
       ),
     );

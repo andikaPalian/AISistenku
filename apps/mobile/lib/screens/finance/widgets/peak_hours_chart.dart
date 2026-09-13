@@ -109,7 +109,7 @@ class PeakHoursChart extends StatelessWidget {
             children: peakHours.map((item) {
               final ratio = maxOrders > 0 ? (item.orderCount / maxOrders) : 0.0;
               return Padding(
-                padding: const EdgeInsets.only(bottom: 12),
+                padding: const EdgeInsets.only(bottom: 14),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -122,7 +122,7 @@ class PeakHoursChart extends StatelessWidget {
                             Text(
                               '${item.timeRange} WIB',
                               style: GoogleFonts.plusJakartaSans(
-                                fontSize: 12,
+                                fontSize: 12.5,
                                 fontWeight: item.isPeak
                                     ? FontWeight.w800
                                     : FontWeight.w600,
@@ -132,22 +132,23 @@ class PeakHoursChart extends StatelessWidget {
                               ),
                             ),
                             if (item.isPeak) ...[
-                              const SizedBox(width: 6),
+                              const SizedBox(width: 8),
                               Container(
                                 padding: const EdgeInsets.symmetric(
-                                  horizontal: 6,
-                                  vertical: 2,
+                                  horizontal: 7,
+                                  vertical: 2.5,
                                 ),
                                 decoration: BoxDecoration(
-                                  color: const Color(0xFFDCFCE7),
+                                  color: const Color(0xFFFEF3C7),
                                   borderRadius: BorderRadius.circular(6),
+                                  border: Border.all(color: const Color(0xFFFDE68A), width: 0.8),
                                 ),
                                 child: Text(
-                                  '🔥 Puncak',
+                                  '🔥 Jam Sibuk',
                                   style: GoogleFonts.plusJakartaSans(
-                                    fontSize: 9.5,
-                                    fontWeight: FontWeight.w700,
-                                    color: const Color(0xFF16A34A),
+                                    fontSize: 10,
+                                    fontWeight: FontWeight.w800,
+                                    color: const Color(0xFFB45309),
                                   ),
                                 ),
                               ),
@@ -176,7 +177,7 @@ class PeakHoursChart extends StatelessWidget {
                             Text(
                               FinanceRepository.formatRupiah(item.revenue),
                               style: GoogleFonts.plusJakartaSans(
-                                fontSize: 12,
+                                fontSize: 12.5,
                                 fontWeight: item.isPeak
                                     ? FontWeight.w800
                                     : FontWeight.w700,
@@ -189,7 +190,7 @@ class PeakHoursChart extends StatelessWidget {
                         ),
                       ],
                     ),
-                    const SizedBox(height: 6),
+                    const SizedBox(height: 7),
 
                     // Progress capsule track
                     Stack(
@@ -203,13 +204,16 @@ class PeakHoursChart extends StatelessWidget {
                           ),
                         ),
                         FractionallySizedBox(
-                          widthFactor: ratio.clamp(0.04, 1.0),
+                          widthFactor: ratio.clamp(0.03, 1.0),
                           child: Container(
                             height: 7,
                             decoration: BoxDecoration(
-                              color: item.isPeak
-                                  ? const Color(0xFF22C55E)
-                                  : const Color(0xFFCBD5E1),
+                              gradient: item.isPeak
+                                  ? const LinearGradient(
+                                      colors: [Color(0xFFF59E0B), Color(0xFFEA580C)],
+                                    )
+                                  : null,
+                              color: item.isPeak ? null : const Color(0xFFCBD5E1),
                               borderRadius: BorderRadius.circular(4),
                             ),
                           ),
@@ -229,31 +233,38 @@ class PeakHoursChart extends StatelessWidget {
 
           // ── Actionable Recommendation Tip ────────────────────────
           Container(
-            padding: const EdgeInsets.all(12),
+            padding: const EdgeInsets.all(13),
             decoration: BoxDecoration(
-              color: const Color(0xFFF8FAFC),
-              borderRadius: BorderRadius.circular(12),
+              color: const Color(0xFFF0FDFA),
+              borderRadius: BorderRadius.circular(14),
               border: Border.all(
-                color: const Color(0xFFE2E8F0),
-                width: 1,
+                color: const Color(0xFFCCFBF1),
+                width: 1.1,
               ),
             ),
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Icon(
-                  Icons.lightbulb_outline_rounded,
-                  size: 17,
-                  color: Color(0xFFD97706),
+                Container(
+                  padding: const EdgeInsets.all(5),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFCCFBF1),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: const Icon(
+                    Icons.lightbulb_rounded,
+                    size: 16,
+                    color: Color(0xFF0D9488),
+                  ),
                 ),
-                const SizedBox(width: 8),
+                const SizedBox(width: 10),
                 Expanded(
                   child: Text(
-                    'Jam 12:00-14:00 & 18:00-21:00 merupakan puncak keramaian. Pastikan barista aktif dan stok cup/susu siap sedia.',
+                    'Jam 12:00–14:00 & 18:00–21:00 merupakan puncak keramaian. Pastikan barista standby dan stok cup/susu siap sedia.',
                     style: GoogleFonts.plusJakartaSans(
                       fontSize: 11.5,
-                      fontWeight: FontWeight.w500,
-                      color: const Color(0xFF334155),
+                      fontWeight: FontWeight.w600,
+                      color: const Color(0xFF0F766E),
                       height: 1.4,
                     ),
                   ),

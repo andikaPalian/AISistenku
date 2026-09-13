@@ -15,6 +15,7 @@ class ProfileHeroCard extends StatelessWidget {
   final BusinessProfile business;
   final VoidCallback onEditProfile;
   final VoidCallback onManageStore;
+  final VoidCallback? onChangeAvatar;
 
   const ProfileHeroCard({
     super.key,
@@ -22,6 +23,7 @@ class ProfileHeroCard extends StatelessWidget {
     required this.business,
     required this.onEditProfile,
     required this.onManageStore,
+    this.onChangeAvatar,
   });
 
   String _getInitials(String name) {
@@ -103,7 +105,7 @@ class ProfileHeroCard extends StatelessWidget {
 
               // Camera Action Button
               GestureDetector(
-                onTap: onEditProfile,
+                onTap: onChangeAvatar ?? onEditProfile,
                 child: Container(
                   padding: const EdgeInsets.all(6),
                   decoration: BoxDecoration(

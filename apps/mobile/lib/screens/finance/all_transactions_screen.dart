@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import '../../core/widgets/action_success_modal.dart';
 import '../../models/finance_model.dart';
 import 'widgets/transaction_detail_modal.dart';
 import 'add_transaction_screen.dart';
@@ -14,7 +15,7 @@ class AllTransactionsScreen extends StatefulWidget {
 
 class _AllTransactionsScreenState extends State<AllTransactionsScreen> {
   String _searchQuery = '';
-  TransactionType? _typeFilter;
+  String _activeFilter = 'all'; // 'all', 'income', 'expense', 'refund'
   FinanceCategory? _categoryFilter;
   final TextEditingController _searchController = TextEditingController();
 
@@ -33,7 +34,16 @@ class _AllTransactionsScreenState extends State<AllTransactionsScreen> {
         final allTx = repo.transactions;
 
         final filtered = allTx.where((tx) {
-          final matchesType = _typeFilter == null || tx.type == _typeFilter;
+          bool matchesType = true;
+          if (_activeFilter == 'income') {
+            matchesType = tx.type == TransactionType.income;
+          } else if (_activeFilter == 'expense') {
+            matchesType = tx.type == TransactionType.expense &&
+                tx.category != FinanceCategory.refund;
+          } else if (_activeFilter == 'refund') {
+            matchesType = tx.category == FinanceCategory.refund;
+          }
+
           final matchesCat =
               _categoryFilter == null || tx.category == _categoryFilter;
           final matchesQuery = _searchQuery.isEmpty ||
@@ -83,11 +93,16 @@ class _AllTransactionsScreenState extends State<AllTransactionsScreen> {
                 ),
                 tooltip: 'Export Laporan',
                 onPressed: () {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text('Laporan transaksi siap diunduh (PDF/Excel)'),
-                      backgroundColor: Color(0xFF111111),
-                    ),
+                  ActionSuccessModal.show(
+                    context,
+                    title: 'Laporan Keuangan Siap',
+                    subtitle: 'Rekap pembukuan arus kas & transaksi siap diunduh dalam format Excel (.xlsx) & PDF.',
+                    itemName: 'Laporan Pembukuan Kas',
+                    itemCategory: 'Dokumen Keuangan',
+                    quantityChange: 'Format XLSX & PDF',
+                    financialImpact: 'Periode: Bulan Ini',
+                    statusBadge: 'Tersedia',
+                    itemIcon: Icons.table_chart_rounded,
                   );
                 },
               ),
@@ -193,11 +208,13 @@ class _AllTransactionsScreenState extends State<AllTransactionsScreen> {
                         physics: const BouncingScrollPhysics(),
                         child: Row(
                           children: [
-                            _buildPill('Semua', null),
+                            _buildPill('Semua', 'all'),
                             const SizedBox(width: 6),
-                            _buildPill('Pemasukan', TransactionType.income),
+                            _buildPill('Pemasukan', 'income'),
                             const SizedBox(width: 6),
-                            _buildPill('Pengeluaran', TransactionType.expense),
+                            _buildPill('Pengeluaran', 'expense'),
+                            const SizedBox(width: 6),
+                            _buildPill('Refund / Retur', 'refund'),
                           ],
                         ),
                       ),
@@ -239,8 +256,109 @@ class _AllTransactionsScreenState extends State<AllTransactionsScreen> {
                               const SizedBox(height: 10),
                           itemBuilder: (context, index) {
                             final tx = filtered[index];
-                            final isIncome =
-                                tx.type == TransactionType.income;
+                            final isIncome = tx.type == TransactionType.income;
+                            final isRefund = tx.category == FinanceCategory.refund;
+
+                            final isAlreadyRefunded = tx.isRefundedOrder ||
+                                FinanceRepository.instance.isOrderAlreadyRefunded(
+                                  orderId: tx.orderId,
+                                  orderCode: tx.orderCode,
+                                  title: tx.title,
+                                  notes: tx.notes,
+                                );
+
+                            Color avatarBg;
+                            Color iconColor;
+                            Color iconBorder;
+                            IconData avatarIcon;
+
+                            if (isRefund) {
+                              avatarBg = const Color(0xFFFFF1F2);
+                              iconColor = const Color(0xFFE11D48);
+                              iconBorder = const Color(0xFFFECDD3);
+                              avatarIcon = Icons.assignment_return_rounded;
+                            } else if (isIncome) {
+                              avatarBg = isAlreadyRefunded ? const Color(0xFFF8FAFC) : const Color(0xFFECFDF5);
+                              iconColor = isAlreadyRefunded ? const Color(0xFF64748B) : const Color(0xFF059669);
+                              iconBorder = isAlreadyRefunded ? const Color(0xFFE2E8F0) : const Color(0xFFA7F3D0);
+                              avatarIcon = Icons.storefront_rounded;
+                            } else {
+                              if (tx.category == FinanceCategory.ingredients) {
+                                avatarBg = const Color(0xFFFFFBEB);
+                                iconColor = const Color(0xFFD97706);
+                                iconBorder = const Color(0xFFFDE68A);
+                                avatarIcon = Icons.inventory_2_outlined;
+                              } else if (tx.category == FinanceCategory.utility) {
+                                avatarBg = const Color(0xFFFEF3C7);
+                                iconColor = const Color(0xFFEA580C);
+                                iconBorder = const Color(0xFFFDE047);
+                                avatarIcon = Icons.bolt_rounded;
+                              } else if (tx.category == FinanceCategory.salary) {
+                                avatarBg = const Color(0xFFF5F3FF);
+                                iconColor = const Color(0xFF7C3AED);
+                                iconBorder = const Color(0xFFDDD6FE);
+                                avatarIcon = Icons.badge_outlined;
+                              } else {
+                                avatarBg = const Color(0xFFF8FAFC);
+                                iconColor = const Color(0xFF475569);
+                                iconBorder = const Color(0xFFE2E8F0);
+                                avatarIcon = Icons.receipt_long_rounded;
+                              }
+                            }
+
+                            // 1. Order Code Resolution
+                            final ordRegex = RegExp(r'ORD-\d{8}-\d{3}|ORD-\d+');
+                            final matchInTitle = ordRegex.firstMatch(tx.title);
+                            final matchInNotes = tx.notes != null ? ordRegex.firstMatch(tx.notes!) : null;
+                            final rawOrderCode = tx.orderCode ?? matchInTitle?.group(0) ?? matchInNotes?.group(0);
+
+                            String? displayOrderCode;
+                            if (rawOrderCode != null) {
+                              displayOrderCode = '#$rawOrderCode';
+                            } else if (tx.orderId != null && tx.orderId!.isNotEmpty) {
+                              final clean = tx.orderId!.replaceAll('#', '');
+                              displayOrderCode = '#${clean.length > 10 ? clean.substring(0, 8).toUpperCase() : clean.toUpperCase()}';
+                            }
+
+                            // 2. Title and Context Parsing
+                            String mainTitle = tx.title;
+                            String? orderTag;
+
+                            if (tx.notes != null && tx.notes!.isNotEmpty) {
+                              final cleanNotes = tx.notes!.replaceAll(RegExp(r'Meja\s+Meja', caseSensitive: false), 'Meja');
+                              final lowerNotes = cleanNotes.toLowerCase();
+                              final tableMatch = RegExp(r'meja\s*(\w+)', caseSensitive: false).firstMatch(cleanNotes);
+
+                              if (lowerNotes.contains('takeaway') || lowerNotes.contains('take away')) {
+                                orderTag = 'Take Away';
+                              } else if (tableMatch != null) {
+                                orderTag = 'Dine In • Meja ${tableMatch.group(1)}';
+                              } else if (lowerNotes.contains('dinein') || lowerNotes.contains('dine in')) {
+                                orderTag = 'Dine In';
+                              }
+                            }
+
+                            if (isRefund) {
+                              mainTitle = 'Refund Pesanan';
+                            } else if (mainTitle.startsWith('Penjualan Kasir ORD-') || mainTitle.startsWith('Penjualan Kasir')) {
+                              mainTitle = 'Penjualan Kasir POS';
+                            }
+
+                            // 3. Subtitle Formatting
+                            String subtitle;
+                            if (isRefund) {
+                              final reasonMatch = RegExp(r'Alasan:\s*([^\)]+)', caseSensitive: false).firstMatch(tx.notes ?? '');
+                              final reason = reasonMatch != null ? reasonMatch.group(1)?.trim() : null;
+                              if (reason != null && reason.isNotEmpty) {
+                                subtitle = '$reason • ${tx.formattedDateString}';
+                              } else {
+                                subtitle = 'Jurnal Balik • ${tx.formattedDateString}';
+                              }
+                            } else if (orderTag != null) {
+                              subtitle = '$orderTag • ${tx.formattedDateString}';
+                            } else {
+                              subtitle = tx.listSubtitle;
+                            }
 
                             return Container(
                               decoration: BoxDecoration(
@@ -273,52 +391,130 @@ class _AllTransactionsScreenState extends State<AllTransactionsScreen> {
                                 },
                                 contentPadding: const EdgeInsets.symmetric(
                                   horizontal: 16,
-                                  vertical: 4,
+                                  vertical: 6,
                                 ),
                                 leading: Container(
-                                  width: 40,
-                                  height: 40,
+                                  width: 42,
+                                  height: 42,
                                   decoration: BoxDecoration(
-                                    color: isIncome
-                                        ? const Color(0xFFDCFCE7)
-                                        : const Color(0xFFFEE2E2),
-                                    borderRadius: BorderRadius.circular(12),
+                                    color: avatarBg,
+                                    borderRadius: BorderRadius.circular(13),
+                                    border: Border.all(color: iconBorder, width: 1.0),
                                   ),
                                   child: Icon(
-                                    isIncome
-                                        ? Icons.point_of_sale_rounded
-                                        : Icons.shopping_bag_outlined,
-                                    color: isIncome
-                                        ? const Color(0xFF16A34A)
-                                        : const Color(0xFFDC2626),
+                                    avatarIcon,
+                                    color: iconColor,
                                     size: 20,
                                   ),
                                 ),
-                                title: Text(
-                                  tx.title,
-                                  style: GoogleFonts.plusJakartaSans(
-                                    fontSize: 13.5,
-                                    fontWeight: FontWeight.w700,
-                                    color: const Color(0xFF0F172A),
+                                title: Row(
+                                  children: [
+                                    Flexible(
+                                      child: Text(
+                                        mainTitle,
+                                        style: GoogleFonts.plusJakartaSans(
+                                          fontSize: 13.5,
+                                          fontWeight: FontWeight.w700,
+                                          color: isAlreadyRefunded && !isRefund
+                                              ? const Color(0xFF64748B)
+                                              : const Color(0xFF0F172A),
+                                        ),
+                                        maxLines: 1,
+                                        overflow: TextOverflow.ellipsis,
+                                      ),
+                                    ),
+                                    if (displayOrderCode != null) ...[
+                                      const SizedBox(width: 6),
+                                      Container(
+                                        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                                        decoration: BoxDecoration(
+                                          color: const Color(0xFFF1F5F9),
+                                          borderRadius: BorderRadius.circular(6),
+                                          border: Border.all(color: const Color(0xFFE2E8F0), width: 0.8),
+                                        ),
+                                        child: Text(
+                                          displayOrderCode,
+                                          style: GoogleFonts.inter(
+                                            fontSize: 10.5,
+                                            fontWeight: FontWeight.w700,
+                                            color: const Color(0xFF334155),
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ],
+                                ),
+                                subtitle: Padding(
+                                  padding: const EdgeInsets.only(top: 3),
+                                  child: Row(
+                                    children: [
+                                      Expanded(
+                                        child: Text(
+                                          subtitle,
+                                          style: GoogleFonts.plusJakartaSans(
+                                            fontSize: 11.5,
+                                            fontWeight: FontWeight.w500,
+                                            color: const Color(0xFF64748B),
+                                          ),
+                                          maxLines: 1,
+                                          overflow: TextOverflow.ellipsis,
+                                        ),
+                                      ),
+                                      if (isAlreadyRefunded && !isRefund) ...[
+                                        const SizedBox(width: 6),
+                                        Container(
+                                          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 1.5),
+                                          decoration: BoxDecoration(
+                                            color: const Color(0xFFFFF1F2),
+                                            borderRadius: BorderRadius.circular(5),
+                                            border: Border.all(color: const Color(0xFFFECDD3), width: 0.8),
+                                          ),
+                                          child: Text(
+                                            'Di-refund',
+                                            style: GoogleFonts.inter(
+                                              fontSize: 10,
+                                              fontWeight: FontWeight.w700,
+                                              color: const Color(0xFFE11D48),
+                                            ),
+                                          ),
+                                        ),
+                                      ],
+                                    ],
                                   ),
                                 ),
-                                subtitle: Text(
-                                  tx.listSubtitle,
-                                  style: GoogleFonts.plusJakartaSans(
-                                    fontSize: 11.5,
-                                    fontWeight: FontWeight.w500,
-                                    color: const Color(0xFF64748B),
-                                  ),
-                                ),
-                                trailing: Text(
-                                  tx.formattedAmountWithSign,
-                                  style: GoogleFonts.plusJakartaSans(
-                                    fontSize: 14,
-                                    fontWeight: FontWeight.w800,
-                                    color: isIncome
-                                        ? const Color(0xFF16A34A)
-                                        : const Color(0xFFDC2626),
-                                  ),
+                                trailing: Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  crossAxisAlignment: CrossAxisAlignment.end,
+                                  children: [
+                                    Text(
+                                      tx.formattedAmountWithSign,
+                                      style: GoogleFonts.plusJakartaSans(
+                                        fontSize: 14,
+                                        fontWeight: FontWeight.w800,
+                                        color: isRefund
+                                            ? const Color(0xFFE11D48)
+                                            : (isIncome
+                                                ? (isAlreadyRefunded
+                                                    ? const Color(0xFF94A3B8)
+                                                    : const Color(0xFF16A34A))
+                                                : const Color(0xFFDC2626)),
+                                        decoration: (isAlreadyRefunded && !isRefund)
+                                            ? TextDecoration.lineThrough
+                                            : null,
+                                      ),
+                                    ),
+                                    if (isAlreadyRefunded && !isRefund) ...[
+                                      const SizedBox(height: 2),
+                                      Text(
+                                        'Dibatalkan',
+                                        style: GoogleFonts.inter(
+                                          fontSize: 10,
+                                          fontWeight: FontWeight.w600,
+                                          color: const Color(0xFFE11D48),
+                                        ),
+                                      ),
+                                    ],
+                                  ],
                                 ),
                               ),
                             );
@@ -333,12 +529,12 @@ class _AllTransactionsScreenState extends State<AllTransactionsScreen> {
     );
   }
 
-  Widget _buildPill(String label, TransactionType? type) {
-    final isSelected = _typeFilter == type;
+  Widget _buildPill(String label, String key) {
+    final isSelected = _activeFilter == key;
     return GestureDetector(
       onTap: () {
         setState(() {
-          _typeFilter = type;
+          _activeFilter = key;
         });
       },
       child: AnimatedContainer(

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import '../../core/widgets/action_success_modal.dart';
 import '../../models/stock_model.dart';
 import 'widgets/restock_modal.dart';
 import 'widgets/adjust_stock_modal.dart';
@@ -989,14 +990,23 @@ class _StockDetailScreenState extends State<StockDetailScreen> {
           ),
           ElevatedButton(
             onPressed: () {
+              final itemName = item.name;
               StockRepository.instance.deleteStockItem(item.id);
               Navigator.pop(ctx);
               Navigator.pop(context);
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  content: Text('Bahan ${item.name} berhasil dihapus'),
-                  backgroundColor: const Color(0xFFEF4444),
-                ),
+              ActionSuccessModal.show(
+                context,
+                title: 'Bahan Baku Dihapus',
+                subtitle: 'Bahan "$itemName" telah dihapus dari sistem inventaris gudang.',
+                itemName: itemName,
+                itemCategory: 'Bahan Baku',
+                quantityChange: 'Dihapus',
+                financialImpact: 'Inventaris Diperbarui',
+                statusBadge: 'Dihapus',
+                itemIcon: Icons.delete_outline_rounded,
+                heroIcon: Icons.delete_forever_rounded,
+                heroColor: const Color(0xFFEF4444),
+                heroHaloColor: const Color(0xFFFEE2E2),
               );
             },
             style: ElevatedButton.styleFrom(

@@ -4,6 +4,7 @@ import 'package:google_fonts/google_fonts.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../models/stock_model.dart';
 import '../../../models/finance_model.dart';
+import '../../../core/widgets/action_success_modal.dart';
 
 /// Modal bottom sheet for recording incoming stock (Restock / Pembelian).
 class RestockModal extends StatefulWidget {
@@ -95,6 +96,7 @@ class _RestockModalState extends State<RestockModal> {
     final supplierName = _supplierController.text.trim();
     final noteText = _notesController.text.trim();
     final totalExpense = (_enteredQty * unitCost).round();
+    final willBeSafe = (_selectedItem!.currentStock + _enteredQty) > _selectedItem!.minStock;
 
     StockRepository.instance.restockItem(
       stockId: _selectedItem!.id,
@@ -122,24 +124,17 @@ class _RestockModalState extends State<RestockModal> {
 
     Navigator.pop(context, true);
 
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Row(
-          children: [
-            const Icon(Icons.check_circle_rounded, color: Color(0xFF22C55E)),
-            const SizedBox(width: 12),
-            Expanded(
-              child: Text(
-                'Stok ${_selectedItem!.name} berhasil ditambah +$_enteredQty ${_selectedItem!.unit}!',
-                style: GoogleFonts.plusJakartaSans(fontWeight: FontWeight.w600, color: Colors.white),
-              ),
-            ),
-          ],
-        ),
-        backgroundColor: const Color(0xFF111111),
-        behavior: SnackBarBehavior.floating,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
-      ),
+    ActionSuccessModal.show(
+      context,
+      title: 'Restock Berhasil!',
+      subtitle: 'Stok ${_selectedItem!.name} berhasil diperbarui.',
+      itemName: _selectedItem!.name,
+      quantityChange: '+${_enteredQty % 1 == 0 ? _enteredQty.toInt() : _enteredQty} ${_selectedItem!.unit}',
+      financialImpact: _recordToFinance && totalExpense > 0
+          ? 'Tercatat di Beban Bahan (${StockItem.formatRupiah(totalExpense)})'
+          : null,
+      statusBadge: willBeSafe ? 'Stok Aman' : 'Stok Bertambah',
+      itemIcon: _selectedItem!.icon,
     );
   }
 

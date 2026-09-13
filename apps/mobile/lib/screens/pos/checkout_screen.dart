@@ -1,10 +1,10 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../core/theme/app_colors.dart';
-import '../../core/services/api_service.dart';
+import '../../core/services/offline_sync_service.dart';
 import '../../models/product.dart';
 import '../../models/finance_model.dart';
-import '../../models/stock_model.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 import 'payment_success_screen.dart';
 
@@ -92,13 +92,17 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
     );
 
     // Auto-record POS sale to Finance
+    final cleanTableStr = widget.tableNumber != null
+        ? ' • Meja ${widget.tableNumber!.replaceAll(RegExp(r'^Meja\s*', caseSensitive: false), '').trim()}'
+        : '';
+
     FinanceRepository.instance.addTransaction(
       title: 'Penjualan Kasir (${widget.items.length} item)',
       type: TransactionType.income,
       category: FinanceCategory.sales,
       amount: _total.toDouble(),
       source: TransactionSource.posAutomatic,
-      notes: '${widget.orderType.label}${widget.tableNumber != null ? ' • Meja ${widget.tableNumber}' : ''} • ${_selectedMethod.label}',
+      notes: '${widget.orderType.label}$cleanTableStr • ${_selectedMethod.label}',
       timestamp: DateTime.now(),
     );
 
@@ -115,8 +119,8 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
       backendPaymentMethod = 'DebitCreditCard';
     }
 
-    // Sync order to Backend API
-    ApiService.instance.post('/orders', {
+    // Prepare Backend Order payload
+    final orderPayload = {
       'orderCode': orderRecord.orderCode,
       'order_code': orderRecord.orderCode,
       'orderType': backendOrderType,
@@ -136,10 +140,9 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
       'changeAmount': _selectedMethod == PaymentMethodType.cash ? _change : 0,
       'change': _selectedMethod == PaymentMethodType.cash ? _change : 0,
       'items': widget.items.map((it) {
-        final isUuid = RegExp(r'^[0-9a-fA-F-]{36}$').hasMatch(it.product.id);
         return {
-          if (isUuid) 'productId': it.product.id,
-          if (isUuid) 'product_id': it.product.id,
+          'productId': it.product.id,
+          'product_id': it.product.id,
           'productName': it.product.name,
           'product_name': it.product.name,
           'name': it.product.name,
@@ -150,21 +153,13 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
           'variant': it.variant,
         };
       }).toList(),
-    }).then((_) {
-      // Refetch from backend to ensure stock and analytics are updated
-      try {
-        StockRepository.instance.fetchStocksFromBackend();
-        ProductRepository.instance.fetchProductsFromBackend();
-        FinanceRepository.instance.fetchFinanceFromBackend();
-        FinanceRepository.instance.fetchDashboardFromBackend();
-      } catch (e) {
-        debugPrint('Fetch after checkout failed: $e');
-      }
-      return null;
-    }).catchError((e) {
-      debugPrint('⚠️ Create order sync note: $e');
-      return null;
-    });
+    };
+
+    // Save to Local Database Cache (Hive) immediately & flush to server if Wi-Fi active
+    unawaited(OfflineSyncService.instance.processAndQueueOrder(
+      order: orderRecord,
+      backendPayload: orderPayload,
+    ));
 
     setState(() => _isProcessing = false);
 

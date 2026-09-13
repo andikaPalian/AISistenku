@@ -45,6 +45,13 @@ class UserProfile {
     );
   }
 
+  /// First word of user's full name (e.g. "Andika" from "Andika Palian", "Budi" from "Budi Santoso")
+  String get firstName {
+    final clean = name.trim();
+    if (clean.isEmpty) return 'Rekan';
+    return clean.split(' ').first;
+  }
+
   factory UserProfile.defaultOwner() {
     return const UserProfile(
       id: 'usr-owner-001',
@@ -188,11 +195,13 @@ class ProfileRepository {
           final id = (data['id'] ?? _user.id).toString();
           final name = (data['name'] ?? _user.name).toString();
           final email = (data['email'] ?? _user.email).toString();
+          final avatarUrl = data['avatarUrl']?.toString();
 
           _user = _user.copyWith(
             id: id,
             name: name,
             email: email,
+            avatarUrl: avatarUrl,
           );
           userNotifier.value = _user;
 
@@ -248,13 +257,44 @@ class ProfileRepository {
     userNotifier.value = _user;
 
     try {
-      await ApiService.instance.patch('/auth/me', {
+      final body = <String, dynamic>{
         'name': name.trim(),
-      });
+      };
+      if (avatarUrl != null) {
+        body['avatarUrl'] = avatarUrl;
+      }
+      await ApiService.instance.patch('/auth/me', body);
       return true;
     } catch (e) {
       debugPrint('⚠️ Backend update profile failed (using local state): $e');
       return false;
+    }
+  }
+
+  /// Upload avatar image to Cloudinary via backend and persist URL.
+  /// Returns the secure URL on success, null on failure.
+  Future<String?> uploadAvatar(Uint8List bytes, {String? filename}) async {
+    try {
+      final name = (filename != null && filename.isNotEmpty)
+          ? filename
+          : 'avatar_${DateTime.now().millisecondsSinceEpoch}.jpg';
+      final res = await ApiService.instance.uploadMultipart(
+        '/upload/avatar',
+        bytes: bytes,
+        filename: name,
+        fieldName: 'avatar',
+      );
+
+      final url = res?['data']?['url']?.toString();
+      if (url != null && url.isNotEmpty) {
+        _user = _user.copyWith(avatarUrl: url);
+        userNotifier.value = _user;
+        return url;
+      }
+      return null;
+    } catch (e) {
+      debugPrint('⚠️ ProfileRepository.uploadAvatar error: $e');
+      return null;
     }
   }
 

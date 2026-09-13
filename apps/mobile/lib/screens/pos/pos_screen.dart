@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../core/theme/app_colors.dart';
 import '../../models/product.dart';
+import '../../models/stock_model.dart';
 import 'order_review_screen.dart';
 import 'widgets/pos_header.dart';
 import 'widgets/pos_search_bar.dart';
@@ -110,7 +111,10 @@ class _PosScreenState extends State<PosScreen> {
       body: SafeArea(
         bottom: false,
         child: AnimatedBuilder(
-          animation: ProductRepository.instance,
+          animation: Listenable.merge([
+            ProductRepository.instance,
+            StockRepository.instance,
+          ]),
           builder: (context, _) {
             final products = _filteredProducts;
             return Column(

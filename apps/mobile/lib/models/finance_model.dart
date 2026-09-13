@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../core/services/api_service.dart';
+import 'stock_model.dart';
 
 /// Type of financial transaction.
 enum TransactionType {
@@ -10,6 +11,7 @@ enum TransactionType {
 /// Category classification matching the database schema & UMKM needs.
 enum FinanceCategory {
   sales('Penjualan', Icons.point_of_sale_rounded, Color(0xFF10B981)),
+  refund('Refund / Retur', Icons.assignment_return_rounded, Color(0xFFE11D48)),
   ingredients('Bahan Baku', Icons.shopping_bag_outlined, Color(0xFFEF4444)),
   utility('Listrik & Utilitas', Icons.bolt_rounded, Color(0xFFF59E0B)),
   operational('Operasional', Icons.settings_suggest_rounded, Color(0xFF6366F1)),
@@ -50,6 +52,9 @@ enum FinancePeriod {
 /// Single financial transaction entity.
 class FinanceTransaction {
   final String id;
+  final String? orderId;
+  final String? orderStatus;
+  final String? orderCode;
   final String title;
   final TransactionType type;
   final FinanceCategory category;
@@ -60,6 +65,9 @@ class FinanceTransaction {
 
   const FinanceTransaction({
     required this.id,
+    this.orderId,
+    this.orderStatus,
+    this.orderCode,
     required this.title,
     required this.type,
     required this.category,
@@ -68,6 +76,12 @@ class FinanceTransaction {
     this.notes,
     required this.timestamp,
   });
+
+  /// Check if the transaction belongs to an order that is already refunded or cancelled.
+  bool get isRefundedOrder =>
+      orderStatus == 'REFUNDED' ||
+      orderStatus == 'CANCELLED' ||
+      category == FinanceCategory.refund;
 
   /// Formats amount in Rupiah (e.g. "+Rp45.000" or "-Rp250.000").
   String get formattedAmountWithSign {
@@ -107,6 +121,9 @@ class FinanceTransaction {
 
   FinanceTransaction copyWith({
     String? id,
+    String? orderId,
+    String? orderStatus,
+    String? orderCode,
     String? title,
     TransactionType? type,
     FinanceCategory? category,
@@ -117,6 +134,9 @@ class FinanceTransaction {
   }) {
     return FinanceTransaction(
       id: id ?? this.id,
+      orderId: orderId ?? this.orderId,
+      orderStatus: orderStatus ?? this.orderStatus,
+      orderCode: orderCode ?? this.orderCode,
       title: title ?? this.title,
       type: type ?? this.type,
       category: category ?? this.category,
@@ -173,6 +193,16 @@ class TopProductContribution {
     required this.contributionPercent,
     required this.badgeColor,
   });
+
+  /// Formatted revenue in Rupiah (e.g. "Rp450.000").
+  String get formattedRevenue => FinanceRepository.formatRupiah(totalRevenue);
+
+  /// Clean formatted percentage string (e.g. "42.9%").
+  String get formattedPercent {
+    if (contributionPercent <= 0) return '0%';
+    final fixed = contributionPercent.toStringAsFixed(1);
+    return fixed.endsWith('.0') ? '${fixed.substring(0, fixed.length - 2)}%' : '$fixed%';
+  }
 }
 
 /// Repository singleton managing financial records and dynamic metric calculations.
@@ -314,7 +344,9 @@ class FinanceRepository extends ChangeNotifier {
           final isIncome = (t['type'] ?? '').toString().toLowerCase() == 'income';
           FinanceCategory cat = FinanceCategory.sales;
           final catStr = (t['category'] ?? '').toString().toLowerCase();
-          if (catStr.contains('bahan') || catStr.contains('ingredient')) {
+          if (catStr.contains('refund') || catStr.contains('retur') || catStr.contains('balik')) {
+            cat = FinanceCategory.refund;
+          } else if (catStr.contains('bahan') || catStr.contains('ingredient')) {
             cat = FinanceCategory.ingredients;
           } else if (catStr.contains('operasional') || catStr.contains('operational')) {
             cat = FinanceCategory.operational;
@@ -336,8 +368,15 @@ class FinanceRepository extends ChangeNotifier {
               (t['amount'] as num?)?.toDouble() ??
               0.0;
 
+          final orderData = t['order'] is Map ? t['order'] as Map : null;
+          final orderStatus = orderData != null ? orderData['status']?.toString() : t['orderStatus']?.toString();
+          final orderCode = orderData != null ? orderData['orderCode']?.toString() : t['orderCode']?.toString();
+
           loaded.add(FinanceTransaction(
             id: (t['id'] ?? t['transaction_id'] ?? 'tx-${DateTime.now().millisecondsSinceEpoch}').toString(),
+            orderId: (t['orderId'] ?? t['order_id'])?.toString(),
+            orderStatus: orderStatus,
+            orderCode: orderCode,
             title: (t['title'] ?? 'Transaksi').toString(),
             type: isIncome ? TransactionType.income : TransactionType.expense,
             category: cat,
@@ -405,6 +444,11 @@ class FinanceRepository extends ChangeNotifier {
           final rev = double.tryParse((e['totalRevenue'] ?? '0').toString()) ?? (e['totalRevenue'] as num?)?.toDouble() ?? 0.0;
           return sum + rev;
         });
+        final totalQty = topList.fold<int>(0, (sum, e) {
+          final qty = int.tryParse((e['totalQuantitySold'] ?? '0').toString()) ?? (e['totalQuantitySold'] as num?)?.toInt() ?? 0;
+          return sum + qty;
+        });
+
         _cachedTopProducts = topList.asMap().entries.map((entry) {
           final rev = double.tryParse((entry.value['totalRevenue'] ?? '0').toString()) ??
               (entry.value['totalRevenue'] as num?)?.toDouble() ??
@@ -412,11 +456,22 @@ class FinanceRepository extends ChangeNotifier {
           final qty = int.tryParse((entry.value['totalQuantitySold'] ?? '0').toString()) ??
               (entry.value['totalQuantitySold'] as num?)?.toInt() ??
               0;
+
+          final rawPercent = totalRev > 0
+              ? (rev / totalRev * 100)
+              : (totalQty > 0 ? (qty / totalQty * 100) : 0.0);
+          final cleanPercent = double.tryParse(rawPercent.toStringAsFixed(1)) ?? 0.0;
+
+          final rawName = (entry.value['productName'] ?? '').toString().trim();
+          final cleanName = rawName.isNotEmpty && rawName.toLowerCase() != 'menu'
+              ? rawName
+              : 'Produk Favorit #${entry.key + 1}';
+
           return TopProductContribution(
-            name: (entry.value['productName'] ?? '').toString(),
+            name: cleanName,
             soldQuantity: qty,
             totalRevenue: rev,
-            contributionPercent: totalRev > 0 ? (rev / totalRev * 100) : 0.0,
+            contributionPercent: cleanPercent,
             badgeColor: colors[entry.key % colors.length],
           );
         }).toList();
@@ -580,6 +635,70 @@ class FinanceRepository extends ChangeNotifier {
     return filtered.fold(0.0, (sum, tx) => sum + tx.amount);
   }
 
+  /// Calculate total refund amount for a given period.
+  double getTotalRefund(FinancePeriod period) {
+    final filtered = getFilteredTransactions(period: period);
+    return filtered
+        .where((tx) => tx.category == FinanceCategory.refund)
+        .fold(0.0, (sum, tx) => sum + tx.amount);
+  }
+
+  /// Total count of refunded orders/transactions for a given period.
+  int getRefundCount(FinancePeriod period) {
+    final filtered = getFilteredTransactions(period: period);
+    return filtered.where((tx) => tx.category == FinanceCategory.refund).length;
+  }
+
+  /// Calculate total Gross Income (Penjualan Kotor sebelum deduksi refund).
+  double getTotalGrossIncome(FinancePeriod period) {
+    if (_cachedDashboard != null && period == FinancePeriod.today) {
+      final val = _cachedDashboard!['todayGrossRevenue'] ?? _cachedDashboard!['today_gross_sales'];
+      if (val != null) {
+        final parsed = double.tryParse(val.toString()) ?? (val as num?)?.toDouble() ?? 0.0;
+        if (parsed > 0) return parsed;
+      }
+    }
+
+    final filteredIncomes = getFilteredTransactions(
+      period: period,
+      typeFilter: TransactionType.income,
+    );
+    final recordedIncome = filteredIncomes.fold(0.0, (sum, tx) => sum + tx.amount);
+    final refundAmount = getTotalRefund(period);
+    final activeSales = getTotalIncome(period);
+
+    final total = recordedIncome > (activeSales + refundAmount)
+        ? recordedIncome
+        : (activeSales + refundAmount);
+    return total;
+  }
+
+  /// Calculate Net Revenue (Penjualan Bersih = Gross Income - Refund).
+  double getNetRevenue(FinancePeriod period) {
+    if (_cachedDashboard != null && period == FinancePeriod.today) {
+      final val = _cachedDashboard!['todayRevenue'] ?? _cachedDashboard!['today_sales'];
+      if (val != null) {
+        return double.tryParse(val.toString()) ?? (val as num?)?.toDouble() ?? 0.0;
+      }
+    }
+
+    final gross = getTotalGrossIncome(period);
+    final refund = getTotalRefund(period);
+    final net = gross - refund;
+    return net < 0 ? 0.0 : net;
+  }
+
+  /// Calculate operational expenses (excluding refunds, e.g. bahan baku, operasional, gaji, listrik).
+  double getOperationalExpense(FinancePeriod period) {
+    final filtered = getFilteredTransactions(
+      period: period,
+      typeFilter: TransactionType.expense,
+    );
+    return filtered
+        .where((tx) => tx.category != FinanceCategory.refund)
+        .fold(0.0, (sum, tx) => sum + tx.amount);
+  }
+
   /// Calculate Net Profit for period.
   double getNetProfit(FinancePeriod period) {
     return getTotalIncome(period) - getTotalExpense(period);
@@ -670,6 +789,61 @@ class FinanceRepository extends ChangeNotifier {
         badgeColor: Color(0xFF3B82F6),
       ),
     ];
+  }
+
+  /// Refund and cancel an order on backend with atomic stock rollback & reverse journal.
+  Future<bool> refundOrder({
+    required String orderId,
+    String? reason,
+    String targetStatus = 'REFUNDED',
+    bool restoreStock = true,
+  }) async {
+    try {
+      final res = await ApiService.instance.post('/orders/$orderId/refund', {
+        if (reason != null && reason.isNotEmpty) 'reason': reason,
+        'targetStatus': targetStatus,
+        'restoreStock': restoreStock,
+      });
+
+      if (res != null) {
+        // Refresh local finance state and stock quantities
+        await Future.wait([
+          fetchFinanceFromBackend(),
+          StockRepository.instance.fetchStocksFromBackend(),
+        ]);
+        return true;
+      }
+      return false;
+    } catch (e) {
+      debugPrint('⚠️ FinanceRepository.refundOrder error: $e');
+      rethrow;
+    }
+  }
+
+  /// Checks if a specific order has already been refunded in the transactions history.
+  bool isOrderAlreadyRefunded({
+    String? orderId,
+    String? orderCode,
+    String? title,
+    String? notes,
+  }) {
+    final ordRegex = RegExp(r'ORD-\d{8}-\d{3}|ORD-\d+');
+    final codeFromTitle = title != null ? ordRegex.firstMatch(title)?.group(0) : null;
+    final codeFromNotes = notes != null ? ordRegex.firstMatch(notes)?.group(0) : null;
+    final targetCode = orderCode ?? codeFromTitle ?? codeFromNotes;
+
+    return _transactions.any((tx) {
+      if (tx.category != FinanceCategory.refund) return false;
+      if (orderId != null && tx.orderId != null && tx.orderId == orderId) {
+        return true;
+      }
+      if (targetCode != null) {
+        if (tx.title.contains(targetCode) || (tx.notes != null && tx.notes!.contains(targetCode))) {
+          return true;
+        }
+      }
+      return false;
+    });
   }
 
   /// Helper to format currency in Rupiah (without decimals, e.g. Rp5.250.000).

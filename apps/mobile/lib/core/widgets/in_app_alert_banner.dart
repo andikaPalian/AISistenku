@@ -2,10 +2,46 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../theme/app_colors.dart';
 import '../../models/notification_model.dart';
+import '../../main.dart';
 
 /// Floating In-App Notification Alert Banner that slides down from top of screen.
 class InAppAlertBanner {
   static OverlayEntry? _currentEntry;
+
+  /// Global invocation without explicit BuildContext (uses appNavigatorKey).
+  static void showGlobal({
+    required String title,
+    required String message,
+    NotificationType type = NotificationType.stockAlert,
+    String? actionLabel,
+    VoidCallback? onAction,
+    Duration duration = const Duration(seconds: 5),
+  }) {
+    final context = appNavigatorKey.currentContext;
+    if (context != null) {
+      show(
+        context,
+        title: title,
+        message: message,
+        type: type,
+        actionLabel: actionLabel,
+        onAction: onAction,
+        duration: duration,
+      );
+    } else {
+      NotificationRepository.instance.addNotification(
+        AppNotification(
+          id: 'notif_${DateTime.now().millisecondsSinceEpoch}',
+          title: title,
+          message: message,
+          type: type,
+          timestamp: DateTime.now(),
+          isRead: false,
+          actionLabel: actionLabel,
+        ),
+      );
+    }
+  }
 
   static void show(
     BuildContext context, {
@@ -25,7 +61,7 @@ class InAppAlertBanner {
     // Store in NotificationRepository history
     NotificationRepository.instance.addNotification(
       AppNotification(
-        id: 'notif_',
+        id: 'notif_${DateTime.now().millisecondsSinceEpoch}',
         title: title,
         message: message,
         type: type,

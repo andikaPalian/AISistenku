@@ -10,6 +10,16 @@ subprojects {
     project.buildDir = "${rootProject.buildDir}/${project.name}"
 }
 subprojects {
+    if (project.name == "blue_thermal_printer") {
+        project.plugins.withId("com.android.library") {
+            project.android {
+                namespace "id.kakzaki.blue_thermal_printer"
+            }
+        }
+    }
+}
+
+subprojects {
     project.evaluationDependsOn(":app")
 }
 
