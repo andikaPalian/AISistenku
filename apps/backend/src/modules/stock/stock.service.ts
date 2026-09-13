@@ -12,11 +12,19 @@ import { prisma } from '@/config/database.config.js';
 import { eventBus } from '@/events/event-bus.js';
 
 export const listStocks = async (businessId: string, query: ListStockQuery) => {
-  return await stockRepo.findStockItemsByBusinessId(businessId, {
+  const stocks = await stockRepo.findStockItemsByBusinessId(businessId, {
     belowMin: query.belowMin,
     category: query.category,
     search: query.search,
   });
+
+  return stocks.map((s: any) => ({
+    ...s,
+    stock_id: s.id,
+    current_stock: Number(s.currentStock),
+    min_stock: Number(s.minStock),
+    cost_per_unit: Number(s.costPerUnit),
+  }));
 };
 
 export const getStockById = async (id: string, businessId: string) => {

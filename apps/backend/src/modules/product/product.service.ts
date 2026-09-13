@@ -48,6 +48,8 @@ export const listProducts = async (businessId: string, query: ListProductQuery) 
 
     return {
       ...product,
+      product_id: product.id,
+      image_url: product.imageUrl,
       stock: availablePortions,
       current_stock: availablePortions,
     };
@@ -90,6 +92,8 @@ export const getProductById = async (id: string, businessId: string) => {
 
   return {
     ...product,
+    product_id: product.id,
+    image_url: product.imageUrl,
     stock: availablePortions,
     current_stock: availablePortions,
   };

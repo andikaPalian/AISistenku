@@ -30,8 +30,23 @@ export const createApp = (): Express => {
     })
   );
 
+  const allowedOrigins = [
+    env.FRONTEND_ORIGIN,
+    'http://localhost:3001',
+    'http://localhost:5173',
+    'http://localhost:3000',
+    'http://127.0.0.1:3001',
+    'http://127.0.0.1:5173',
+  ].filter(Boolean) as string[];
+
   app.use(cors({
-    origin: env.FRONTEND_ORIGIN || 'http://localhost:5173',
+    origin: (origin, callback) => {
+      if (!origin || allowedOrigins.includes(origin) || env.NODE_ENV !== 'production') {
+        callback(null, true);
+      } else {
+        callback(new Error('Not allowed by CORS'));
+      }
+    },
     credentials: true,
   }));
   app.use(cookieParser());
