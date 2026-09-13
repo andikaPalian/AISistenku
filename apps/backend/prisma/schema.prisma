@@ -128,6 +128,7 @@ model User {
   name      String
   email     String   @unique
   password  String
+  avatarUrl String?
   createdAt DateTime @default(now())
 
   refreshTokens       RefreshToken[]

@@ -7,6 +7,7 @@ const userWithMembershipsSelect = Prisma.validator<Prisma.UserSelect>()({
   name: true,
   email: true,
   password: true,
+  avatarUrl: true,
   memberships: {
     select: {
       id: true,
@@ -83,11 +84,12 @@ export const findUserById = withPrismaErrorHandling(
 );
 
 export const updateUser = withPrismaErrorHandling(
-  async (userId: string, data: { name?: string }): Promise<UserWithMemberships> => {
+  async (userId: string, data: { name?: string; avatarUrl?: string | null }): Promise<UserWithMemberships> => {
     return await prisma.user.update({
       where: { id: userId },
       data: {
         ...(data.name ? { name: data.name } : {}),
+        ...(data.avatarUrl !== undefined ? { avatarUrl: data.avatarUrl } : {}),
       },
       select: userWithMembershipsSelect,
     });

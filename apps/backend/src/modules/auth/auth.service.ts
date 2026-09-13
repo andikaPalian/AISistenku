@@ -147,7 +147,7 @@ export const getMe = async (userId: string) => {
   return safeUser;
 };
 
-export const updateMe = async (userId: string, data: { name?: string }) => {
+export const updateMe = async (userId: string, data: { name?: string; avatarUrl?: string | null }) => {
   const user = await userRepository.updateUser(userId, data);
   const { password: _, ...safeUser } = user;
   return safeUser;

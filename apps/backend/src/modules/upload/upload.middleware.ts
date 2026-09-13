@@ -1,4 +1,5 @@
 import multer from 'multer';
+import path from 'path';
 import { Request, Response, NextFunction } from 'express';
 import { BadRequestError } from '@/errors/http.error.js';
 
@@ -16,6 +17,15 @@ const ALLOWED_MIME_TYPES = [
   'image/avif',
 ];
 
+const EXT_TO_MIME: Record<string, string> = {
+  '.jpg': 'image/jpeg',
+  '.jpeg': 'image/jpeg',
+  '.png': 'image/png',
+  '.webp': 'image/webp',
+  '.heic': 'image/heic',
+  '.avif': 'image/avif',
+};
+
 // Batas ukuran file maksimal: 5 Megabytes
 const MAX_FILE_SIZE = 5 * 1024 * 1024;
 
@@ -24,16 +34,27 @@ const fileFilter = (
   file: Express.Multer.File,
   cb: multer.FileFilterCallback
 ) => {
-  if (ALLOWED_MIME_TYPES.includes(file.mimetype.toLowerCase())) {
-    cb(null, true);
-  } else {
-    cb(
-      new BadRequestError(
-        `Format file "${file.mimetype}" tidak didukung. Harap upload gambar berformat JPG, PNG, atau WebP.`,
-        'INVALID_FILE_TYPE'
-      )
-    );
+  const mime = (file.mimetype || '').toLowerCase();
+  if (ALLOWED_MIME_TYPES.includes(mime)) {
+    return cb(null, true);
   }
+
+  // Fallback: jika client mengirim application/octet-stream atau mimetype kosong,
+  // deteksi dari ekstensi file asli (misal: upload dari mobile http multipart tanpa explicit header)
+  if (mime === 'application/octet-stream' || mime === 'binary/octet-stream' || !mime) {
+    const ext = path.extname(file.originalname || '').toLowerCase();
+    if (ext && EXT_TO_MIME[ext]) {
+      file.mimetype = EXT_TO_MIME[ext];
+      return cb(null, true);
+    }
+  }
+
+  cb(
+    new BadRequestError(
+      `Format file "${file.mimetype}" tidak didukung. Harap upload gambar berformat JPG, PNG, atau WebP.`,
+      'INVALID_FILE_TYPE'
+    )
+  );
 };
 
 export const upload = multer({

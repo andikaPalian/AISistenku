@@ -43,3 +43,19 @@ export const getOrder = async (req: Request, res: Response): Promise<void> => {
   const order = await orderService.getOrderById(req.params.id as string, req.businessId!);
   sendSuccess(res, order, 'Detail transaksi berhasil diambil');
 };
+
+export const refundOrder = async (req: Request, res: Response): Promise<void> => {
+  const result = await orderService.refundOrder(
+    req.params.id as string,
+    req.businessId!,
+    req.user?.id ?? null,
+    req.body,
+    req.user?.name
+  );
+
+  sendSuccess(
+    res,
+    result,
+    `Pesanan ${result.order.orderCode} berhasil dibatalkan/direfund, stok resep dikembalikan, dan jurnal balik dicatat.`
+  );
+};

@@ -3,6 +3,7 @@ import { connectCloudinary } from './config/cloudinary.config.js';
 import { prisma } from './config/database.config.js';
 import { env } from './config/env.config.js';
 import { logger } from './utils/logger.js';
+import { initWebSocketGateway } from './events/ws.gateway.js';
 
 const app = createApp();
 
@@ -17,6 +18,9 @@ const startServer = async () => {
       logger.info(`🏛️ Architecture: Multi-Tenant REST API + Gemini AI Agent`);
       logger.info(`=======================================================`);
     });
+
+    // Initialize Socket.IO WebSocket Gateway
+    initWebSocketGateway(server);
 
     // 4. Graceful Shutdown
     const gracefulShutdown = async (signal: string) => {

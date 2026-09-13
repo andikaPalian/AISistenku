@@ -20,6 +20,7 @@ export interface AuthenticatedUserResponseDTO {
   id: string;
   name: string;
   email: string;
+  avatarUrl?: string | null;
   memberships: Membership[];
 }
 

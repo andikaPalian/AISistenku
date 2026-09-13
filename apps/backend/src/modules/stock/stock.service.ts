@@ -9,6 +9,7 @@ import {
 } from './stock.validator.js';
 import { FinanceSource, FinanceType, StockLogSource, StockLogType } from '@prisma/client';
 import { prisma } from '@/config/database.config.js';
+import { eventBus } from '@/events/event-bus.js';
 
 export const listStocks = async (businessId: string, query: ListStockQuery) => {
   return await stockRepo.findStockItemsByBusinessId(businessId, {
@@ -53,7 +54,7 @@ export const adjustStock = async (
   await getStockById(id, businessId);
   const note = input.note || input.reason || null;
 
-  return await stockRepo.adjustStock(id, businessId, {
+  const result = await stockRepo.adjustStock(id, businessId, {
     type: input.type,
     quantity: input.quantity,
     source: input.source ?? StockLogSource.MANUAL,
@@ -61,6 +62,42 @@ export const adjustStock = async (
     userId: user?.id,
     operatorName: user?.name,
   });
+
+  const current = Number(result.stock.currentStock);
+  const min = Number(result.stock.minStock);
+
+  eventBus.emitStockMutated({
+    businessId,
+    stockId: result.stock.id,
+    stockName: result.stock.name,
+    currentStock: current,
+    minStock: min,
+    unit: result.stock.unit,
+    source: input.source ?? 'MANUAL_ADJUST',
+    type: input.type,
+    quantity: input.quantity,
+    timestamp: new Date().toISOString(),
+  });
+
+  if (current <= min) {
+    eventBus.emitStockLowAlert({
+      businessId,
+      alerts: [
+        {
+          stockId: result.stock.id,
+          name: result.stock.name,
+          category: result.stock.category,
+          currentStock: current,
+          minStock: min,
+          unit: result.stock.unit,
+          severity: current <= min * 0.6 ? 'critical' : 'warning',
+        },
+      ],
+      timestamp: new Date().toISOString(),
+    });
+  }
+
+  return result;
 };
 
 export const restock = async (
@@ -104,6 +141,22 @@ export const restock = async (
       },
     });
   }
+
+  const current = Number(result.stock.currentStock);
+  const min = Number(result.stock.minStock);
+
+  eventBus.emitStockMutated({
+    businessId,
+    stockId: result.stock.id,
+    stockName: result.stock.name,
+    currentStock: current,
+    minStock: min,
+    unit: result.stock.unit,
+    source: 'RESTOCK',
+    type: 'IN',
+    quantity: input.quantity,
+    timestamp: new Date().toISOString(),
+  });
 
   return result.stock;
 };

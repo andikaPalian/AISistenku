@@ -86,20 +86,42 @@ export const findFinanceTransactionsByBusinessId = async (
             name: true,
           },
         },
+        order: {
+          select: {
+            id: true,
+            status: true,
+            orderCode: true,
+          },
+        },
       },
     }),
     prisma.financeTransaction.count({ where }),
   ]);
 
-  return { transactions, total };
+  return { transactions: transactions as any, total };
 };
 
 export const findFinanceTransactionById = async (
   id: string,
   businessId: string
-): Promise<FinanceTransaction | null> => {
+): Promise<any | null> => {
   return await prisma.financeTransaction.findFirst({
     where: { id, businessId },
+    include: {
+      user: {
+        select: {
+          id: true,
+          name: true,
+        },
+      },
+      order: {
+        select: {
+          id: true,
+          status: true,
+          orderCode: true,
+        },
+      },
+    },
   });
 };
 

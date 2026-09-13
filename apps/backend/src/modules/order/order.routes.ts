@@ -28,3 +28,9 @@ orderRouter.get(
   validate(orderValidator.orderIdParamSchema),
   orderController.getOrder
 );
+
+orderRouter.post(
+  '/:id/refund',
+  validate(orderValidator.refundOrderSchema),
+  orderController.refundOrder
+);

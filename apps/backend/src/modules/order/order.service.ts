@@ -1,6 +1,6 @@
 import * as orderRepo from './order.repository.js';
 import { NotFoundError } from '@/errors/http.error.js';
-import { CreateOrderDTO, ListOrdersQuery } from './order.validator.js';
+import { CreateOrderDTO, ListOrdersQuery, RefundOrderDTO } from './order.validator.js';
 
 export const createOrder = async (
   businessId: string,
@@ -58,4 +58,19 @@ export const getOrderById = async (id: string, businessId: string) => {
     throw new NotFoundError('Pesanan', 'ORDER_NOT_FOUND');
   }
   return order;
+};
+
+export const refundOrder = async (
+  id: string,
+  businessId: string,
+  userId: string | null,
+  input: RefundOrderDTO,
+  operatorName?: string
+) => {
+  return await orderRepo.refundOrderAtomic(id, businessId, userId, {
+    reason: input?.reason,
+    targetStatus: input?.targetStatus,
+    restoreStock: input?.restoreStock,
+    operatorName,
+  });
 };

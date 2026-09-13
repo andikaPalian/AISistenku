@@ -32,13 +32,15 @@ export const createOrderSchema = z.object({
     items: z
       .array(
         z.object({
-          productId: z.string().uuid().optional(),
-          product_id: z.string().uuid().optional(),
+          productId: z.string().optional(),
+          product_id: z.string().optional(),
           productName: z.string().optional(),
           product_name: z.string().optional(),
+          name: z.string().optional(),
           variant: z.string().trim().max(50).default('Regular').optional(),
           quantity: z.coerce.number().int().positive('Jumlah pesanan minimal 1'),
           price: z.coerce.number().optional(),
+          unit_price: z.coerce.number().optional(),
           note: z.string().trim().max(255).optional().nullable(),
         })
       )
@@ -65,3 +67,22 @@ export const listOrdersQuerySchema = z.object({
 
 export type CreateOrderDTO = z.infer<typeof createOrderSchema>['body'];
 export type ListOrdersQuery = z.infer<typeof listOrdersQuerySchema>['query'];
+
+export const refundOrderSchema = z.object({
+  params: z.object({
+    id: z.string().uuid('ID pesanan tidak valid'),
+  }),
+  body: z
+    .object({
+      reason: z.string().trim().max(255).optional().nullable(),
+      targetStatus: z
+        .enum([OrderStatus.REFUNDED, OrderStatus.CANCELLED])
+        .default(OrderStatus.REFUNDED)
+        .optional(),
+      restoreStock: z.boolean().default(true).optional(),
+    })
+    .optional()
+    .default({}),
+});
+
+export type RefundOrderDTO = z.infer<typeof refundOrderSchema>['body'];

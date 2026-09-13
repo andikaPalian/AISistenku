@@ -24,11 +24,23 @@ uploadRouter.post(
 /**
  * @route POST /api/upload/avatar
  * @desc Upload foto profil pengguna dengan smart face centering
+ * Mendukung field name 'avatar' maupun 'image'
  */
 uploadRouter.post(
   '/avatar',
-  upload.single('avatar'),
-  handleMulterError,
+  (req, res, next) => {
+    upload.fields([
+      { name: 'avatar', maxCount: 1 },
+      { name: 'image', maxCount: 1 },
+    ])(req, res, (err) => {
+      if (err) return handleMulterError(err, req, res, next);
+      const files = req.files as { [fieldname: string]: Express.Multer.File[] } | undefined;
+      if (files) {
+        req.file = files['avatar']?.[0] || files['image']?.[0];
+      }
+      next();
+    });
+  },
   uploadController.uploadAvatar
 );
 

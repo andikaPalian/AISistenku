@@ -1,5 +1,6 @@
 import { Request, Response } from 'express';
 import * as uploadService from './upload.service.js';
+import * as userRepository from '../user/user.repository.js';
 import { BadRequestError } from '@/errors/http.error.js';
 import { sendCreated } from '@/http/response.js';
 import { cloudinary } from '@/config/cloudinary.config.js';
@@ -47,6 +48,9 @@ export const uploadAvatar = async (req: Request, res: Response): Promise<void> =
   }
 
   const result = await uploadService.uploadAvatarImage(req.file.buffer, userId);
+
+  // Persist avatar URL to user record in database
+  await userRepository.updateUser(userId, { avatarUrl: result.secureUrl });
 
   sendCreated(
     res,

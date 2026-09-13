@@ -76,6 +76,13 @@ export const updateMeSchema = z.object({
       .max(60, 'Name too long')
       .regex(NAME_REGEX, 'Name contains invalid characters')
       .optional(),
+    avatarUrl: z
+      .string()
+      .trim()
+      .url('Invalid avatar URL format')
+      .max(500, 'Avatar URL too long')
+      .optional()
+      .nullable(),
   }),
 });
 
