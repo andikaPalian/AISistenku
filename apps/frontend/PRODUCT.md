@@ -31,8 +31,8 @@ Sistem POS & Manajemen UMKM cerdas yang memadukan kecepatan kasir ritel dengan a
 ## Brand Commitments
 - **Nama Brand:** Tiga Angkatan
 - **Nama AI Assistant:** AIsistenku
-- **Identitas Visual:** Primary Teal #0D9488, Secondary Mint #14B8A6, Border #CCFBF1, Background #F8FFFE, Card #FFFFFF, Dark Text #0F172A.
-- **Tipografi:** Font Heading Poppins dan Body Plus Jakarta Sans / Inter.
+- **Identitas Visual:** Modern High-Contrast Obsidian Black #111111, Signature Vibrant Green #22C55E, Emerald #16A34A, Soft Background #F8F9FA, Card #FFFFFF, Hairline Border #E5E7EB, Dark AI Card #111111 / #1F2937 dengan aksen hijau neon menyala.
+- **Tipografi:** Plus Jakarta Sans & Inter (Clean, Modern, Humanist Sans-Serif).
 - **Tone of Voice:** Sahabat UMKM, ramah, solutif, ringkas, dan profesional.
 
 ## Evidence on Hand

@@ -70,9 +70,10 @@ export function useProducts() {
     setLoading(true);
     setError(null);
     try {
-      const res = await apiGet<{ products: ProductRow[] }>('/products');
+      const res = await apiGet<any>('/products');
       if (!mountedRef.current) return;
-      setItems((res.products || []).map(adaptProduct));
+      const rawList = res?.products || res?.data || (Array.isArray(res) ? res : []);
+      setItems(rawList.map(adaptProduct));
     } catch (e: any) {
       if (mountedRef.current) setError(e?.error || 'Gagal memuat produk');
     } finally {
@@ -164,9 +165,10 @@ export function useStocks() {
     setLoading(true);
     setError(null);
     try {
-      const res = await apiGet<{ stocks: StockItemRow[] }>('/stocks');
+      const res = await apiGet<any>('/stocks');
       if (!mountedRef.current) return;
-      setItems((res.stocks || []).map(adaptStockItem));
+      const rawList = res?.stocks || res?.data || (Array.isArray(res) ? res : []);
+      setItems(rawList.map(adaptStockItem));
     } catch (e: any) {
       if (mountedRef.current) setError(e?.error || 'Gagal memuat stok');
     } finally {
@@ -319,9 +321,10 @@ export function useTransactions(query?: { type?: string; q?: string; category?: 
     setLoading(true);
     setError(null);
     try {
-      const res = await apiGet<{ transactions: FinanceRow[] }>(buildPath(queryRef.current));
+      const res = await apiGet<any>(buildPath(queryRef.current));
       if (!mountedRef.current) return;
-      setItems((res.transactions || []).map(adaptTransaction));
+      const rawList = res?.transactions || res?.data || (Array.isArray(res) ? res : []);
+      setItems(rawList.map(adaptTransaction));
     } catch (e: any) {
       if (mountedRef.current) setError(e?.error || 'Gagal memuat transaksi');
     } finally {
@@ -410,9 +413,10 @@ export function useAiMessages() {
     setLoading(true);
     setError(null);
     try {
-      const res = await apiGet<{ messages: AiMessageRow[] }>('/ai/messages');
+      const res = await apiGet<any>('/ai/messages');
       if (!mountedRef.current) return;
-      setItems((res.messages || []).map(adaptAiMessage));
+      const rawList = res?.messages || res?.data || (Array.isArray(res) ? res : []);
+      setItems(rawList.map(adaptAiMessage));
     } catch (e: any) {
       if (mountedRef.current) setError(e?.error || 'Gagal memuat pesan AI');
     } finally {

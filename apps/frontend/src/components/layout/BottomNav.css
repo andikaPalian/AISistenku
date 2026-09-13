@@ -1,22 +1,24 @@
-.bottom-nav {
+/* ── Mobile Neo-Clean Bottom Navigation Bar ── */
+.bottom-nav-root {
   position: fixed;
   bottom: 0;
   left: 0;
   right: 0;
   height: 68px;
-  background-color: #ffffff;
-  border-top: 1px solid var(--border-card);
-  box-shadow: 0 -4px 16px rgba(13, 148, 136, 0.06);
+  background-color: #111111; /* Solid Obsidian Black matching Mobile AppColors */
+  border-top: 1px solid #1f1f1f; /* Subtle crisp hairline divider */
+  box-shadow: 0 -4px 18px rgba(0, 0, 0, 0.35);
   z-index: 1000;
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 0 12px;
+  padding: 0 8px;
+  padding-bottom: env(safe-area-inset-bottom, 0px);
 }
 
 @media (min-width: 768px) {
-  .bottom-nav {
-    display: none; /* Hidden on tablet & desktop */
+  .bottom-nav-root {
+    display: none; /* Hidden on tablet & desktop, SidebarNav takes over */
   }
 }
 
@@ -25,10 +27,13 @@
   justify-content: space-around;
   align-items: center;
   width: 100%;
-  max-width: 500px;
+  max-width: 480px;
+  height: 100%;
+  position: relative;
 }
 
-.bottom-nav-item {
+/* Nav Item Button */
+.nav-item-btn {
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -36,79 +41,114 @@
   background: transparent;
   border: none;
   cursor: pointer;
-  padding: 6px 12px;
-  border-radius: 12px;
-  color: var(--text-muted);
-  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  width: 60px;
+  height: 60px;
+  padding: 0;
   position: relative;
-  flex: 1;
+  transition: transform 0.15s ease;
 }
 
-.bottom-nav-item.active {
-  color: var(--primary);
+.nav-item-btn:active {
+  transform: scale(0.92);
 }
 
-.bottom-nav-item.active::before {
-  content: '';
+.nav-icon-box {
+  width: 48px;
+  height: 42px;
+  border-radius: 21px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  transition: background-color 0.2s cubic-bezier(0.16, 1, 0.3, 1), transform 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.nav-icon {
+  color: #788292;
+  transition: color 0.2s ease, transform 0.2s ease;
+}
+
+.nav-item-btn.active .nav-icon-box {
+  background-color: rgba(255, 255, 255, 0.14);
+}
+
+.nav-item-btn.active .nav-icon {
+  color: #ffffff;
+  transform: scale(1.08);
+}
+
+/* Signature Vibrant Green Active Dot */
+.nav-dot {
+  width: 0;
+  height: 0;
+  border-radius: 50%;
+  background-color: #22c55e;
+  margin-top: 2px;
+  transition: width 0.2s ease, height 0.2s ease;
+}
+
+.nav-item-btn.active .nav-dot {
+  width: 5px;
+  height: 5px;
+}
+
+/* Badge for Cart count */
+.nav-cart-badge {
   position: absolute;
   top: 2px;
-  width: 32px;
-  height: 3px;
-  background-color: var(--primary);
-  border-radius: 99px;
-}
-
-.icon-wrapper {
-  position: relative;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.nav-badge {
-  position: absolute;
-  top: -4px;
-  right: -8px;
-  background-color: var(--status-danger);
-  color: white;
+  right: 4px;
+  background-color: #22c55e;
+  color: #111111;
   font-size: 10px;
-  font-weight: 700;
-  width: 16px;
-  height: 16px;
+  font-weight: 800;
+  min-width: 17px;
+  height: 17px;
+  border-radius: 99px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid #111111;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+/* ── Center Hero AI Button (Vibrant Green 58px Floating Portal) ── */
+.center-hero-ai-btn {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  transform: translateY(-8px);
+  position: relative;
+  z-index: 10;
+  transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.center-hero-ai-btn:active {
+  transform: translateY(-5px) scale(0.94);
+}
+
+.hero-ai-inner {
+  width: 56px;
+  height: 56px;
   border-radius: 50%;
+  background-color: #22c55e; /* Signature Vibrant Green */
+  border: 3.5px solid #111111;
   display: flex;
   align-items: center;
   justify-content: center;
+  box-shadow: 0 4px 16px rgba(34, 197, 94, 0.45);
+  transition: box-shadow 0.2s ease, filter 0.2s ease;
 }
 
-.label {
-  font-size: 11px;
-  font-weight: 500;
-  margin-top: 2px;
+.center-hero-ai-btn:hover .hero-ai-inner,
+.center-hero-ai-btn.active .hero-ai-inner {
+  box-shadow: 0 6px 22px rgba(34, 197, 94, 0.65);
+  filter: brightness(1.08);
 }
 
-.bottom-nav-item.active .label {
-  font-weight: 600;
-}
-
-/* Special AI Icon style */
-.bottom-nav-ai-container {
-  width: 28px;
-  height: 28px;
-  border-radius: 8px;
-  background: linear-gradient(135deg, #0D9488 0%, #0F766E 100%);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  box-shadow: 0 2px 6px rgba(13, 148, 136, 0.35);
-}
-
-.bottom-nav-ai-img {
-  width: 18px;
-  height: 18px;
+.hero-ai-img {
+  width: 30px;
+  height: 30px;
   object-fit: contain;
-}
-
-.bottom-nav-item.active .bottom-nav-ai-container {
-  box-shadow: 0 0 10px rgba(13, 148, 136, 0.55);
+  filter: brightness(0) invert(1); /* Pure white icon */
 }

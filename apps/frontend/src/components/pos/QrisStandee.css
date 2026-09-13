@@ -1,0 +1,337 @@
+/* ============================================================
+   AUTHENTIC INDONESIAN NATIONAL QRIS STANDEE CARD (COMPACT)
+   Standard: ASPI & Bank Indonesia (EMVCo Compatible)
+   ============================================================ */
+
+.qris-standee-container {
+  width: 100%;
+  max-width: 340px;
+  margin: 0 auto;
+  background-color: #ffffff;
+  border-radius: 14px;
+  border: 1px solid #cbd5e1;
+  box-shadow: 0 4px 14px rgba(15, 23, 42, 0.06), 0 1px 3px rgba(15, 23, 42, 0.04);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ── Top Official QRIS Red Ribbon Banner ── */
+.qris-header-banner {
+  background: linear-gradient(135deg, #ba021a 0%, #d32f2f 100%);
+  padding: 8px 12px;
+  color: #ffffff;
+}
+
+.qris-brand-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.qris-logo-official {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  font-weight: 900;
+  font-size: 18px;
+  letter-spacing: -0.03em;
+  background-color: #ffffff;
+  color: #ba021a;
+  padding: 2px 6px;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.15);
+  line-height: 1;
+}
+
+.qris-logo-letter {
+  display: inline-block;
+}
+
+.qris-tagline-col {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+
+.qris-tagline-main {
+  font-size: 9.5px;
+  font-weight: 900;
+  letter-spacing: 0.05em;
+  color: #ffffff;
+  line-height: 1.1;
+}
+
+.qris-tagline-sub {
+  font-size: 7.5px;
+  font-weight: 700;
+  color: #fee2e2;
+  letter-spacing: 0.02em;
+  margin-top: 1px;
+}
+
+.qris-gpn-shield {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  background-color: rgba(255, 255, 255, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-size: 9px;
+  font-weight: 800;
+}
+
+/* ── Merchant Info ── */
+.qris-merchant-info {
+  text-align: center;
+  padding: 8px 12px 6px;
+  border-bottom: 1px solid #f1f5f9;
+}
+
+.qris-merchant-name {
+  font-family: var(--font-heading);
+  font-size: 12.5px;
+  font-weight: 800;
+  color: #0f172a;
+  margin: 0;
+  text-transform: uppercase;
+  letter-spacing: -0.01em;
+}
+
+.qris-merchant-meta {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  font-size: 10px;
+  color: #64748b;
+  margin-top: 2px;
+}
+
+.qris-merchant-meta strong {
+  color: #0f172a;
+  font-weight: 700;
+}
+
+.meta-dot {
+  color: #cbd5e1;
+}
+
+/* ── QR Code Frame & Canvas ── */
+.qris-qr-frame {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 8px 12px;
+  background-color: #ffffff;
+}
+
+.qris-image-wrapper {
+  position: relative;
+  width: 170px;
+  height: 170px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 10px;
+  border: 1px solid #e2e8f0;
+  padding: 4px;
+  background: #ffffff;
+  box-shadow: 0 1px 4px rgba(15, 23, 42, 0.04);
+}
+
+.qris-qr-image {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  display: block;
+}
+
+/* Center GPN Red Emblem */
+.qris-center-badge {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 32px;
+  height: 32px;
+  background-color: #ba021a;
+  border: 2.5px solid #ffffff;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.25);
+  pointer-events: none;
+}
+
+.center-gpn-text {
+  color: #ffffff;
+  font-size: 9.5px;
+  font-weight: 900;
+  letter-spacing: 0.04em;
+}
+
+.qris-loading-box {
+  width: 170px;
+  height: 170px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  color: #64748b;
+  background-color: #f8fafc;
+  border-radius: 10px;
+}
+
+.qris-scan-instruction {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  background-color: #f8fafc;
+  border: 1px solid #e2e8f0;
+  padding: 3px 8px;
+  border-radius: 99px;
+  font-size: 9.5px;
+  font-weight: 600;
+  color: #475569;
+  margin-top: 6px;
+}
+
+.pulse-beacon {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background-color: #10b981;
+  box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.3);
+  animation: pulseGreen 1.8s infinite ease-in-out;
+}
+
+/* ── Dynamic Nominal Box ── */
+.qris-nominal-box {
+  background-color: #0f172a;
+  color: #ffffff;
+  padding: 8px 12px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-radius: 8px;
+  margin: 2px 10px 8px;
+}
+
+.qris-amount-row {
+  display: flex;
+  flex-direction: column;
+}
+
+.qris-amount-label {
+  font-size: 8.5px;
+  font-weight: 700;
+  color: #94a3b8;
+  letter-spacing: 0.05em;
+}
+
+.qris-amount-val {
+  font-family: var(--font-heading);
+  font-size: 15px;
+  font-weight: 900;
+  color: #34d399;
+  font-feature-settings: 'tnum' on, 'lnum' on;
+}
+
+.qris-timer-row {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  font-size: 9.5px;
+  color: #cbd5e1;
+  background-color: rgba(255, 255, 255, 0.1);
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+
+.qris-timer-row strong {
+  color: #facc15;
+}
+
+/* ── Supported Partners Grid ── */
+.qris-partners-section {
+  padding: 0 10px 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.partners-chips-grid {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 3px;
+}
+
+.partner-chip {
+  font-size: 8.5px;
+  font-weight: 700;
+  padding: 1px 5px;
+  border-radius: 3px;
+  border: 1px solid #e2e8f0;
+  background-color: #f8fafc;
+  color: #334155;
+}
+
+.partner-chip.bank {
+  background-color: #f1f5f9;
+  color: #0f172a;
+}
+
+.partner-chip.ewallet.gopay {
+  color: #0081a7;
+  border-color: #bae6fd;
+  background-color: #f0f9ff;
+}
+
+.partner-chip.ewallet.ovo {
+  color: #4c1d95;
+  border-color: #ddd6fe;
+  background-color: #f5f3ff;
+}
+
+.partner-chip.ewallet.dana {
+  color: #1d4ed8;
+  border-color: #bfdbfe;
+  background-color: #eff6ff;
+}
+
+.partner-chip.ewallet.shopee {
+  color: #ea580c;
+  border-color: #fed7aa;
+  background-color: #fff7ed;
+}
+
+.partner-chip.ewallet.linkaja {
+  color: #dc2626;
+  border-color: #fecaca;
+  background-color: #fef2f2;
+}
+
+.btn-qris-copy-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  background: transparent;
+  border: none;
+  color: #64748b;
+  font-size: 10px;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 3px;
+  margin-top: 2px;
+  transition: color 0.15s ease;
+}
+
+.btn-qris-copy-link:hover {
+  color: #059669;
+}

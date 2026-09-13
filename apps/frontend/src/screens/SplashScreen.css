@@ -1,0 +1,153 @@
+/* ── Clean, Authentic Mobile-Identical Splash Screen ── */
+.splash-screen-root {
+  position: fixed;
+  inset: 0;
+  background-color: #111111; /* AppColors.primary - Solid Charcoal / Black */
+  z-index: 99999;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 24px;
+  cursor: pointer;
+  user-select: none;
+  transition: opacity 0.55s cubic-bezier(0.65, 0, 0.35, 1);
+}
+
+.splash-screen-root.in {
+  opacity: 1;
+}
+
+.splash-screen-root.out {
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* Flex spacers matching mobile Spacer(flex: 4) and Spacer(flex: 5) */
+.splash-spacer-top {
+  flex: 4;
+}
+
+.splash-spacer-bottom {
+  flex: 5;
+}
+
+/* Centered content */
+.splash-center-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+
+/* Authentic Unboxed Logo: pure natural scale entrance */
+.splash-logo-wrap {
+  animation: splashLogoEntrance 1.05s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+}
+
+.splash-logo-img {
+  width: 135px;
+  height: 135px;
+  object-fit: contain;
+  display: block;
+}
+
+/* Typography matching GoogleFonts.plusJakartaSans */
+.splash-typography-group {
+  margin-top: 28px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  animation: splashTextEntrance 0.85s cubic-bezier(0.215, 0.61, 0.355, 1) 0.38s both;
+}
+
+.splash-brand-title {
+  font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+  font-size: 28px;
+  font-weight: 800;
+  color: #ffffff;
+  letter-spacing: 2.2px;
+  margin: 0;
+  line-height: 1.15;
+}
+
+.splash-brand-subtitle {
+  font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+  font-size: 14px;
+  font-weight: 500;
+  color: #94a3b8; /* Exact hex from mobile */
+  letter-spacing: 0.3px;
+  margin: 8px 0 0 0;
+  line-height: 1.4;
+}
+
+/* Bottom minimalist spinner & ecosystem footer */
+.splash-footer-group {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 24px;
+  animation: splashFooterEntrance 0.8s cubic-bezier(0.16, 1, 0.3, 1) 0.72s both;
+}
+
+/* Minimalist CircularProgressIndicator (22px x 22px, stroke 2.4px, #22C55E) */
+.splash-spinner-ring {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  border: 2.4px solid rgba(255, 255, 255, 0.12);
+  border-top-color: #22c55e; /* AppColors.secondary */
+  animation: splashSpinnerSpin 0.85s linear infinite;
+}
+
+.splash-footer-text {
+  margin-top: 16px;
+  font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+  font-size: 12px;
+  font-weight: 500;
+  color: #64748b; /* Exact hex from mobile */
+  letter-spacing: 0.5px;
+}
+
+/* Animations */
+@keyframes splashLogoEntrance {
+  0% {
+    opacity: 0;
+    transform: scale(0.84);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes splashTextEntrance {
+  0% {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes splashFooterEntrance {
+  0% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+@keyframes splashSpinnerSpin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}

@@ -30,6 +30,7 @@ export interface Transaction {
   status: 'success' | 'pending' | 'cancelled';
   itemCount?: number;
   notes?: string;
+  title?: string;
 }
 
 export interface StockAlert {

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { login, register } from '../lib/auth';
-import { Coffee, LogIn, UserPlus, AlertCircle } from 'lucide-react';
+import { LogIn, UserPlus, AlertCircle, ArrowRight, CheckCircle2, Store, Phone, Mail, Lock, User } from 'lucide-react';
 import './LoginScreen.css';
 
 export const LoginScreen: React.FC = () => {
@@ -8,6 +8,9 @@ export const LoginScreen: React.FC = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [name, setName] = useState('');
+  const [businessName, setBusinessName] = useState('');
+  const [phone, setPhone] = useState('');
+  const [rememberMe, setRememberMe] = useState(true);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -18,11 +21,12 @@ export const LoginScreen: React.FC = () => {
     try {
       if (mode === 'login') {
         await login(email, password);
+        sessionStorage.setItem('ta_session_entered', 'true');
         window.location.reload();
       } else {
         const result = await register(email, password, name);
         if (result) {
-          // User created with session — go straight in
+          sessionStorage.setItem('ta_session_entered', 'true');
           window.location.reload();
         }
       }
@@ -39,6 +43,7 @@ export const LoginScreen: React.FC = () => {
     setLoading(true);
     try {
       await login('owner@tigaangkatan.id', 'password123');
+      sessionStorage.setItem('ta_session_entered', 'true');
       window.location.reload();
     } catch (err: any) {
       const msg = err?.error || err?.message || 'Gagal masuk akun demo.';
@@ -49,96 +54,179 @@ export const LoginScreen: React.FC = () => {
   };
 
   return (
-    <div className="login-screen">
-      <div className="login-card">
-        <div className="login-brand">
-          <div className="brand-icon"><Coffee size={28} /></div>
-          <div>
-            <h1 className="brand-title">Tiga Angkatan</h1>
-            <p className="brand-sub">Sistem Manajemen Toko</p>
-          </div>
-        </div>
-
-        <div className="login-tabs">
-          <button
-            type="button"
-            onClick={() => setMode('login')}
-            className={`login-tab ${mode === 'login' ? 'active' : ''}`}
-          >
-            <LogIn size={14} /> Masuk
-          </button>
-          <button
-            type="button"
-            onClick={() => setMode('register')}
-            className={`login-tab ${mode === 'register' ? 'active' : ''}`}
-          >
-            <UserPlus size={14} /> Daftar
-          </button>
-        </div>
-
-        <form onSubmit={handleSubmit} className="login-form">
-          {mode === 'register' && (
-            <div className="form-group">
-              <label>Nama</label>
-              <input
-                type="text"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                placeholder="Nama pemilik toko"
-                required
-              />
-            </div>
-          )}
-
-          <div className="form-group">
-            <label>Email</label>
-            <input
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              placeholder="email@contoh.com"
-              required
+    <div className="login-screen-wrapper">
+      <div className="login-card-container">
+        {/* ── 1. Curved Obsidian Header (1:1 Mobile Parity) ── */}
+        <div className="login-curved-header">
+          <div className="header-logo-row">
+            <img
+              src="/logoAisitenku.png"
+              alt="Logo Aisistenku"
+              className="header-brand-logo"
+              onError={(e) => {
+                (e.target as HTMLImageElement).src = '/iconAisistenku.png';
+              }}
             />
           </div>
 
-          <div className="form-group">
-            <label>Password</label>
-            <input
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              placeholder="••••••••"
-              required
-              minLength={6}
-            />
+          <div className="header-titles">
+            <h1 className="header-headline">
+              {mode === 'register' ? 'Daftar Akun Baru' : 'Selamat Datang'}
+            </h1>
+            <p className="header-subtitle">
+              {mode === 'register'
+                ? 'Langkah awal menuju manajemen toko yang lebih cerdas dan otomatis.'
+                : 'AISISTENKU — Sistem Manajemen Toko & POS'}
+            </p>
+          </div>
+        </div>
+
+        {/* ── 2. Form Body ── */}
+        <div className="login-card-body">
+          {/* Segmented Control (Masuk / Daftar Baru) */}
+          <div className="login-pill-tabs">
+            <button
+              type="button"
+              onClick={() => { setMode('login'); setError(null); }}
+              className={`pill-tab ${mode === 'login' ? 'active' : ''}`}
+            >
+              <LogIn size={15} />
+              <span>Masuk</span>
+            </button>
+            <button
+              type="button"
+              onClick={() => { setMode('register'); setError(null); }}
+              className={`pill-tab ${mode === 'register' ? 'active' : ''}`}
+            >
+              <UserPlus size={15} />
+              <span>Daftar Baru</span>
+            </button>
           </div>
 
           {error && (
-            <div className="login-error">
-              <AlertCircle size={14} /> {error}
+            <div className="login-error-pill">
+              <AlertCircle size={16} />
+              <span>{error}</span>
             </div>
           )}
 
-          <button type="submit" disabled={loading} className="btn-primary login-submit">
-            {loading ? 'Memproses...' : mode === 'login' ? 'Masuk Dashboard' : 'Daftar Sekarang'}
-          </button>
-        </form>
+          <form onSubmit={handleSubmit} className="auth-form">
+            {mode === 'register' && (
+              <>
+                <div className="form-field-group">
+                  <label>Nama Pemilik Toko</label>
+                  <div className="input-icon-wrap">
+                    <User size={16} className="field-icon" />
+                    <input
+                      type="text"
+                      value={name}
+                      onChange={(e) => setName(e.target.value)}
+                      placeholder="Contoh: Budi Santoso"
+                      required
+                    />
+                  </div>
+                </div>
 
-        <button 
-          type="button" 
-          onClick={handleDemoLogin} 
-          disabled={loading}
-          className="btn-outline"
-        >
-          <Coffee size={16} /> Coba Demo Akun Cafe (Data Contoh)
-        </button>
+                <div className="form-field-group">
+                  <label>Nama Gerai / Bisnis</label>
+                  <div className="input-icon-wrap">
+                    <Store size={16} className="field-icon" />
+                    <input
+                      type="text"
+                      value={businessName}
+                      onChange={(e) => setBusinessName(e.target.value)}
+                      placeholder="Contoh: Toko Tiga Angkatan"
+                    />
+                  </div>
+                </div>
 
-        <p className="login-hint">
-          {mode === 'login' ? 'Belum punya akun? ' : 'Sudah punya akun? '}
-          <button type="button" onClick={() => setMode(mode === 'login' ? 'register' : 'login')} className="link-btn">
-            {mode === 'login' ? 'Daftar di sini' : 'Masuk di sini'}
+                <div className="form-field-group">
+                  <label>No. Handphone (WhatsApp)</label>
+                  <div className="input-icon-wrap">
+                    <Phone size={16} className="field-icon" />
+                    <input
+                      type="tel"
+                      value={phone}
+                      onChange={(e) => setPhone(e.target.value)}
+                      placeholder="0812xxxxxxxx"
+                    />
+                  </div>
+                </div>
+              </>
+            )}
+
+            <div className="form-field-group">
+              <label>Email Pengguna</label>
+              <div className="input-icon-wrap">
+                <Mail size={16} className="field-icon" />
+                <input
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder="owner@tigaangkatan.id"
+                  required
+                />
+              </div>
+            </div>
+
+            <div className="form-field-group">
+              <label>Kata Sandi</label>
+              <div className="input-icon-wrap">
+                <Lock size={16} className="field-icon" />
+                <input
+                  type="password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  placeholder="••••••••"
+                  required
+                />
+              </div>
+            </div>
+
+            {mode === 'login' && (
+              <div className="login-options-row">
+                <label className="remember-checkbox-label">
+                  <input
+                    type="checkbox"
+                    checked={rememberMe}
+                    onChange={(e) => setRememberMe(e.target.checked)}
+                  />
+                  <span>Ingat Saya</span>
+                </label>
+                <span className="forgot-password-link">Lupa Kata Sandi?</span>
+              </div>
+            )}
+
+            <button
+              type="submit"
+              disabled={loading}
+              className="btn-auth-submit"
+            >
+              <span>{loading ? 'Memproses...' : mode === 'login' ? 'Masuk ke Akun' : 'Daftar Sekarang'}</span>
+              <ArrowRight size={16} />
+            </button>
+          </form>
+
+          {/* Quick Demo Login Option */}
+          <div className="demo-access-divider">
+            <span>AKSES CEPAT PERCONTOHAN</span>
+          </div>
+
+          <button
+            type="button"
+            onClick={handleDemoLogin}
+            disabled={loading}
+            className="btn-demo-quick-login"
+          >
+            <div className="demo-icon-chip">
+              <CheckCircle2 size={16} />
+            </div>
+            <div className="demo-text-box">
+              <strong>Masuk Akun Demo (Owner)</strong>
+              <span>owner@tigaangkatan.id • Langsung Jelajahi Semua Fitur</span>
+            </div>
           </button>
-        </p>
+        </div>
       </div>
     </div>
   );

@@ -9,10 +9,12 @@ import { FinanceScreen } from '../../screens/FinanceScreen';
 import { AiAssistantScreen } from '../../screens/AiAssistantScreen';
 import { useProducts, useStocks, useTransactions, useDashboard, useAiMessages, useStockAlerts } from '../../hooks/useData';
 import { logout } from '../../lib/auth';
+import { NotificationModal } from '../modals/NotificationModal';
 
 export const ShellLayout: React.FC = () => {
   const [activeTab, setActiveTab] = useState<TabType>('home');
   const [cart, setCart] = useState<CartItem[]>([]);
+  const [isNotificationOpen, setIsNotificationOpen] = useState<boolean>(false);
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState<boolean>(() => {
     return localStorage.getItem('sidebar_collapsed') === 'true';
   });
@@ -41,6 +43,16 @@ export const ShellLayout: React.FC = () => {
             stockAlerts={alertsHook.data}
             dashboard={dashboardHook.data}
             dashboardLoading={dashboardHook.loading}
+            products={productsHook.data}
+            transactions={transactionsHook.data}
+            onRestock={async (stockId, payload) => {
+              await stocksHook.restock(stockId, payload);
+              await Promise.all([stocksHook.refresh(), alertsHook.refresh()]);
+            }}
+            onCreateTransaction={async (payload) => {
+              await transactionsHook.create(payload);
+              await Promise.all([transactionsHook.refresh(), dashboardHook.refresh()]);
+            }}
           />
         );
       case 'pos':
@@ -104,6 +116,9 @@ export const ShellLayout: React.FC = () => {
               }}
               onClear={aiHook.clear}
               refresh={aiHook.refresh}
+              stockAlerts={alertsHook.data}
+              dashboard={dashboardHook.data}
+              stocks={stocksHook.data}
             />
           );
       default:
@@ -113,6 +128,16 @@ export const ShellLayout: React.FC = () => {
             stockAlerts={alertsHook.data}
             dashboard={dashboardHook.data}
             dashboardLoading={dashboardHook.loading}
+            products={productsHook.data}
+            transactions={transactionsHook.data}
+            onRestock={async (stockId, payload) => {
+              await stocksHook.restock(stockId, payload);
+              await Promise.all([stocksHook.refresh(), alertsHook.refresh()]);
+            }}
+            onCreateTransaction={async (payload) => {
+              await transactionsHook.create(payload);
+              await Promise.all([transactionsHook.refresh(), dashboardHook.refresh()]);
+            }}
           />
         );
     }
@@ -130,6 +155,7 @@ export const ShellLayout: React.FC = () => {
         isCollapsed={isSidebarCollapsed}
         onToggleCollapse={toggleSidebar}
         onLogout={logout}
+        onOpenNotification={() => setIsNotificationOpen(true)}
       />
 
       <main className={`main-content ${isSidebarCollapsed ? 'collapsed-sidebar' : ''}`}>
@@ -141,6 +167,13 @@ export const ShellLayout: React.FC = () => {
           cartCount={totalCartCount}
         />
       </main>
+
+      <NotificationModal
+        isOpen={isNotificationOpen}
+        onClose={() => setIsNotificationOpen(false)}
+        stockAlerts={alertsHook.data}
+        onNavigateTab={setActiveTab}
+      />
     </div>
   );
 };

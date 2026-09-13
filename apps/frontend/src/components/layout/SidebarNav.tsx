@@ -2,18 +2,17 @@ import React from 'react';
 import { TabType } from '../../types';
 import {
   Home,
-  ShoppingBag,
+  Store,
   Bot,
   Package,
   Wallet,
-  Sparkles,
-  Store,
   ChevronLeft,
   ChevronRight,
-  PanelLeftClose,
-  PanelLeftOpen,
   LogOut,
+  Sparkles,
+  Bell,
 } from 'lucide-react';
+import { getStoredUser } from '../../lib/auth';
 import './SidebarNav.css';
 
 interface SidebarNavProps {
@@ -24,6 +23,7 @@ interface SidebarNavProps {
   isCollapsed?: boolean;
   onToggleCollapse?: () => void;
   onLogout?: () => void;
+  onOpenNotification?: () => void;
 }
 
 export const SidebarNav: React.FC<SidebarNavProps> = ({
@@ -34,19 +34,26 @@ export const SidebarNav: React.FC<SidebarNavProps> = ({
   isCollapsed = false,
   onToggleCollapse,
   onLogout,
+  onOpenNotification,
 }) => {
   const menuItems = [
     { id: 'home' as TabType, label: 'Beranda', icon: Home },
     {
       id: 'pos' as TabType,
-      label: 'Point of Sale (Kasir)',
-      icon: ShoppingBag,
+      label: 'Kasir POS',
+      icon: Store,
       badge: cartCount > 0 ? cartCount : undefined,
     },
-    { id: 'ai' as TabType, label: 'AIsistenku (AI Copilot)', icon: Bot, isAi: true },
+    {
+      id: 'ai' as TabType,
+      label: 'AIsistenku Copilot',
+      icon: Bot,
+      isAi: true,
+      badgeText: 'AI',
+    },
     {
       id: 'stock' as TabType,
-      label: 'Stok & Inventaris',
+      label: 'Stok & Bahan',
       icon: Package,
       badge: stockAlertCount > 0 ? stockAlertCount : undefined,
       badgeDanger: true,
@@ -58,28 +65,53 @@ export const SidebarNav: React.FC<SidebarNavProps> = ({
     <aside className={`sidebar-nav ${isCollapsed ? 'collapsed' : ''}`}>
       {/* Brand Header & Collapse Trigger */}
       <div className="sidebar-brand-wrapper">
-        <div className="sidebar-brand">
+        <div
+          className="sidebar-brand"
+          onClick={() => onTabChange('home')}
+          style={{ cursor: 'pointer' }}
+        >
           <div className="brand-icon">
-            <Store size={22} color="#ffffff" />
+            <img
+              src="/iconAisistenku.png"
+              alt="Logo Aisistenku"
+              className="brand-logo-img"
+              onError={(e) => {
+                (e.target as HTMLImageElement).src = '/logoAisitenku.png';
+              }}
+            />
           </div>
           {!isCollapsed && (
             <div className="brand-text">
               <span className="brand-title">Tiga Angkatan</span>
-              <span className="brand-sub">AISISTENKU</span>
+              <span className="brand-sub">AISISTENKU • POS</span>
             </div>
           )}
         </div>
 
-        {onToggleCollapse && (
-          <button
-            type="button"
-            onClick={onToggleCollapse}
-            className="btn-collapse-sidebar"
-            title={isCollapsed ? 'Perlebar Menu Sidebar' : 'Perkecil Menu Sidebar (Hanya Ikon)'}
-          >
-            {isCollapsed ? <ChevronRight size={16} /> : <ChevronLeft size={16} />}
-          </button>
-        )}
+        <div className="sidebar-brand-actions">
+          {onOpenNotification && !isCollapsed && (
+            <button
+              type="button"
+              onClick={onOpenNotification}
+              className="btn-sidebar-icon"
+              title="Notifikasi & Peringatan Stok"
+            >
+              <Bell size={15} />
+              {stockAlertCount > 0 && <span className="sidebar-notif-dot" />}
+            </button>
+          )}
+
+          {onToggleCollapse && (
+            <button
+              type="button"
+              onClick={onToggleCollapse}
+              className="btn-collapse-sidebar"
+              title={isCollapsed ? 'Perlebar Menu Sidebar' : 'Perkecil Menu Sidebar'}
+            >
+              {isCollapsed ? <ChevronRight size={15} /> : <ChevronLeft size={15} />}
+            </button>
+          )}
+        </div>
       </div>
 
       {/* Main Navigation */}
@@ -100,10 +132,17 @@ export const SidebarNav: React.FC<SidebarNavProps> = ({
               <div className="sidebar-icon-box">
                 {item.isAi ? (
                   <div className="sidebar-ai-icon-container">
-                    <img src="/iconAisistenku.png" alt="AIsistenku" className="sidebar-ai-icon-img" />
+                    <img
+                      src="/logoAisitenku.png"
+                      alt="AIsistenku"
+                      className="sidebar-ai-icon-img"
+                      onError={(e) => {
+                        (e.target as HTMLImageElement).src = '/iconAisistenku.png';
+                      }}
+                    />
                   </div>
                 ) : (
-                  <IconComp size={20} />
+                  <IconComp size={20} className="sidebar-icon-svg" />
                 )}
                 {isCollapsed && item.badge !== undefined && (
                   <span className={`sidebar-mini-dot ${item.badgeDanger ? 'danger' : ''}`}></span>
@@ -115,60 +154,58 @@ export const SidebarNav: React.FC<SidebarNavProps> = ({
                   {item.badge}
                 </span>
               )}
+              {!isCollapsed && item.badgeText && (
+                <span className="sidebar-badge-ai">
+                  <Sparkles size={10} /> {item.badgeText}
+                </span>
+              )}
             </button>
           );
         })}
       </div>
 
-      {/* AI Smart Banner on Desktop (Full Mode only) */}
-      {!isCollapsed ? (
-        <div className="sidebar-ai-banner">
-          <div className="ai-banner-header">
-            <div className="ai-banner-icon-container">
-              <img src="/iconAisistenku.png" alt="AIsistenku" className="ai-banner-icon-img" />
-            </div>
-            <span>AI Insight Ready</span>
-          </div>
-          <p className="ai-banner-text">Restock otomatis & prediksi penjualan siap dianalisis.</p>
-          <button onClick={() => onTabChange('ai')} className="ai-banner-btn">
-            Tanya AI Assistant
-          </button>
-        </div>
-      ) : (
-        <div className="sidebar-ai-mini-badge" title="AIsistenku Copilot">
-          <button
-            type="button"
-            onClick={() => onTabChange('ai')}
-            className="ai-mini-btn"
-            title="Buka AIsistenku"
-          >
-            <img src="/iconAisistenku.png" alt="AIsistenku" className="ai-mini-icon-img" />
-          </button>
-        </div>
-      )}
-
       {/* Footer Profile & Quick Settings */}
-      <div className="sidebar-footer">
-        <div className="user-profile-box" title={isCollapsed ? 'Budi Santoso (Pemilik Toko)' : undefined}>
-          <div className="user-avatar">B</div>
-          {!isCollapsed && (
-            <div className="user-info">
-              <span className="user-name">Budi Santoso</span>
-              <span className="user-role">Pemilik Toko</span>
-            </div>
-          )}
-          {onLogout && (
-            <button 
-              type="button" 
-              onClick={onLogout} 
-              className="sidebar-logout-btn" 
-              title="Keluar"
+      {(() => {
+        const currentUser = getStoredUser();
+        const displayName = currentUser?.name || 'Budi Santoso';
+        const initial = displayName.charAt(0).toUpperCase() || 'B';
+        const displayRole =
+          currentUser?.role === 'OWNER'
+            ? 'Pemilik Toko'
+            : currentUser?.role === 'CASHIER'
+              ? 'Kasir'
+              : 'Staff Toko';
+
+        return (
+          <div className="sidebar-footer">
+            <div
+              className="user-profile-box"
+              title={isCollapsed ? `${displayName} (${displayRole})` : undefined}
             >
-              <LogOut size={16} />
-            </button>
-          )}
-        </div>
-      </div>
+              <div className="user-avatar-wrap">
+                <div className="user-avatar">{initial}</div>
+                <span className="user-online-dot"></span>
+              </div>
+              {!isCollapsed && (
+                <div className="user-info">
+                  <span className="user-name">{displayName}</span>
+                  <span className="user-role">{displayRole}</span>
+                </div>
+              )}
+              {onLogout && (
+                <button
+                  type="button"
+                  onClick={onLogout}
+                  className="sidebar-logout-btn"
+                  title="Keluar"
+                >
+                  <LogOut size={16} />
+                </button>
+              )}
+            </div>
+          </div>
+        );
+      })()}
     </aside>
   );
 };
