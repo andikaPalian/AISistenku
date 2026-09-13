@@ -1,5 +1,7 @@
+import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:AISISTENKU/core/services/api_service.dart';
 import 'package:AISISTENKU/models/profile_model.dart';
 import 'package:AISISTENKU/screens/profile/profile_screen.dart';
 
@@ -175,6 +177,33 @@ void main() {
       expect(find.text('Konfirmasi Keluar Akun'), findsOneWidget);
       expect(find.text('Ya, Keluar'), findsOneWidget);
       expect(find.text('Batal'), findsOneWidget);
+    });
+
+    test('ApiService.resolveMediaType correctly resolves image mime types from bytes and extensions', () {
+      // JPEG magic bytes
+      final jpegBytes = Uint8List.fromList([0xFF, 0xD8, 0xFF, 0xE0, 0x00, 0x10]);
+      final jpegType = ApiService.resolveMediaType('photo.unknown', jpegBytes);
+      expect(jpegType.type, 'image');
+      expect(jpegType.subtype, 'jpeg');
+
+      // PNG magic bytes
+      final pngBytes = Uint8List.fromList([0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A]);
+      final pngType = ApiService.resolveMediaType('photo.unknown', pngBytes);
+      expect(pngType.type, 'image');
+      expect(pngType.subtype, 'png');
+
+      // Extension fallback
+      final extJpg = ApiService.resolveMediaType('avatar_123.jpg');
+      expect(extJpg.type, 'image');
+      expect(extJpg.subtype, 'jpeg');
+
+      final extPng = ApiService.resolveMediaType('avatar_123.png');
+      expect(extPng.type, 'image');
+      expect(extPng.subtype, 'png');
+
+      final extWebp = ApiService.resolveMediaType('avatar_123.webp');
+      expect(extWebp.type, 'image');
+      expect(extWebp.subtype, 'webp');
     });
   });
 }
