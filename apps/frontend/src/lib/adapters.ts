@@ -133,6 +133,7 @@ export function adaptStockItem(
     stock: currentStock,
     minStock,
     unit: row.unit || 'pcs',
+    image: (row as any).image || (row as any).imageUrl || (row as any).image_url || undefined,
     stockId: id,
     costPerUnit: cost,
     supplier: row.supplier || 'Supplier Utama',

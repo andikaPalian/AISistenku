@@ -1,271 +1,283 @@
-/* ============================================================
-   TIGA ANGKATAN — STREAMLINED MODERN WEB SAAS SALES CHART
-   Compact, Perfectly Aligned, No Bulky Ribbon, Clean SaaS Aesthetics
-   ============================================================ */
+/* ==========================================================================
+   TIGA ANGKATAN POS — MODERN HIGH-CRAFT SALES & CASHFLOW CHART
+   Obsidian Black #111111 • Vibrant Green #22C55E • Soft Slate #F8F9FA
+   No AI Slop: Clean Typography, High Contrast, Precision Scaling, Luxury Curves
+   ========================================================================== */
 
-.web-chart-container {
+.modern-sales-chart-card {
   background: #ffffff;
-  border: 1px solid #e2e8f0;
+  border: 1px solid var(--border-card);
   border-radius: var(--radius-xl);
-  padding: 18px 20px 14px;
-  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.04), 0 1px 2px rgba(15, 23, 42, 0.02);
+  padding: 20px 22px 16px;
+  box-shadow: var(--shadow-card);
   position: relative;
   overflow: visible;
   transition: border-color 0.2s ease, box-shadow 0.2s ease;
 }
 
-.web-chart-container:hover {
+.modern-sales-chart-card:hover {
+  box-shadow: var(--shadow-lg);
   border-color: #cbd5e1;
-  box-shadow: 0 4px 12px rgba(15, 23, 42, 0.05);
 }
 
-/* ── 1. Clean Header Row: Title & Action Controls ── */
-.web-chart-header {
+/* ── 1. Top Bar: Title, Live Status & Segmented Controls ── */
+.chart-card-top-bar {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  gap: 12px;
-  margin-bottom: 10px;
+  gap: 14px;
+  flex-wrap: wrap;
+  margin-bottom: 12px;
 }
 
-.web-chart-title-wrap {
+.chart-title-block {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 12px;
 }
 
-.web-chart-icon-box {
-  width: 32px;
-  height: 32px;
-  border-radius: 8px;
+.chart-icon-box {
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
   background-color: #ecfdf5;
-  color: #059669;
+  color: #16a34a;
   display: flex;
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
-  border: 1px solid #a7f3d0;
+  border: 1px solid #d1fae5;
 }
 
-.web-chart-title {
+.chart-heading {
   font-family: var(--font-heading);
-  font-size: 14.5px;
+  font-size: 15.5px;
   font-weight: 800;
   color: #0f172a;
   line-height: 1.2;
-  letter-spacing: -0.015em;
+  letter-spacing: -0.02em;
 }
 
-.web-chart-subtitle {
-  font-size: 11px;
+.chart-subheading {
+  font-size: 11.5px;
   color: #64748b;
   font-weight: 500;
-  margin-top: 1px;
+  margin-top: 2px;
 }
 
-.web-chart-header-actions {
+.chart-controls-cluster {
   display: flex;
   align-items: center;
   gap: 8px;
   flex-shrink: 0;
 }
 
-/* Period Pills */
-.web-chart-period-selector {
+/* Segmented Control Pill Group */
+.chart-segmented-control {
   display: flex;
   background-color: #f1f5f9;
-  padding: 2.5px;
-  border-radius: 7px;
+  padding: 3px;
+  border-radius: 8px;
   gap: 2px;
+  border: 1px solid #e2e8f0;
 }
 
-.period-pill-btn {
+.segmented-chip {
   border: none;
   background: transparent;
-  padding: 3.5px 10px;
-  border-radius: 5px;
+  padding: 5px 12px;
+  border-radius: 6px;
   font-family: var(--font-family);
-  font-size: 11px;
+  font-size: 11.5px;
   font-weight: 600;
   color: #64748b;
   cursor: pointer;
-  transition: all 0.15s ease;
-}
-
-.period-pill-btn:hover {
-  color: #0f172a;
-}
-
-.period-pill-btn.active {
-  background-color: #ffffff;
-  color: #0f172a;
-  font-weight: 700;
-  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.08);
-}
-
-/* View Toggle (Line / Bar) */
-.web-chart-view-toggle {
-  display: flex;
-  background-color: #f1f5f9;
-  padding: 2.5px;
-  border-radius: 7px;
-  gap: 2px;
-}
-
-.chart-view-btn {
-  border: none;
-  background: transparent;
-  width: 26px;
-  height: 26px;
-  border-radius: 5px;
-  display: flex;
+  transition: all 0.16s ease;
+  display: inline-flex;
   align-items: center;
   justify-content: center;
-  color: #64748b;
-  cursor: pointer;
-  transition: all 0.15s ease;
 }
 
-.chart-view-btn:hover {
+.segmented-chip:hover {
   color: #0f172a;
 }
 
-.chart-view-btn.active {
+.segmented-chip.active {
+  background-color: #ffffff;
+  color: #0f172a;
+  font-weight: 800;
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.08);
+}
+
+.segmented-chip.icon-only {
+  width: 28px;
+  height: 28px;
+  padding: 0;
+}
+
+.segmented-chip.icon-only.active {
   background-color: #0f172a;
   color: #ffffff;
 }
 
-/* ── 2. Integrated Sub-Bar: Legend & Quick Summary ── */
-.web-chart-subbar {
+/* ── 2. Executive Stat Strip: Key Numbers & Legend ── */
+.chart-stat-strip {
   display: flex;
   justify-content: space-between;
   align-items: center;
   gap: 12px;
-  padding-bottom: 10px;
+  padding-bottom: 12px;
   margin-bottom: 8px;
   border-bottom: 1px solid #f1f5f9;
   flex-wrap: wrap;
 }
 
-.web-chart-legend {
+.chart-legend-row {
   display: flex;
   align-items: center;
   gap: 12px;
 }
 
-.legend-item {
+.legend-badge {
   display: flex;
   align-items: center;
-  gap: 5px;
+  gap: 6px;
+  padding: 3px 8px;
+  border-radius: var(--radius-full);
+  background-color: #f8fafc;
+  border: 1px solid #e2e8f0;
 }
 
-.legend-dot {
+.legend-indicator-dot {
   width: 7px;
   height: 7px;
   border-radius: 50%;
   flex-shrink: 0;
 }
 
-.legend-dot.income {
-  background-color: #059669;
+.legend-indicator-dot.green {
+  background-color: #10b981;
+  box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.2);
 }
 
-.legend-dot.expense {
+.legend-indicator-dot.red {
   background-color: #f43f5e;
+  box-shadow: 0 0 0 2px rgba(244, 63, 94, 0.2);
 }
 
-.legend-label {
+.legend-title {
   font-size: 11px;
-  font-weight: 600;
+  font-weight: 700;
   color: #475569;
 }
 
-.web-chart-quick-metrics {
+.chart-quick-metrics-row {
   display: flex;
   align-items: center;
   gap: 8px;
-  font-size: 11px;
+  font-size: 11.5px;
   color: #64748b;
 }
 
-.quick-metric-item strong {
+.quick-metric-tile {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.metric-tag {
+  color: #64748b;
+  font-weight: 500;
+}
+
+.metric-figure {
   font-family: var(--font-heading);
-  font-weight: 700;
-  font-feature-settings: 'tnum' on, 'lnum' on;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
 }
 
-.quick-metric-item .text-emerald {
-  color: #059669;
+.metric-figure.text-emerald {
+  color: #15803d;
 }
 
-.quick-metric-item .text-slate {
+.metric-figure.text-coral {
+  color: #dc2626;
+}
+
+.metric-figure.text-dark {
   color: #0f172a;
 }
 
-.margin-tag {
-  color: #64748b;
-  font-size: 10.5px;
-  margin-left: 3px;
+.margin-chip-pill {
+  font-size: 11px;
+  font-weight: 700;
+  color: #16a34a;
+  background-color: #ecfdf5;
+  border: 1px solid #bbf7d0;
+  padding: 1px 6px;
+  border-radius: var(--radius-full);
+  margin-left: 2px;
 }
 
-.quick-metric-divider {
+.quick-metric-dot {
   color: #cbd5e1;
 }
 
-/* ── 3. SVG Canvas & Floating Tooltip ── */
-.web-chart-canvas-wrapper {
-  height: 200px;
+/* ── 3. SVG Canvas & Modern Floating Tooltip ── */
+.chart-canvas-container {
+  height: 220px;
   width: 100%;
   position: relative;
   user-select: none;
 }
 
-.web-chart-svg {
+.chart-svg-element {
   width: 100%;
   height: 100%;
   overflow: visible;
 }
 
-.web-axis-y-label {
-  font-family: var(--font-family);
-  font-size: 10px;
-  font-weight: 600;
-  fill: #94a3b8;
-}
-
-.web-axis-x-label {
+.chart-y-axis-text {
   font-family: var(--font-family);
   font-size: 10.5px;
   font-weight: 600;
-  fill: #64748b;
-  transition: fill 0.15s ease;
+  fill: #94a3b8;
+  font-variant-numeric: tabular-nums;
 }
 
-.web-axis-x-label.active {
+.chart-x-axis-text {
+  font-family: var(--font-family);
+  font-size: 11px;
+  font-weight: 600;
+  fill: #64748b;
+  transition: all 0.15s ease;
+}
+
+.chart-x-axis-text.active {
   fill: #0f172a;
   font-weight: 800;
 }
 
-/* Floating Web Tooltip */
-.web-chart-floating-tooltip {
+/* Floating Card Popover */
+.chart-floating-popover {
   position: absolute;
   transform: translate(-50%, -100%);
   background: #ffffff;
   border: 1px solid #cbd5e1;
   border-radius: var(--radius-md);
-  padding: 8px 12px;
-  box-shadow: 0 10px 25px -5px rgba(15, 23, 42, 0.16), 0 8px 10px -6px rgba(15, 23, 42, 0.08);
+  padding: 10px 14px;
+  box-shadow: 0 14px 34px -4px rgba(15, 23, 42, 0.16), 0 4px 10px -2px rgba(15, 23, 42, 0.06);
   pointer-events: none;
-  z-index: 20;
-  min-width: 175px;
-  margin-top: -10px;
-  animation: tooltipFadeIn 0.12s ease-out;
+  z-index: 30;
+  min-width: 195px;
+  margin-top: -12px;
+  animation: popoverFloatIn 0.14s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-@keyframes tooltipFadeIn {
+@keyframes popoverFloatIn {
   from {
     opacity: 0;
-    transform: translate(-50%, calc(-100% + 4px));
+    transform: translate(-50%, calc(-100% + 6px));
   }
   to {
     opacity: 1;
@@ -273,214 +285,271 @@
   }
 }
 
-.tooltip-caret {
+.popover-arrow {
   position: absolute;
   bottom: -5px;
   left: 50%;
   transform: translateX(-50%) rotate(45deg);
-  width: 8px;
-  height: 8px;
+  width: 9px;
+  height: 9px;
   background: #ffffff;
   border-right: 1px solid #cbd5e1;
   border-bottom: 1px solid #cbd5e1;
 }
 
-.tooltip-header-row {
+.popover-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  gap: 6px;
-  padding-bottom: 5px;
-  border-bottom: 1px solid #f1f5f9;
-  margin-bottom: 5px;
-}
-
-.tooltip-date {
-  font-size: 11px;
-  font-weight: 700;
-  color: #0f172a;
-}
-
-.tooltip-orders-badge {
-  font-size: 9.5px;
-  font-weight: 700;
-  color: #0369a1;
-  background-color: #f0f9ff;
-  border: 1px solid #bae6fd;
-  padding: 1px 5px;
-  border-radius: 99px;
-  white-space: nowrap;
-}
-
-.tooltip-body {
-  display: flex;
-  flex-direction: column;
-  gap: 3.5px;
-}
-
-.tooltip-row {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  font-size: 10.5px;
-  gap: 6px;
-}
-
-.tooltip-dot {
-  width: 5px;
-  height: 5px;
-  border-radius: 50%;
-  flex-shrink: 0;
-  margin-right: 3px;
-}
-
-.tooltip-dot.income { background-color: #059669; }
-.tooltip-dot.expense { background-color: #f43f5e; }
-.tooltip-dot.profit { background-color: #0f172a; }
-
-.tooltip-label {
-  color: #64748b;
-  flex: 1;
-}
-
-.tooltip-val {
-  font-family: var(--font-heading);
-  font-weight: 700;
-  font-feature-settings: 'tnum' on, 'lnum' on;
-}
-
-.tooltip-val.text-emerald { color: #059669; }
-.tooltip-val.text-rose { color: #e11d48; }
-.tooltip-val.text-slate { color: #0f172a; }
-
-.tooltip-row.profit-row {
-  margin-top: 2px;
-  padding-top: 3px;
-  border-top: 1px dashed #e2e8f0;
-}
-
-/* ── Bar Chart Mode ── */
-.web-bars-container {
-  height: 100%;
-  width: 100%;
-  position: relative;
-  display: flex;
-}
-
-.web-bars-y-ticks {
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  left: 0;
-  width: 48px;
-  pointer-events: none;
-}
-
-.web-bar-y-label {
-  position: absolute;
-  right: 6px;
-  font-size: 10px;
-  font-weight: 600;
-  color: #94a3b8;
-  transform: translateY(50%);
-}
-
-.web-bars-columns-row {
-  display: flex;
-  align-items: flex-end;
-  justify-content: space-between;
-  width: 100%;
-  height: 100%;
-  padding-bottom: 24px;
   gap: 8px;
+  padding-bottom: 6px;
+  border-bottom: 1px solid #f1f5f9;
+  margin-bottom: 6px;
 }
 
-.web-bar-column-group {
-  flex: 1;
-  height: 100%;
-  display: flex;
-  flex-direction: column;
-  justify-content: flex-end;
-  align-items: center;
-  cursor: pointer;
-  padding: 0 4px;
-  border-radius: 6px;
-  transition: background-color 0.15s ease;
-}
-
-.web-bar-column-group:hover {
-  background-color: #f8fafc;
-}
-
-.web-bar-pillars {
-  display: flex;
-  align-items: flex-end;
-  justify-content: center;
-  gap: 4px;
-  width: 100%;
-  height: calc(100% - 20px);
-}
-
-.web-bar-pillar {
-  width: 40%;
-  max-width: 20px;
-  border-radius: 3px 3px 0 0;
-  transition: height 0.3s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.15s ease;
-}
-
-.web-bar-pillar.income-bar {
-  background: linear-gradient(180deg, #10b981 0%, #059669 100%);
-}
-
-.web-bar-pillar.expense-bar {
-  background: linear-gradient(180deg, #fb7185 0%, #f43f5e 100%);
-  opacity: 0.85;
-}
-
-.web-bar-column-group:hover .web-bar-pillar {
-  opacity: 1;
-  filter: brightness(1.05);
-}
-
-.web-bar-label {
-  font-size: 10.5px;
-  font-weight: 600;
-  color: #64748b;
-  margin-top: 5px;
-  text-align: center;
-}
-
-.web-bar-label.active {
-  color: #0f172a;
-  font-weight: 800;
-}
-
-/* ── 4. Compact Web Chart Footer ── */
-.web-chart-footer {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 10px;
-  padding-top: 10px;
-  margin-top: 6px;
-  border-top: 1px solid #f1f5f9;
-  flex-wrap: wrap;
-  font-size: 11px;
-  color: #64748b;
-}
-
-.chart-footer-hint {
+.popover-date-wrap {
   display: flex;
   align-items: center;
   gap: 5px;
 }
 
-.hint-icon {
-  color: #f59e0b;
+.popover-date-text {
+  font-size: 11.5px;
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.popover-badge-orders {
+  font-size: 10px;
+  font-weight: 700;
+  color: #0369a1;
+  background-color: #f0f9ff;
+  border: 1px solid #bae6fd;
+  padding: 1px 6px;
+  border-radius: var(--radius-full);
+  white-space: nowrap;
+}
+
+.popover-body {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.popover-data-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 11px;
+  gap: 8px;
+}
+
+.popover-label-group {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  color: #64748b;
+}
+
+.data-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
   flex-shrink: 0;
 }
 
-.chart-footer-peak strong {
+.data-dot.green {
+  background-color: #10b981;
+}
+
+.data-dot.red {
+  background-color: #f43f5e;
+}
+
+.data-dot.obsidian {
+  background-color: #0f172a;
+}
+
+.data-val {
+  font-family: var(--font-heading);
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+}
+
+.popover-divider {
+  height: 1px;
+  background-color: #f1f5f9;
+  margin: 2px 0;
+}
+
+.popover-data-row.highlight {
+  background-color: #f8fafc;
+  padding: 3px 6px;
+  border-radius: 4px;
+  margin-top: 1px;
+}
+
+/* ── 4. Modern Dual-Pillar Comparison Bar Mode ── */
+.chart-bars-layout {
+  position: relative;
+  height: 100%;
+  width: 100%;
+  padding-right: 24px;
+  box-sizing: border-box;
+}
+
+.bars-y-ticks-scale {
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 50px;
+  pointer-events: none;
+}
+
+.bar-y-label-item {
+  position: absolute;
+  right: 8px;
+  font-family: var(--font-family);
+  font-size: 10px;
+  font-weight: 600;
+  color: #94a3b8;
+  transform: translateY(50%);
+  font-variant-numeric: tabular-nums;
+}
+
+.bars-columns-track {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-around;
+  height: calc(100% - 32px);
+  width: 100%;
+  border-bottom: 1.5px solid #e2e8f0;
+  padding-bottom: 2px;
+}
+
+.bar-group-slot {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  height: 100%;
+  justify-content: flex-end;
+  cursor: pointer;
+  padding: 0 4px;
+  flex: 1;
+  max-width: 70px;
+  position: relative;
+  transition: all 0.16s ease;
+}
+
+.bar-group-slot:hover {
+  background: rgba(241, 245, 249, 0.5);
+  border-radius: 6px;
+}
+
+.bar-pillars-wrap {
+  display: flex;
+  align-items: flex-end;
+  gap: 5px;
+  height: 100%;
+  width: 100%;
+  justify-content: center;
+}
+
+.bar-pillar {
+  width: 14px;
+  border-top-left-radius: 5px;
+  border-top-right-radius: 5px;
+  transition: height 0.3s cubic-bezier(0.16, 1, 0.3, 1), transform 0.15s ease, filter 0.15s ease;
+}
+
+.bar-pillar.income-pillar {
+  background: linear-gradient(180deg, #10b981 0%, #059669 100%);
+  box-shadow: 0 2px 5px rgba(16, 185, 129, 0.25);
+}
+
+.bar-pillar.expense-pillar {
+  background: linear-gradient(180deg, #f43f5e 0%, #e11d48 100%);
+  box-shadow: 0 2px 5px rgba(244, 63, 94, 0.2);
+}
+
+.bar-group-slot:hover .bar-pillar {
+  transform: translateY(-2px);
+  filter: brightness(1.08);
+}
+
+.bar-slot-label {
+  position: absolute;
+  bottom: -24px;
+  font-size: 11px;
+  font-weight: 600;
+  color: #64748b;
+  white-space: nowrap;
+}
+
+.bar-group-slot.active .bar-slot-label {
   color: #0f172a;
-  font-weight: 700;
+  font-weight: 800;
+}
+
+/* ── 5. Intelligent Footer: Peak Insight & Daily Average ── */
+.chart-footer-insight-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  margin-top: 14px;
+  padding-top: 10px;
+  border-top: 1px solid #f1f5f9;
+  flex-wrap: wrap;
+  font-size: 11.5px;
+}
+
+.footer-insight-left {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: #475569;
+}
+
+.insight-zap-icon {
+  color: #d97706;
+  flex-shrink: 0;
+}
+
+.footer-insight-left strong {
+  color: #0f172a;
+}
+
+.footer-insight-right {
+  color: #64748b;
+}
+
+.footer-insight-right strong {
+  color: #0f172a;
+}
+
+/* ── Responsive Refinements ── */
+@media (max-width: 680px) {
+  .chart-card-top-bar {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .chart-controls-cluster {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  .chart-stat-strip {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+
+  .chart-footer-insight-bar {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 4px;
+  }
 }

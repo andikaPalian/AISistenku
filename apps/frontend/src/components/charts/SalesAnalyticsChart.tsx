@@ -1,5 +1,15 @@
 import React, { useState, useMemo } from 'react';
-import { BarChart2, TrendingUp, Zap } from 'lucide-react';
+import {
+  TrendingUp,
+  BarChart2,
+  Zap,
+  ArrowUpRight,
+  ArrowDownRight,
+  Calendar,
+  ShoppingBag,
+  Activity,
+  Layers,
+} from 'lucide-react';
 import './SalesAnalyticsChart.css';
 
 export interface ChartDataPoint {
@@ -14,9 +24,11 @@ interface SalesAnalyticsChartProps {
   title?: string;
   subtitle?: string;
   growthPercentage?: string;
+  data7d?: ChartDataPoint[];
+  data30d?: ChartDataPoint[];
 }
 
-const DATA_7_DAYS: ChartDataPoint[] = [
+const DEFAULT_7_DAYS: ChartDataPoint[] = [
   { label: 'Sen', fullDate: 'Senin, 07 Sep', income: 980000, expense: 220000, ordersCount: 26 },
   { label: 'Sel', fullDate: 'Selasa, 08 Sep', income: 1120000, expense: 180000, ordersCount: 29 },
   { label: 'Rab', fullDate: 'Rabu, 09 Sep', income: 1050000, expense: 350000, ordersCount: 28 },
@@ -26,59 +38,75 @@ const DATA_7_DAYS: ChartDataPoint[] = [
   { label: 'Min', fullDate: 'Minggu, 13 Sep (Hari Ini)', income: 1250000, expense: 180000, ordersCount: 32 },
 ];
 
-const DATA_30_DAYS: ChartDataPoint[] = [
-  { label: 'Mgg 1', fullDate: 'Minggu Ke-1 (1-7 Sep)', income: 6800000, expense: 1950000, ordersCount: 184 },
-  { label: 'Mgg 2', fullDate: 'Minggu Ke-2 (8-14 Sep)', income: 7400000, expense: 2100000, ordersCount: 198 },
-  { label: 'Mgg 3', fullDate: 'Minggu Ke-3 (15-21 Sep)', income: 8100000, expense: 2350000, ordersCount: 215 },
-  { label: 'Mgg 4', fullDate: 'Minggu Ke-4 (22-28 Sep)', income: 8980000, expense: 2420000, ordersCount: 236 },
+const DEFAULT_30_DAYS: ChartDataPoint[] = [
+  { label: 'Mgg 1', fullDate: 'Minggu Ke-1 (01 - 07 Sep)', income: 6800000, expense: 1950000, ordersCount: 184 },
+  { label: 'Mgg 2', fullDate: 'Minggu Ke-2 (08 - 14 Sep)', income: 7400000, expense: 2100000, ordersCount: 198 },
+  { label: 'Mgg 3', fullDate: 'Minggu Ke-3 (15 - 21 Sep)', income: 8100000, expense: 2350000, ordersCount: 215 },
+  { label: 'Mgg 4', fullDate: 'Minggu Ke-4 (22 - 28 Sep)', income: 8980000, expense: 2420000, ordersCount: 236 },
 ];
 
 export const SalesAnalyticsChart: React.FC<SalesAnalyticsChartProps> = ({
-  title = 'Tren Penjualan & Arus Kas',
-  subtitle = 'Omzet harian vs pengeluaran kulakan real-time',
+  title = 'Grafik Penjualan & Arus Kas',
+  subtitle = 'Analisis perbandingan omzet penjualan vs pengeluaran operasional toko',
+  data7d = DEFAULT_7_DAYS,
+  data30d = DEFAULT_30_DAYS,
 }) => {
   const [period, setPeriod] = useState<'7d' | '30d'>('7d');
   const [chartMode, setChartMode] = useState<'line' | 'bar'>('line');
   const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
 
-  const activeData = period === '7d' ? DATA_7_DAYS : DATA_30_DAYS;
+  const activeData = period === '7d' ? data7d : data30d;
 
   // Selected or hovered point
   const isHovering = hoveredIndex !== null;
   const activeIndex = isHovering ? hoveredIndex : activeData.length - 1;
   const activePoint = activeData[activeIndex] || activeData[0];
 
-  // Calculations
+  // Financial aggregates
   const totalIncome = useMemo(() => activeData.reduce((acc, d) => acc + d.income, 0), [activeData]);
   const totalExpense = useMemo(() => activeData.reduce((acc, d) => acc + d.expense, 0), [activeData]);
   const netProfit = totalIncome - totalExpense;
   const profitMargin = totalIncome > 0 ? ((netProfit / totalIncome) * 100).toFixed(1) : '0';
+  const totalOrders = useMemo(() => activeData.reduce((acc, d) => acc + (d.ordersCount || 0), 0), [activeData]);
 
   const peakPoint = useMemo(() => {
     return activeData.reduce((max, d) => (d.income > max.income ? d : max), activeData[0]);
   }, [activeData]);
 
-  const maxVal = Math.max(...activeData.map((d) => Math.max(d.income, d.expense)), 1000000);
-  const safeMax = maxVal * 1.18;
+  // Clean rounded Y-Axis scaling calculation (eliminates strange fractions like 720rb or 2.2Jt)
+  const calculateCleanMax = (val: number) => {
+    if (val <= 1000000) return 1000000;
+    if (val <= 1500000) return 1500000;
+    if (val <= 2000000) return 2000000;
+    if (val <= 3000000) return 3000000;
+    if (val <= 5000000) return 5000000;
+    if (val <= 10000000) return 10000000;
+    const mag = Math.pow(10, Math.floor(Math.log10(val)));
+    return Math.ceil((val * 1.05) / mag) * mag;
+  };
 
-  // SVG dimensions for Line Chart (Responsive & Tidy)
-  const svgWidth = 660;
-  const svgHeight = 200;
-  const paddingLeft = 58;
-  const paddingRight = 20;
-  const paddingBottom = 28;
+  const maxRaw = Math.max(...activeData.map((d) => Math.max(d.income, d.expense)), 1000000);
+  const cleanMax = calculateCleanMax(maxRaw);
+
+  // SVG dimensions for high-precision plotting
+  const svgWidth = 720;
+  const svgHeight = 220;
+  const paddingLeft = 60;
+  const paddingRight = 24;
+  const paddingBottom = 32;
   const paddingTop = 22;
   const plotWidth = svgWidth - paddingLeft - paddingRight;
   const plotHeight = svgHeight - paddingBottom - paddingTop;
 
+  // Normalized data coordinates
   const points = activeData.map((d, i) => {
     const x = paddingLeft + (i / (activeData.length - 1)) * plotWidth;
-    const yIncome = paddingTop + plotHeight - (d.income / safeMax) * plotHeight;
-    const yExpense = paddingTop + plotHeight - (d.expense / safeMax) * plotHeight;
+    const yIncome = paddingTop + plotHeight - (d.income / cleanMax) * plotHeight;
+    const yExpense = paddingTop + plotHeight - (d.expense / cleanMax) * plotHeight;
     return { x, yIncome, yExpense, ...d };
   });
 
-  // Smooth SVG bezier
+  // Smooth bezier curve generator
   const generateCurvedPath = (pts: { x: number; y: number }[]) => {
     if (pts.length === 0) return '';
     let d = `M ${pts[0].x} ${pts[0].y}`;
@@ -101,47 +129,57 @@ export const SalesAnalyticsChart: React.FC<SalesAnalyticsChartProps> = ({
         } Z`
       : '';
 
-  // Y-axis formatting helper
+  const expenseAreaPath =
+    points.length > 0
+      ? `${expenseLinePath} L ${points[points.length - 1].x} ${svgHeight - paddingBottom} L ${points[0].x} ${
+          svgHeight - paddingBottom
+        } Z`
+      : '';
+
+  // Clean Y-axis ticks formatting
   const formatYAxis = (val: number) => {
-    if (val >= 1000000) return `${(val / 1000000).toFixed(1)}Jt`;
-    if (val >= 1000) return `${(val / 1000).toFixed(0)}Rb`;
+    if (val >= 1000000) {
+      const millions = val / 1000000;
+      return `${Number.isInteger(millions) ? millions : millions.toFixed(1)} Jt`;
+    }
+    if (val >= 1000) return `${Math.round(val / 1000)} rb`;
     return '0';
   };
 
-  const yTicks = [0, 0.33, 0.66, 1].map((ratio) => {
-    const value = safeMax * ratio;
+  const yTicks = [0, 0.25, 0.5, 0.75, 1].map((ratio) => {
+    const value = cleanMax * ratio;
     const yPos = paddingTop + plotHeight - ratio * plotHeight;
     return { value, yPos };
   });
 
   const activeNode = points[activeIndex];
   const tooltipXPercent = activeNode ? (activeNode.x / svgWidth) * 100 : 50;
-  const tooltipYPos = activeNode ? Math.max(12, Math.min(activeNode.yIncome, activeNode.yExpense) - 10) : 16;
+  const tooltipYPos = activeNode ? Math.max(16, Math.min(activeNode.yIncome, activeNode.yExpense) - 12) : 20;
 
   return (
-    <div className="card-base web-chart-container">
-      {/* ── 1. Clean Header Row: Title & Action Controls ── */}
-      <div className="web-chart-header">
-        <div className="web-chart-title-wrap">
-          <div className="web-chart-icon-box">
-            <TrendingUp size={16} />
+    <div className="card-base modern-sales-chart-card">
+      {/* ── 1. Header: Title, Live Status & Segmented Controls ── */}
+      <div className="chart-card-top-bar">
+        <div className="chart-title-block">
+          <div className="chart-icon-box">
+            <Activity size={18} />
           </div>
           <div>
-            <h3 className="web-chart-title">{title}</h3>
-            <p className="web-chart-subtitle">{subtitle}</p>
+            <h3 className="chart-heading">{title}</h3>
+            <p className="chart-subheading">{subtitle}</p>
           </div>
         </div>
 
-        <div className="web-chart-header-actions">
-          {/* Period Selector */}
-          <div className="web-chart-period-selector">
+        <div className="chart-controls-cluster">
+          {/* Period Selector (7 Hari / 30 Hari) */}
+          <div className="chart-segmented-control">
             <button
               type="button"
               onClick={() => {
                 setPeriod('7d');
                 setHoveredIndex(null);
               }}
-              className={`period-pill-btn ${period === '7d' ? 'active' : ''}`}
+              className={`segmented-chip ${period === '7d' ? 'active' : ''}`}
             >
               7 Hari
             </button>
@@ -151,121 +189,149 @@ export const SalesAnalyticsChart: React.FC<SalesAnalyticsChartProps> = ({
                 setPeriod('30d');
                 setHoveredIndex(null);
               }}
-              className={`period-pill-btn ${period === '30d' ? 'active' : ''}`}
+              className={`segmented-chip ${period === '30d' ? 'active' : ''}`}
             >
               30 Hari
             </button>
           </div>
 
-          {/* Chart View Toggle */}
-          <div className="web-chart-view-toggle">
+          {/* View Toggle (Line Area vs Dual Bar) */}
+          <div className="chart-segmented-control view-mode">
             <button
               type="button"
               onClick={() => setChartMode('line')}
-              className={`chart-view-btn ${chartMode === 'line' ? 'active' : ''}`}
-              title="Grafik Garis"
+              className={`segmented-chip icon-only ${chartMode === 'line' ? 'active' : ''}`}
+              title="Tampilan Grafik Garis & Area"
             >
-              <TrendingUp size={13} />
+              <TrendingUp size={14} />
             </button>
             <button
               type="button"
               onClick={() => setChartMode('bar')}
-              className={`chart-view-btn ${chartMode === 'bar' ? 'active' : ''}`}
-              title="Grafik Batang"
+              className={`segmented-chip icon-only ${chartMode === 'bar' ? 'active' : ''}`}
+              title="Tampilan Grafik Batang Perbandingan"
             >
-              <BarChart2 size={13} />
+              <BarChart2 size={14} />
             </button>
           </div>
         </div>
       </div>
 
-      {/* ── 2. Integrated Sub-Bar: Legend & Quick Summary ── */}
-      <div className="web-chart-subbar">
-        <div className="web-chart-legend">
-          <div className="legend-item">
-            <span className="legend-dot income"></span>
-            <span className="legend-label">Omzet Penjualan</span>
+      {/* ── 2. Executive Stat Strip: Key Numbers & Legend ── */}
+      <div className="chart-stat-strip">
+        <div className="chart-legend-row">
+          <div className="legend-badge income">
+            <span className="legend-indicator-dot green"></span>
+            <span className="legend-title">Omzet Kasir</span>
           </div>
-          <div className="legend-item">
-            <span className="legend-dot expense"></span>
-            <span className="legend-label">Beban Kulakan</span>
+          <div className="legend-badge expense">
+            <span className="legend-indicator-dot red"></span>
+            <span className="legend-title">Beban Kulakan</span>
           </div>
         </div>
 
-        <div className="web-chart-quick-metrics">
-          <span className="quick-metric-item">
-            Total: <strong className="text-emerald">Rp {totalIncome.toLocaleString('id-ID')}</strong>
-          </span>
-          <span className="quick-metric-divider">•</span>
-          <span className="quick-metric-item">
-            Laba: <strong className="text-slate">Rp {netProfit.toLocaleString('id-ID')}</strong>
-            <span className="margin-tag">({profitMargin}%)</span>
-          </span>
+        <div className="chart-quick-metrics-row">
+          <div className="quick-metric-tile">
+            <span className="metric-tag">Total Omzet:</span>
+            <span className="metric-figure text-emerald">Rp {totalIncome.toLocaleString('id-ID')}</span>
+          </div>
+          <span className="quick-metric-dot">•</span>
+          <div className="quick-metric-tile">
+            <span className="metric-tag">Total Beban:</span>
+            <span className="metric-figure text-coral">Rp {totalExpense.toLocaleString('id-ID')}</span>
+          </div>
+          <span className="quick-metric-dot">•</span>
+          <div className="quick-metric-tile">
+            <span className="metric-tag">Laba Bersih:</span>
+            <span className="metric-figure text-dark">Rp {netProfit.toLocaleString('id-ID')}</span>
+            <span className="margin-chip-pill">({profitMargin}% Margin)</span>
+          </div>
         </div>
       </div>
 
-      {/* ── 3. Chart SVG Canvas & Web Floating Tooltip ── */}
+      {/* ── 3. High-Craft SVG Canvas & Floating Card Tooltip ── */}
       <div
-        className="web-chart-canvas-wrapper"
+        className="chart-canvas-container"
         onMouseLeave={() => setHoveredIndex(null)}
       >
-        {/* Floating Web Hover Tooltip */}
+        {/* Modern Floating Hover Tooltip */}
         {isHovering && activeNode && (
           <div
-            className="web-chart-floating-tooltip"
+            className="chart-floating-popover"
             style={{
               left: `${tooltipXPercent}%`,
               top: `${tooltipYPos}px`,
             }}
           >
-            <div className="tooltip-header-row">
-              <span className="tooltip-date">{activePoint.fullDate || activePoint.label}</span>
+            <div className="popover-header">
+              <div className="popover-date-wrap">
+                <Calendar size={12} className="text-muted" />
+                <span className="popover-date-text">{activePoint.fullDate || activePoint.label}</span>
+              </div>
               {activePoint.ordersCount && (
-                <span className="tooltip-orders-badge">{activePoint.ordersCount} Pesanan</span>
+                <span className="popover-badge-orders">{activePoint.ordersCount} Pesanan</span>
               )}
             </div>
-            <div className="tooltip-body">
-              <div className="tooltip-row">
-                <span className="tooltip-dot income"></span>
-                <span className="tooltip-label">Omzet:</span>
-                <strong className="tooltip-val text-emerald">
+
+            <div className="popover-body">
+              <div className="popover-data-row">
+                <div className="popover-label-group">
+                  <span className="data-dot green"></span>
+                  <span>Omzet:</span>
+                </div>
+                <strong className="data-val text-emerald">
                   Rp {activePoint.income.toLocaleString('id-ID')}
                 </strong>
               </div>
-              <div className="tooltip-row">
-                <span className="tooltip-dot expense"></span>
-                <span className="tooltip-label">Beban:</span>
-                <strong className="tooltip-val text-rose">
+
+              <div className="popover-data-row">
+                <div className="popover-label-group">
+                  <span className="data-dot red"></span>
+                  <span>Beban Kulakan:</span>
+                </div>
+                <strong className="data-val text-coral">
                   Rp {activePoint.expense.toLocaleString('id-ID')}
                 </strong>
               </div>
-              <div className="tooltip-row profit-row">
-                <span className="tooltip-dot profit"></span>
-                <span className="tooltip-label">Laba Bersih:</span>
-                <strong className="tooltip-val text-slate">
+
+              <div className="popover-divider"></div>
+
+              <div className="popover-data-row highlight">
+                <div className="popover-label-group">
+                  <span className="data-dot obsidian"></span>
+                  <span>Laba Bersih:</span>
+                </div>
+                <strong className="data-val text-dark">
                   Rp {(activePoint.income - activePoint.expense).toLocaleString('id-ID')}
                 </strong>
               </div>
             </div>
-            <div className="tooltip-caret"></div>
+            <div className="popover-arrow"></div>
           </div>
         )}
 
         {chartMode === 'line' ? (
           <svg
             viewBox={`0 0 ${svgWidth} ${svgHeight}`}
-            className="web-chart-svg"
+            className="chart-svg-element"
             preserveAspectRatio="none"
           >
             <defs>
-              <linearGradient id="emeraldWebGradient" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%" stopColor="#10b981" stopOpacity="0.2" />
-                <stop offset="90%" stopColor="#059669" stopOpacity="0.02" />
-                <stop offset="100%" stopColor="#059669" stopOpacity="0.0" />
+              {/* Luxury Emerald Gradient */}
+              <linearGradient id="modernEmeraldGradient" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stopColor="#10b981" stopOpacity="0.25" />
+                <stop offset="60%" stopColor="#10b981" stopOpacity="0.05" />
+                <stop offset="100%" stopColor="#ffffff" stopOpacity="0.0" />
+              </linearGradient>
+
+              {/* Subtle Rose Gradient */}
+              <linearGradient id="modernRoseGradient" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stopColor="#f43f5e" stopOpacity="0.08" />
+                <stop offset="100%" stopColor="#ffffff" stopOpacity="0.0" />
               </linearGradient>
             </defs>
 
-            {/* Horizontal Gridlines & Y-Axis Labels */}
+            {/* Horizontal Precision Gridlines & Y-Axis Numbers */}
             {yTicks.map((tick, idx) => (
               <g key={idx}>
                 <line
@@ -273,71 +339,73 @@ export const SalesAnalyticsChart: React.FC<SalesAnalyticsChartProps> = ({
                   y1={tick.yPos}
                   x2={svgWidth - paddingRight}
                   y2={tick.yPos}
-                  stroke="#e2e8f0"
-                  strokeDasharray={idx === 0 ? '0' : '4 4'}
-                  strokeWidth="1"
+                  stroke="#f1f5f9"
+                  strokeWidth={idx === 0 ? '1.5' : '1'}
                 />
                 <text
-                  x={paddingLeft - 8}
+                  x={paddingLeft - 10}
                   y={tick.yPos + 4}
                   textAnchor="end"
-                  className="web-axis-y-label"
+                  className="chart-y-axis-text"
                 >
                   {formatYAxis(tick.value)}
                 </text>
               </g>
             ))}
 
-            {/* Income Area Fill */}
-            <path d={incomeAreaPath} fill="url(#emeraldWebGradient)" />
+            {/* Expense Subtle Area Underlay */}
+            <path d={expenseAreaPath} fill="url(#modernRoseGradient)" />
 
-            {/* Expense Subtle Dashed Path */}
+            {/* Income Rich Emerald Gradient Area */}
+            <path d={incomeAreaPath} fill="url(#modernEmeraldGradient)" />
+
+            {/* Expense Smooth Solid Curve (No ugly caterpillar dashes!) */}
             <path
               d={expenseLinePath}
               fill="none"
               stroke="#f43f5e"
-              strokeWidth="1.8"
-              strokeDasharray="4 4"
+              strokeWidth="2"
               strokeLinecap="round"
+              strokeLinejoin="round"
               opacity="0.85"
             />
 
-            {/* Income Main Curved Line */}
+            {/* Income Primary Vibrant Stroke */}
             <path
               d={incomeLinePath}
               fill="none"
-              stroke="#059669"
-              strokeWidth="2.5"
+              stroke="#10b981"
+              strokeWidth="3"
               strokeLinecap="round"
               strokeLinejoin="round"
             />
 
-            {/* Vertical Guideline on Hover */}
+            {/* Vertical Hairline Scanner on Hover */}
             {isHovering && activeNode && (
               <line
                 x1={activeNode.x}
                 y1={paddingTop}
                 x2={activeNode.x}
                 y2={svgHeight - paddingBottom}
-                stroke="#94a3b8"
-                strokeWidth="1"
+                stroke="#cbd5e1"
+                strokeWidth="1.2"
                 strokeDasharray="3 3"
-                opacity="0.8"
               />
             )}
 
-            {/* Interactive Data Points */}
+            {/* Interactive Data Nodes */}
             {points.map((p, idx) => {
               const isSelected = activeIndex === idx && isHovering;
+
               return (
                 <g
                   key={idx}
-                  className="web-chart-node"
+                  className="chart-interactive-node"
                   onMouseEnter={() => setHoveredIndex(idx)}
                   onClick={() => setHoveredIndex(idx)}
                   style={{ cursor: 'pointer' }}
                 >
-                  {/* Broad touch/hover target */}
+                  {/* Broad transparent touch hit target */}
                   <rect
                     x={p.x - plotWidth / (points.length * 2)}
                     y={0}
@@ -350,37 +418,39 @@ export const SalesAnalyticsChart: React.FC<SalesAnalyticsChartProps> = ({
                   <circle
                     cx={p.x}
                     cy={p.yExpense}
-                    r={isSelected ? 3.5 : 2}
+                    r={isSelected ? 4 : 2.5}
                     fill="#f43f5e"
+                    stroke="#ffffff"
+                    strokeWidth="1.5"
                   />
 
-                  {/* Income Outer Ring on Hover */}
+                  {/* Income Outer Halo on Select */}
                   {isSelected && (
                     <circle
                       cx={p.x}
                       cy={p.yIncome}
-                      r="9"
+                      r="10"
                       fill="#10b981"
-                      opacity="0.25"
+                      opacity="0.22"
                     />
                   )}
 
-                  {/* Income Main Dot */}
+                  {/* Income Main Point */}
                   <circle
                     cx={p.x}
                     cy={p.yIncome}
                     r={isSelected ? 5.5 : 3.5}
                     fill={isSelected ? '#059669' : '#ffffff'}
-                    stroke="#059669"
+                    stroke="#10b981"
                     strokeWidth={isSelected ? 2.5 : 2}
                   />
 
-                  {/* X-Axis Date Label */}
+                  {/* X-Axis Day Text */}
                   <text
                     x={p.x}
-                    y={svgHeight - 8}
+                    y={svgHeight - 10}
                     textAnchor="middle"
-                    className={`web-axis-x-label ${isSelected ? 'active' : ''}`}
+                    className={`chart-x-axis-text ${isSelected ? 'active' : ''}`}
                   >
                     {p.label}
                   </text>
@@ -389,50 +459,50 @@ export const SalesAnalyticsChart: React.FC<SalesAnalyticsChartProps> = ({
             })}
           </svg>
         ) : (
-          /* ── Modern Bar Comparison Mode ── */
-          <div className="web-bars-container" style={{ paddingLeft: `${paddingLeft}px` }}>
-            <div className="web-bars-y-ticks">
+          /* ── Modern Dual-Pillar Comparison Bar Mode ── */
+          <div className="chart-bars-layout" style={{ paddingLeft: `${paddingLeft}px` }}>
+            <div className="bars-y-ticks-scale">
               {yTicks.map((tick, idx) => (
                 <span
                   key={idx}
-                  className="web-bar-y-label"
-                  style={{ bottom: `${(tick.value / safeMax) * 100 * 0.72 + 20}%` }}
+                  className="bar-y-label-item"
+                  style={{ bottom: `${(tick.value / cleanMax) * 100 * 0.72 + 22}%` }}
                 >
                   {formatYAxis(tick.value)}
                 </span>
               ))}
             </div>
 
-            <div className="web-bars-columns-row">
+            <div className="bars-columns-track">
               {activeData.map((item, idx) => {
                 const isSelected = activeIndex === idx && isHovering;
-                const incomePct = (item.income / safeMax) * 100;
-                const expensePct = (item.expense / safeMax) * 100;
+                const incomePct = (item.income / cleanMax) * 100;
+                const expensePct = (item.expense / cleanMax) * 100;
 
                 return (
                   <div
                     key={idx}
-                    className={`web-bar-column-group ${isSelected ? 'active' : ''}`}
+                    className={`bar-group-slot ${isSelected ? 'active' : ''}`}
                     onMouseEnter={() => setHoveredIndex(idx)}
                     onClick={() => setHoveredIndex(idx)}
                   >
-                    <div className="web-bar-pillars">
+                    <div className="bar-pillars-wrap">
                       {/* Income Bar */}
                       <div
-                        className="web-bar-pillar income-bar"
-                        style={{ height: `${Math.max(incomePct, 6)}%` }}
+                        className="bar-pillar income-pillar"
+                        style={{ height: `${Math.max(incomePct, 8)}%` }}
                         title={`Omzet: Rp ${item.income.toLocaleString('id-ID')}`}
                       ></div>
 
                       {/* Expense Bar */}
                       <div
-                        className="web-bar-pillar expense-bar"
-                        style={{ height: `${Math.max(expensePct, 4)}%` }}
+                        className="bar-pillar expense-pillar"
+                        style={{ height: `${Math.max(expensePct, 5)}%` }}
                         title={`Beban: Rp ${item.expense.toLocaleString('id-ID')}`}
                       ></div>
                     </div>
 
-                    <span className={`web-bar-label ${isSelected ? 'active' : ''}`}>
+                    <span className={`bar-slot-label ${isSelected ? 'active' : ''}`}>
                       {item.label}
                     </span>
                   </div>
@@ -443,14 +513,23 @@ export const SalesAnalyticsChart: React.FC<SalesAnalyticsChartProps> = ({
         )}
       </div>
 
-      {/* ── 4. Compact Web Chart Footer ── */}
-      <div className="web-chart-footer">
-        <div className="chart-footer-hint">
-          <Zap size={12} className="hint-icon" />
-          <span>Arahkan kursor ke titik grafik untuk detail harian</span>
+      {/* ── 4. Intelligent Footer: Peak Day Insight & Daily Average ── */}
+      <div className="chart-footer-insight-bar">
+        <div className="footer-insight-left">
+          <Zap size={14} className="insight-zap-icon" />
+          <span>
+            Puncak Omzet:{' '}
+            <strong>
+              {peakPoint.fullDate || peakPoint.label} (Rp {peakPoint.income.toLocaleString('id-ID')})
+            </strong>{' '}
+            • Tercatat {peakPoint.ordersCount || 0} pesanan kasir
+          </span>
         </div>
-        <div className="chart-footer-peak">
-          Puncak: <strong>{peakPoint.label} (Rp {(peakPoint.income / 1000000).toFixed(2)} Jt)</strong>
+
+        <div className="footer-insight-right">
+          <span>
+            Rata-rata Harian: <strong>Rp {Math.round(totalIncome / activeData.length).toLocaleString('id-ID')}</strong>
+          </span>
         </div>
       </div>
     </div>
